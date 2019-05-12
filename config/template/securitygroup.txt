@@ -1,0 +1,15 @@
+{
+  "groupname":"brandgoods-uat-application-sg",
+  "description":"brandgoods-uat-application-sg",
+  "vpcid":"{self.vpcid}",
+  "tags":[
+    {
+      "Key":"Name",
+      "Value":"brandgoods-uat-application-sg"
+    },
+    {
+      "Key":"System",
+      "Value":"Brandgoods"
+    }
+  ]
+}

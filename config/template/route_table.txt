@@ -1,0 +1,13 @@
+{
+  "VpcId":"{self.vpcid}",
+  "Tags":[
+    {
+      "Key":"Name",
+      "Value":"brandgoods-uat"
+    },
+    {
+      "Key":"System",
+      "Value":"Brandgoods"
+    }
+  ]
+}

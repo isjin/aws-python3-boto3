@@ -1,0 +1,12 @@
+{
+  "tags":[
+    {
+      "Key":"Name",
+      "Value":"brandgoods_igw"
+    },
+    {
+      "Key":"System",
+      "Value":"Brandgoods"
+    }
+  ]
+}

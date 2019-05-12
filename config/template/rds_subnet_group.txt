@@ -1,0 +1,5 @@
+{
+  "DBSubnetGroupName":"brandgoods-uat-rds-mysql-subnet-group",
+  "DBSubnetGroupDescription":"brandgoods-uat-rds-mysql-subnet-group",
+  "SubnetIds":["self.subnet1","self.subnet2"]
+}

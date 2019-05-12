@@ -1,0 +1,9 @@
+{
+  "FunctionName":"Brandgoods_snapshot_create",
+  "Runtime":"python3.6",
+  "Role":"arn:aws-cn:iam::168677335524:role\/service-role\/ec2_snapshot-role-ed4u0in8",
+  "Handler":"lambda_function_snapshot_Brandgoods.lambda_handler",
+  "ZipFile":{
+    "ZipFile":"zipped_code"
+  }
+}

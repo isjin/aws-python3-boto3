@@ -1,0 +1,22 @@
+{
+  "securitygroupid":"{{sgid}}",
+  "policy":[
+    {
+      "FromPort":22,
+      "IpProtocol":"tcp",
+      "IpRanges":[
+        {
+          "CidrIp":"0.0.0.0\/0",
+          "Description":"test"
+        }
+      ],
+      "ToPort":22,
+      "UserIdGroupPairs":[
+        {
+          "Description":"string",
+          "GroupId":"{{sgid}}"
+        }
+      ]
+    }
+  ]
+}

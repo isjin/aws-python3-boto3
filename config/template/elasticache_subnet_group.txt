@@ -1,0 +1,7 @@
+{
+  "CacheSubnetGroupName":"brandgoods-prod-subnet-group",
+  "CacheSubnetGroupDescription":"brandgoods-prod-subnet-group",
+  "SubnetIds":[
+    "{{self.subnetid_prod_b}}"
+  ]
+}

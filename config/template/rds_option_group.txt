@@ -1,0 +1,6 @@
+{
+  "OptionGroupName":"brandgoods-prod-rds-mysql-option-group",
+  "EngineName":"mysql",
+  "MajorEngineVersion":"5.6",
+  "OptionGroupDescription":"brandgoods-prod-rds-mysql-option-group"
+}

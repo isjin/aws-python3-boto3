@@ -1,0 +1,21 @@
+{
+  "DBInstanceIdentifier":"brandgoods-prod-rds-mysql",
+  "AllocatedStorage":200,
+  "DBInstanceClass":"db.m4.large",
+  "Engine":"mysql",
+  "EngineVersion":"5.6.43",
+  "MasterUsername":"brandgoodssys",
+  "MasterUserPassword":"4JxLWwk^",
+  "DBSubnetGroupName":"",
+  "DBParameterGroupName":"{{self.db_parameter_group_name}}",
+  "OptionGroupName":"{{self.option_group_name}}",
+  "VpcSecurityGroupIds":["{{self.sg_prod_db_id}}",],
+  "AvailabilityZone":"cn-north-1b",
+  "StorageType":"gp2",
+  "Tags":[
+    {
+      "Key":"System",
+      "Value":"Brandgoods"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "DBParameterGroupName":"brandgoods-prod-rds-mysql-parameter-group",
+  "DBParameterGroupFamily":"mysql5.6",
+  "Description":"brandgoods-prod-rds-mysql-parameter-group"
+}

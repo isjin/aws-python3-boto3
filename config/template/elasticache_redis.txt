@@ -1,0 +1,17 @@
+{
+  "CacheClusterId":"brandgoods-prod-cg",
+  "AZMode":"single-az",
+  "PreferredAvailabilityZones":[
+    "cn-north-1b"
+  ],
+  "NumCacheNodes":1,
+  "CacheNodeType":"cache.r4.large",
+  "Engine":"redis",
+  "EngineVersion":"5.0.3",
+  "CacheParameterGroupName":"",
+  "CacheSubnetGroupName":"{{subnetgroup}}",
+  "SecurityGroupIds":[
+    "{{sg-aaaa}}"
+  ],
+  "Port":6379
+}
