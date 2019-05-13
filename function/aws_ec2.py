@@ -195,7 +195,7 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_route_add_internet_gw(self, route_table_id, route_table_info):
+    def ec2_route_add_egress_only_internet_gw(self, route_table_id, route_table_info):
         # route_table_info={
         #     'DestinationCidrBlock':'0.0.0.0/0',
         #     'EgressOnlyInternetGatewayId':'igw',

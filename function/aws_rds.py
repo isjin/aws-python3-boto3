@@ -23,6 +23,7 @@ class AWSRDS(object):
             # ]
         )
         print(response)
+        return response['DBSubnetGroup']['DBSubnetGroupName']
 
 
     def rds_parameter_group_create(self,rds_parameter_group):
