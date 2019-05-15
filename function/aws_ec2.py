@@ -489,9 +489,10 @@ class AWSEC2(object):
         )
         return response['SecurityGroups']
 
-    def ec2_security_group_outbound_policies_add(self, sgid, outbound):
-        # outbound=[{
-        #     [
+    def ec2_security_group_outbound_policies_add(self, outbound):
+        # inbound_info = {
+        #     'securitygroupid': '{sgid}',
+        #     'policy': [
         #         {
         #             'FromPort': 22,
         #             'IpProtocol': 'tcp',
@@ -509,33 +510,38 @@ class AWSEC2(object):
         #                 },
         #             ]
         #         },
-        #     ]
-        # }]
-        security_group = self.ec2_resource.SecurityGroup(sgid)
+        #     ],
+        # }
+        security_group = self.ec2_resource.SecurityGroup(outbound['securitygroupid'])
         response = security_group.authorize_egress(
             IpPermissions=outbound,
         )
         print(response)
 
-    def ec2_security_group_outbound_policies_revoke(self, sgid, outbound):
-        # inbound=[
+    def ec2_security_group_outbound_policies_revoke(self, outbound):
+        # inbound_info = {
+        #     'securitygroupid': '{sgid}',
+        #     'policy': [
         #         {
         #             'FromPort': 22,
         #             'IpProtocol': 'tcp',
         #             'IpRanges': [
         #                 {
         #                     'CidrIp': '0.0.0.0/0',
+        #                     'Description': 'test'
         #                 },
         #             ],
         #             'ToPort': 22,
         #             'UserIdGroupPairs': [
         #                 {
+        #                     'Description': 'string',
         #                     'GroupId': 'sg-063cd53fe5cdd4527',
         #                 },
         #             ]
         #         },
         #     ],
-        security_group = self.ec2_resource.SecurityGroup(sgid)
+        # }
+        security_group = self.ec2_resource.SecurityGroup(outbound['securitygroupid'])
         response = security_group.revoke_ingress(
             IpPermissions=outbound,
         )
@@ -570,25 +576,30 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_security_group_inbound_policies_revoke(self, sgid, inbound):
-        # inbound=[
+    def ec2_security_group_inbound_policies_revoke(self, inbound):
+        # inbound_info = {
+        #     'securitygroupid': '{sgid}',
+        #     'policy': [
         #         {
         #             'FromPort': 22,
         #             'IpProtocol': 'tcp',
         #             'IpRanges': [
         #                 {
         #                     'CidrIp': '0.0.0.0/0',
+        #                     'Description': 'test'
         #                 },
         #             ],
         #             'ToPort': 22,
         #             'UserIdGroupPairs': [
         #                 {
+        #                     'Description': 'string',
         #                     'GroupId': 'sg-063cd53fe5cdd4527',
         #                 },
         #             ]
         #         },
         #     ],
-        security_group = self.ec2_resource.SecurityGroup(sgid)
+        # }
+        security_group = self.ec2_resource.SecurityGroup(inbound['securitygroupid'])
         response = security_group.revoke_ingress(
             IpPermissions=inbound,
         )
