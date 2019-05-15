@@ -514,7 +514,7 @@ class AWSEC2(object):
         # }
         security_group = self.ec2_resource.SecurityGroup(outbound['securitygroupid'])
         response = security_group.authorize_egress(
-            IpPermissions=outbound,
+            IpPermissions=outbound['policy'],
         )
         print(response)
 
@@ -543,7 +543,7 @@ class AWSEC2(object):
         # }
         security_group = self.ec2_resource.SecurityGroup(outbound['securitygroupid'])
         response = security_group.revoke_ingress(
-            IpPermissions=outbound,
+            IpPermissions=outbound['policy'],
         )
         print(response)
 
@@ -601,7 +601,7 @@ class AWSEC2(object):
         # }
         security_group = self.ec2_resource.SecurityGroup(inbound['securitygroupid'])
         response = security_group.revoke_ingress(
-            IpPermissions=inbound,
+            IpPermissions=inbound['policy'],
         )
         print(response)
 
