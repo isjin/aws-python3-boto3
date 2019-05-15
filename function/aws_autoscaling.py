@@ -26,6 +26,34 @@ class AWSAutoScaling(object):
         )
         print(response)
 
+    def autoscaling_auto_scaling_instances_describe(self):
+        response = self.autoscaling_client.describe_auto_scaling_instances(
+            # InstanceIds=[
+            #     'string',
+            # ],
+            # MaxRecords=123,
+            # NextToken='string'
+        )
+        instancesids=[]
+        for instance in response['AutoScalingInstances']:
+            instancesids.append(instance['InstanceId'])
+        return instancesids
+
+    def autoscaling_auto_scaling_tags_describe(self):
+        response = self.autoscaling_client.describe_tags(
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            # NextToken='string',
+            # MaxRecords=123
+        )
+        print(response)
+
 if __name__ == '__main__':
     app=AWSAutoScaling()
     app.autoscaling_auto_scaling_groups_describe()

@@ -640,12 +640,12 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_volume_modify(self, volume_id):
-        volume_info = {
-            'VolumeId': 'aa',
-            'Size': 500,
-            'VolumeType': 'gp2',
-        }
+    def ec2_volume_modify(self, volume_info):
+        # volume_info = {
+        #     'VolumeId': 'aa',
+        #     'Size': 500,
+        #     'VolumeType': 'gp2',
+        # }
         response = self.ec2_client.modify_volume(
             # DryRun=True | False,
             VolumeId=volume_info['VolumeId'],
