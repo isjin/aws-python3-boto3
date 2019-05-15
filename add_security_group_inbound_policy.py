@@ -4,61 +4,23 @@ app = AWSEC2()
 
 # data = app.ec2_security_group_describe('sg-0a97d9150f2dfb4a8')
 # print(data)
-sg_application_id = 'sg-0a97d9150f2dfb4a8'
+sg_application_id = 'sg-08ce92b068895a67b'
 sg_application_inbound = {
-    'securitygroupid': '{sgid}',
-    'policy': [
+  "securitygroupid":sg_application_id,
+  "policy":[
+    {
+      "IpProtocol":"-1",
+      "IpRanges":[
         {
-            'FromPort': 22,
-            'IpProtocol': 'tcp',
-            # 'IpRanges': [
-            #     {
-            #         'CidrIp': '120.31.137.144/29',
-            #         'Description': 'New Bund guest wifi'
-            #     },
-            # ],
-            'ToPort': 22,
-            'UserIdGroupPairs': [
-                {
-                    'Description': 'python',
-                    'GroupId': sg_application_id,
-                },
-            ]
+          "CidrIp":"120.31.137.144/29",
+          "Description":"New Bund guest wifi"
         },
         {
-            'FromPort': 3389,
-            'IpProtocol': 'tcp',
-            # 'IpRanges': [
-            #     {
-            #         'CidrIp': '10.1.1.0/29',
-            #         'Description': 'New Bund guest wifi'
-            #     },
-            # ],
-            'ToPort': 3389,
-            'UserIdGroupPairs': [
-                {
-                    'Description': 'python',
-                    'GroupId': sg_application_id,
-                },
-            ]
-        },
-        {
-            'FromPort': 80,
-            'IpProtocol': 'tcp',
-            # 'IpRanges': [
-            #     {
-            #         'CidrIp': '10.1.1.0/29',
-            #         'Description': 'New Bund guest wifi'
-            #     },
-            # ],
-            'ToPort': 80,
-            'UserIdGroupPairs': [
-                {
-                    'Description': 'python',
-                    'GroupId': sg_application_id,
-                },
-            ]
-        },
-    ]
+          "CidrIp":"192.168.1.0/24",
+          "Description":"New Bund guest wifi"
+        }
+      ]
+    }
+  ]
 }
 app.ec2_security_group_inbound_policies_add(sg_application_inbound)
