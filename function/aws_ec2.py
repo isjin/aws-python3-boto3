@@ -475,6 +475,19 @@ class AWSEC2(object):
         )
         print(response)
 
+    def ec2_security_group_modify(self, info):
+        # info = {
+        #     'Groups': [
+        #         'string',
+        #     ],
+        #     'InstanceId':''
+        # }
+        response = self.ec2_client.modify_instance_attribute(
+            Groups=info['Groups'],
+            InstanceId=info['InstanceId']
+        )
+        print(response)
+
     def ec2_security_group_describe(self, sgid):
         response = self.ec2_client.describe_security_groups(
             GroupIds=[

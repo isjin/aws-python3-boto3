@@ -7,18 +7,19 @@ class SecurityGroup(object):
         self.sg_id = None
 
     def create_sg(self):
+        groupname='amp-waf-bastion-sg'
         sg_info = {
-            'groupname': 'hrm-waf-bastion-sg',
-            'description': 'hrm-waf-bastion-sg',
-            'vpcid': 'vpc-03f41ad765358c055',
+            'groupname': groupname,
+            'description': groupname,
+            'vpcid': 'vpc-07c4e7ecc9ef08e1e',
             'tags': [
                 {
                     'Key': 'Name',
-                    'Value': 'hrm-waf-bastion-sg'
+                    'Value': groupname
                 },
                 {
                     'Key': 'System',
-                    'Value': 'HRM'
+                    'Value': 'BPM'
                 },
             ]
         }
