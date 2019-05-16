@@ -3,12 +3,8 @@ from function.aws_elb import AWSELB
 tags = [
     {
         'Key': 'System',
-        'Value': 'BPM'
-    },
-    {
-        'Key': 'System type',
-        'Value': 'PROD'
-    },
+        'Value': 'WAF'
+    }
 ]
 
 
@@ -17,22 +13,20 @@ class ALB(object):
         self.client = AWSELB()
         self.alb_arn = None
         self.target_group_arn = None
+        self.listener_arn = None
+        self.certificate_arn = None
 
     def create_alb(self):
         elb_info = {
-            'Name': 'bpm-prod-app-external-alb',
-            'Subnets': ['subnet-0c2085fe6974c518c', 'subnet-05c6866bcc1315c27'],
-            'SecurityGroups': ['sg-0845a9efb32232a8b', ],
+            'Name': 'waf-app-internet-alb',
+            'Subnets': ['subnet-0584eaa3b43d8dd66', 'subnet-01f37e63e1e09077c'],
+            'SecurityGroups': ['sg-063cd53fe5cdd4527', ],
             'Scheme': 'internet-facing',
             'Tags': [
                 {
                     'Key': 'System',
-                    'Value': 'BPM'
-                },
-                {
-                    'Key': 'System type',
-                    'Value': 'PROD'
-                },
+                    'Value': 'WAF'
+                }
             ],
             'Type': 'application',
 
@@ -49,10 +43,10 @@ class ALB(object):
         #     'TargetType': 'instance',
         # }
         target_group_info = {
-            'Name': 'bpm-prod-app-external-443',
+            'Name': 'waf-app-internet-541',
             'Protocol': 'HTTP',
-            'Port': 443,
-            'VpcId': 'vpc-0a01461d0036a5c13',
+            'Port': 541,
+            'VpcId': 'vpc-06e5e4b230542de7b',
             'TargetType': 'instance',
         }
         self.target_group_arn = self.client.elbv2_target_group_create(target_group_info)
@@ -75,14 +69,14 @@ class ALB(object):
         target_info = {
             'TargetGroupArn': self.target_group_arn,
             'Targets': [
-                {
-                    'Id': 'i-0b9a4107702590309',
-                    'Port': 443,
-                },
-                {
-                    'Id': 'i-0a162b830a0a09307',
-                    'Port': 443,
-                },
+                # {
+                #     'Id': 'i-0b9a4107702590309',
+                #     'Port': 443,
+                # },
+                # {
+                #     'Id': 'i-0a162b830a0a09307',
+                #     'Port': 443,
+                # },
             ],
         }
         self.client.elbv2_target_register(target_info)
@@ -114,13 +108,49 @@ class ALB(object):
             'Type': 'forward',
             'TargetGroupArn': self.target_group_arn,
         }
-        self.client.elbv2_listeners_create(listeners_info)
+        self.listener_arn = self.client.elbv2_listener_create(listeners_info)
+
+    def add_listener_certificate(self):
+        certificate_info = {
+            'ListenerArn': self.listener_arn,
+            'Certificates': [
+                {
+                    'CertificateArn': self.certificate_arn,
+                }
+            ],
+        }
+        self.client.elbv2_listener_certificates_add(certificate_info)
+
+    def create_rule(self):
+        listener_arn = self.listener_arn
+        rule_info = {
+            'ListenerArn': listener_arn,
+            'Conditions': [
+                {
+                    "Field": "host-header",
+                    "Values": [
+                        "baidu.com"
+                    ]
+                }
+            ],
+            'Priority': 2,
+            'Actions': [
+                {
+                    'Type': 'forward',
+                    'TargetGroupArn': self.target_group_arn,
+                    'Order': 1,
+                }
+            ],
+        }
+        self.client.elbv2_rule_create(rule_info)
 
     def main(self):
-        # self.create_alb()
+        self.create_alb()
         self.create_target_group()
         self.register_target()
         self.create_listener()
+        self.add_listener_certificate()
+        self.create_rule()
 
 
 if __name__ == '__main__':
