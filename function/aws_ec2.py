@@ -447,8 +447,16 @@ class AWSEC2(object):
         #     'groupname': 'test-sg',
         #     'description': 'test-sg',
         #     'vpcid': 'vpc-id',
-        #     'tag': 'Name',
-        #     'tag_description': 'test-sg'
+        #     'tags': [
+        #         {
+        #             'Key': 'Name',
+        #             'Value': 'test'
+        #         },
+        #         {
+        #             'Key': 'Name',
+        #             'Value': 'test'
+        #         },
+        #     ]
         # }
         response = self.ec2_client.create_security_group(
             Description=sg_info['description'],
