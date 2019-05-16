@@ -51,6 +51,9 @@ class AWSELB(object):
         #     'Subnets': [
         #         'string',
         #     ],
+        #     'SecurityGroups': [
+        #         'string',
+        #     ],
         #     'Scheme': 'internal |Internet-facing',
         #     'Tags': [
         #         {
@@ -60,33 +63,16 @@ class AWSELB(object):
         #     ]
         # }
         response = self.elb_client.create_load_balancer(
-            LoadBalancerName='string',
-            Listeners=[
-                {
-                    'Protocol': 'string',
-                    'LoadBalancerPort': 123,
-                    'InstanceProtocol': 'string',
-                    'InstancePort': 123,
-                    'SSLCertificateId': 'string'
-                },
-            ],
+            LoadBalancerName=elb_info[''],
+            Listeners=elb_info[''],
             # AvailabilityZones=[
             #     'string',
             # ],
-            Subnets=[
-                'string',
-            ],
-            SecurityGroups=[
-                'string',
-            ],
+            Subnets=elb_info['Subnets'],
+            SecurityGroups=elb_info['SecurityGroups'],
             # Scheme='internal |Internet-facing',
-            Scheme='internal |Internet-facing',
-            Tags=[
-                {
-                    'Key': 'string',
-                    'Value': 'string'
-                },
-            ]
+            Scheme=elb_info['Scheme'],
+            Tags=elb_info['Tags'],
         )
         print(response)
         return response
@@ -147,7 +133,7 @@ class AWSELB(object):
         )
         print(response)
 
-    def elbv2_listeners_create(self, listeners_info):
+    def elbv2_listener_create(self, listeners_info):
         # listeners_info = {
         #     'LoadBalancerArn': 'arn:id',
         #     'Protocol': 'TCP',
@@ -219,10 +205,20 @@ class AWSELB(object):
             ]
         )
         print(response)
+        return response['Listeners'][0]['ListenerArn']
 
     def elbv2_listeners_delete(self, listenerarn):
         response = self.elbv2_client.delete_listener(
             ListenerArn=listenerarn
+        )
+        print(response)
+
+    def elbv2_listener_describe(self, listener_arn):
+        response = self.elbv2_client.describe_listeners(
+            # LoadBalancerArn=lb_arn,
+            ListenerArns=[
+                listener_arn,
+            ]
         )
         print(response)
 
@@ -232,11 +228,183 @@ class AWSELB(object):
         )
         print(response)
 
+    def elbv2_listener_certificates_add(self,certificate_info):
+        # certificate_info={
+        #     'ListenerArn':'',
+        #     'Certificates':[
+        #         {
+        #             'CertificateArn': 'string',
+        #         }
+        #     ],
+        # }
+        response = self.elbv2_client.add_listener_certificates(
+            ListenerArn=certificate_info['ListenerArn'],
+            Certificates=certificate_info['Certificates'],
+        )
+        print(response)
+
+    def elbv2_listener_certificates_remove(self,certificate_info):
+        # certificate_info={
+        #     'ListenerArn':'',
+        #     'Certificates':[
+        #         {
+        #             'CertificateArn': 'string',
+        #         }
+        #     ],
+        # }
+        response = self.elbv2_client.remove_listener_certificates(
+            ListenerArn=certificate_info['ListenerArn'],
+            Certificates=certificate_info['Certificates'],
+        )
+        print(response)
+
+    def elbv2_listener_certificates_describe(self,listener_arn):
+        response = self.elbv2_client.describe_listener_certificates(
+            ListenerArn=listener_arn,
+            # Marker='string',
+            # PageSize=123
+        )
+        print(response)
+
+    def elbv2_rule_describe(self, rule_arn):
+        response = self.elbv2_client.describe_rules(
+            # ListenerArn=listener_arn,
+            RuleArns=[
+                rule_arn,
+            ]
+        )
+        print(response)
+
     def elbv2_rules_describe(self, listener_arn):
         response = self.elbv2_client.describe_rules(
             ListenerArn=listener_arn,
         )
         print(response)
+
+    def elbv2_rule_delete(self, rule_arn):
+        response = self.elbv2_client.delete_rule(
+            RuleArn=rule_arn
+        )
+        print(response)
+
+    def elbv2_rule_create(self, rule_info):
+        # rule_info = {
+        #     'ListenerArn': 'arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:listener/app/waf-app-internet-alb/e972ef0e9ff5c03c/f8dbc1fbccb0dab5',
+        #     'Conditions': [
+        #         {
+        #             "Field": "host-header",
+        #             "Values": [
+        #                 "baidu.com"
+        #             ]
+        #         }
+        #     ],
+        #     'Priority': 2,
+        #     'Actions': [
+        #         {
+        #             'Type': 'forward',
+        #             'TargetGroupArn': 'arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:targetgroup/waf-app-internet-9009/25ce751a0b2b58c5',
+        #             'Order': 1,
+        #         }
+        #     ],
+        # }
+        response = self.elbv2_client.create_rule(
+            ListenerArn=rule_info['ListenerArn'],
+            Conditions=rule_info['Conditions'],
+            # Conditions=[
+            #     {
+            #         'Field': 'string',
+            #         'Values': [
+            #             'string',
+            #         ],
+            #         'HostHeaderConfig': {
+            #             'Values': [
+            #                 'string',
+            #             ]
+            #         },
+            #         'PathPatternConfig': {
+            #             'Values': [
+            #                 'string',
+            #             ]
+            #         },
+            #         'HttpHeaderConfig': {
+            #             'HttpHeaderName': 'string',
+            #             'Values': [
+            #                 'string',
+            #             ]
+            #         },
+            #         'QueryStringConfig': {
+            #             'Values': [
+            #                 {
+            #                     'Key': 'string',
+            #                     'Value': 'string'
+            #                 },
+            #             ]
+            #         },
+            #         'HttpRequestMethodConfig': {
+            #             'Values': [
+            #                 'string',
+            #             ]
+            #         },
+            #         'SourceIpConfig': {
+            #             'Values': [
+            #                 'string',
+            #             ]
+            #         }
+            #     },
+            # ],
+            Priority=rule_info['Priority'],
+            Actions=rule_info['Actions'],
+            # Actions=[
+            #     {
+            #         'Type': 'forward' | 'authenticate-oidc' | 'authenticate-cognito' | 'redirect' | 'fixed-response',
+            #         'TargetGroupArn': 'string',
+            # 'AuthenticateOidcConfig': {
+            #     'Issuer': 'string',
+            #     'AuthorizationEndpoint': 'string',
+            #     'TokenEndpoint': 'string',
+            #     'UserInfoEndpoint': 'string',
+            #     'ClientId': 'string',
+            #     'ClientSecret': 'string',
+            #     'SessionCookieName': 'string',
+            #     'Scope': 'string',
+            #     'SessionTimeout': 123,
+            #     'AuthenticationRequestExtraParams': {
+            #         'string': 'string'
+            #     },
+            #     'OnUnauthenticatedRequest': 'deny' | 'allow' | 'authenticate',
+            #     'UseExistingClientSecret': True | False
+            # },
+            # 'AuthenticateCognitoConfig': {
+            #     'UserPoolArn': 'string',
+            #     'UserPoolClientId': 'string',
+            #     'UserPoolDomain': 'string',
+            #     'SessionCookieName': 'string',
+            #     'Scope': 'string',
+            #     'SessionTimeout': 123,
+            #     'AuthenticationRequestExtraParams': {
+            #         'string': 'string'
+            #     },
+            #     'OnUnauthenticatedRequest': 'deny' | 'allow' | 'authenticate'
+            # },
+            # 'Order': 123,
+            # 'RedirectConfig': {
+            #     'Protocol': 'string',
+            #     'Port': 'string',
+            #     'Host': 'string',
+            #     'Path': 'string',
+            #     'Query': 'string',
+            #     'StatusCode': 'HTTP_301' | 'HTTP_302'
+            # },
+            # 'FixedResponseConfig': {
+            #     'MessageBody': 'string',
+            #     'StatusCode': 'string',
+            #     'ContentType': 'string'
+            # }
+            # },
+            # ]
+        )
+        print(response)
+        return response['Rules'][0]['RuleArn']
 
     def elbv2_target_group_create(self, target_group_info):
         # target_group_info={
@@ -292,7 +460,7 @@ class AWSELB(object):
         )
         print(response)
 
-    def elb_instances_with_load_balancer_register(self, info):
+    def elb_instances_register(self, info):
         # info = {
         #     'LoadBalancerName': 'name',
         #     'Instances': [
@@ -327,7 +495,7 @@ class AWSELB(object):
         )
         print(response)
 
-    def elb_instances_with_load_balancer_deregister(self, info):
+    def elb_instances_deregister(self, info):
         # info = {
         #     'LoadBalancerName': 'name',
         #     'Instances': [
