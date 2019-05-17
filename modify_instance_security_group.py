@@ -1,13 +1,29 @@
 from function.aws_ec2 import AWSEC2
 
-instanceids = ['i-0c26f53bf5fa21034', 'i-019aaaf91665fc6d2', 'i-088bb3ef6dc4e9230']
+instanceids = ['i-04ef0a9fb5855667f',]
+filters = [
+    {
+        'Name': 'tag:System',
+        'Values': [
+            'BPM',
+        ]
+    },
+    {
+        'Name': 'tag:System type',
+        'Values': [
+            'UAT',
+        ]
+    },
+]
 
 
 class SecurityGroup(object):
     def __init__(self):
         self.client = AWSEC2()
         self.instanceid = 'i-0b6e8a971b56e3475'
-        self.new_sg_id = 'sg-0ea1b2546ff3fedb2'
+        self.new_sg_id = 'sg-06df2f95634015569'
+        # self.instanceids = self.client.get_instanceids(filters)
+        self.instanceids = instanceids
 
     def get_sg_ids(self, instanceid):
         instance_info = self.client.ec2_instance_describe(instanceid)
@@ -28,7 +44,8 @@ class SecurityGroup(object):
         self.client.ec2_security_group_modify(info)
 
     def main(self):
-        for instanceid in instanceids:
+        print(self.instanceids)
+        for instanceid in self.instanceids:
             self.modify_instance_sg(instanceid)
 
 
