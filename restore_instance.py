@@ -1,6 +1,6 @@
 from function.aws_ec2 import AWSEC2
 
-snapshotid = 'snap-01c0184d0168d6253'
+snapshotid = 'snap-00094f47901463bb2'
 
 
 class RestoreInstance(object):
@@ -16,17 +16,19 @@ class RestoreInstance(object):
         self.instance_keyname = None
         self.instance_tags = None
         self.instance_sgs = []
+        self.instance_virtualization_type=None
 
     def get_snapshot_info(self):
         snapshot_info = self.client.ec2_snapshot_describe(snapshotid)
         self.volumeid = snapshot_info['VolumeId']
         self.volumesize = snapshot_info['VolumeSize']
-        self.volumetype = snapshot_info['VolumeType']
+
 
     def get_volume_info(self):
         volume_info = self.client.ec2_volume_describe(self.volumeid)
         self.devicename = volume_info['Attachments'][0]['Device']
         self.instanceid = volume_info['Attachments'][0]['InstanceId']
+        self.volumetype = volume_info['VolumeType']
 
     def get_instance_info(self):
         instance_info = self.client.ec2_instance_describe(self.instanceid)
@@ -34,6 +36,7 @@ class RestoreInstance(object):
         self.instance_subnetid = instance_info['Instances'][0]['SubnetId']
         self.instance_keyname = instance_info['Instances'][0]['KeyName']
         self.instance_tags = instance_info['Instances'][0]['Tags']
+        self.instance_virtualization_type = instance_info['Instances'][0]['VirtualizationType']
         for sg in instance_info['Instances'][0]['SecurityGroups']:
             self.instance_sgs.append(sg['GroupId'])
 
@@ -44,6 +47,8 @@ class RestoreInstance(object):
             'Name': snapshotid,
             'SnapshotId': snapshotid,
             'RootDeviceName': self.devicename,
+            'VirtualizationType': self.instance_virtualization_type,
+            'VolumeType': self.volumetype,
         }
         imageid = self.client.ec2_register_image(snapshot_info)
         return imageid
@@ -85,7 +90,7 @@ class RestoreInstance(object):
         self.get_volume_info()
         self.get_instance_info()
         self.register_image()
-        self.launch_instance()
+        # self.launch_instance()
 
 
 if __name__ == '__main__':

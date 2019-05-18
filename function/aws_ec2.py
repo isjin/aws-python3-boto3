@@ -1027,25 +1027,33 @@ class AWSEC2(object):
         return response['ImageId']
 
     def ec2_register_image(self, snapshot_info):
-        # snapshot_info={
-        #     'DeviceName':'/dev/xvda',
-        #     'Description':'test',
-        #     'Name':'test',
-        #     'SnapshotId':'snap-id',
-        #     'RootDeviceName':'/dev/xvda',
+        # snapshot_info = {
+        #     'DeviceName': self.devicename,
+        #     'Description': snapshotid,
+        #     'Name': snapshotid,
+        #     'SnapshotId': snapshotid,
+        #     'RootDeviceName': self.devicename,
+        #     'VirtualizationType': self.instance_virtualization_type,
+        #     'VolumeType': self.volumetype,
         # }
         response = self.ec2_client.register_image(
+            Architecture='x86_64',
             BlockDeviceMappings=[
                 {
                     'DeviceName': snapshot_info['DeviceName'],
+                    # 'VirtualName': '/dev/sda1',
                     'Ebs': {
+                        'DeleteOnTermination': True,
                         'SnapshotId': snapshot_info['SnapshotId'],
+                        'VolumeType': snapshot_info['VolumeType'],
                     },
                 },
             ],
             Description=snapshot_info['Description'],
             Name=snapshot_info['Name'],
             RootDeviceName=snapshot_info['RootDeviceName'],
+            VirtualizationType=snapshot_info['VirtualizationType'],
+            EnaSupport=True
         )
         print(response)
         return response['ImageId']
