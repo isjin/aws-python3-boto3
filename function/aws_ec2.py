@@ -195,6 +195,14 @@ class AWSEC2(object):
         )
         print(response)
 
+    def ec2_route_table_describe(self,route_table_id):
+        response = self.ec2_client.describe_route_tables(
+            RouteTableIds=[
+                route_table_id,
+            ]
+        )
+        return response['RouteTables']
+
     def ec2_route_add_egress_only_internet_gw(self, route_table_id, route_table_info):
         # route_table_info={
         #     'DestinationCidrBlock':'0.0.0.0/0',
@@ -278,6 +286,13 @@ class AWSEC2(object):
             VpcPeeringConnectionId=route_table_info['VpcPeeringConnectionId'],
         )
         print(route)
+
+    def ec2_route_delete(self,destination,route_table_id):
+        response = self.ec2_client.delete_route(
+            DestinationCidrBlock=destination,
+            RouteTableId=route_table_id
+        )
+        print(response)
 
     def ec2_route_table_subnet_associate(self, route_table_id, subnetid):
         route_table = self.ec2_resource.RouteTable(route_table_id)
@@ -563,7 +578,7 @@ class AWSEC2(object):
         #     ],
         # }
         security_group = self.ec2_resource.SecurityGroup(outbound['securitygroupid'])
-        response = security_group.revoke_ingress(
+        response = security_group.revoke_egress(
             IpPermissions=outbound['policy'],
         )
         print(response)
