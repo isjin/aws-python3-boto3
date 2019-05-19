@@ -1,0 +1,75 @@
+{
+  "securitygroupid":"sg-0a97d9150f2dfb4a8",
+  "policy":[
+    {
+      "IpProtocol":"-1",
+      "IpRanges":[
+        {
+          "CidrIp":"120.31.137.144\/29",
+          "Description":"New Bund guest wifi"
+        },
+        {
+          "CidrIp":"10.20.11.0\/24",
+          "Description":"HRM"
+        },
+        {
+          "CidrIp":"10.20.9.0\/24",
+          "Description":"BPM UAT"
+        },
+        {
+          "CidrIp":"10.20.10.0\/24",
+          "Description":"BPM PROD"
+        },
+        {
+          "CidrIp":"10.20.16.0\/24",
+          "Description":"Branded Goods"
+        }
+      ],
+      "Ipv6Ranges":[
+        
+      ],
+      "PrefixListIds":[
+        
+      ],
+      "UserIdGroupPairs":[
+        {
+          "Description":"waf-mx",
+          "GroupId":"sg-0c68392832128d0de",
+          "UserId":"168677335524"
+        }
+      ]
+    },
+    {
+      "FromPort":22,
+      "IpProtocol":"tcp",
+      "IpRanges":[
+        {
+          "CidrIp":"114.55.164.102\/32",
+          "Description":"Branded Goods vender"
+        },
+		{
+          "CidrIp":"58.247.155.150\/32",
+          "Description":"HRM vender"
+        },
+		{
+          "CidrIp":"220.248.34.166\/32",
+          "Description":"BPM vender"
+        },
+        {
+          "CidrIp":"114.89.71.179\/32",
+		  "Description":"temporary"
+        }
+      ],
+      "Ipv6Ranges":[
+        
+      ],
+      "PrefixListIds":[
+        
+      ],
+      "ToPort":22,
+      "UserIdGroupPairs":[
+        
+      ]
+    }
+  ]
+}
