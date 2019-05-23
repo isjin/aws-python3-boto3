@@ -1,4 +1,5 @@
 from function.aws_ec2 import AWSEC2
+from function.aws_rds import AWSRDS
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side
 
@@ -10,12 +11,13 @@ infomation_dict = {}
 instances_dict = {}
 securitygroup_dict = {}
 ebs_dict = {}
+route_tables_dict = {}
 
 filters = [
     {
         'Name': 'tag:System',
         'Values': [
-            'BPM',
+            'Branded Goods',
         ]
     },
     # {
@@ -34,6 +36,7 @@ class GetInfo(object):
     def __init__(self):
         self.line_count = 0
         self.ec2_client = AWSEC2()
+        self.rds_client = AWSRDS()
         self.instanceids = instanceids + self.ec2_client.get_instanceids(filters)
         # self.instanceids = instanceids
         self.sgids = set()
@@ -239,10 +242,40 @@ class GetInfo(object):
                 row = chr(97 + j) + str(i + 14)
                 infomation_dict[row] = ngw_lists[j]
 
+    def get_route_tables_info(self):
+        route_tables_info = self.ec2_client.ec2_route_tables_describe(filters)
+        for i in range(len(route_tables_info)):
+            route_table_id = route_tables_info[i]['RouteTableId']
+            route_table_name = ''
+            tags = route_tables_info[i]['Tags']
+            for tag in tags:
+                if tag['Key'] == "Name":
+                    route_table_name = tag['Value']
+                    break
+            subnets_associations = ''
+            associations = route_tables_info[i]['Associations']
+            for association in associations:
+                if 'SubnetId' in association.keys():
+                    subnet_id = association['SubnetId']
+                    subnets_associations = subnets_associations + subnet_id + ';'
+            route_tables = route_tables_info[i]['Routes']
+            for route_table in route_tables:
+                destination = route_table['DestinationCidrBlock']
+                route_table.pop('Origin')
+                route_table.pop('State')
+                route_table.pop('DestinationCidrBlock')
+                target = ''
+                for key in route_table.keys():
+                    target = route_table[key]
+                route_table_list = [route_table_id, route_table_name, subnets_associations, destination, target]
+                for j in range(len(route_table_list)):
+                    row = chr(97 + j) + str(i + 3)
+                    route_tables_dict[row] = route_table_list[j]
+
     @staticmethod
     def store_excel():
         sheets = {'infomation': infomation_dict, 'instances': instances_dict, 'securitygroup': securitygroup_dict,
-                  'EBS': ebs_dict}
+                  'EBS': ebs_dict, 'routetable': route_tables_dict}
         wb = load_workbook('template_resource.xlsx')
         for key in sheets.keys():
             ws = wb[key]
@@ -267,6 +300,7 @@ class GetInfo(object):
         self.get_ec2_info()
         self.get_sg_info()
         self.get_volumes_info()
+        self.get_route_tables_info()
         self.store_excel()
 
 
