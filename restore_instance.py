@@ -1,7 +1,7 @@
 from function.aws_ec2 import AWSEC2
 
-snapshotid = 'snap-00094f47901463bb2'
-
+snapshotid = 'snap-07a95ed40f6a4e28a'
+volume_snapshotid='snap-04277b0124adf3fb5'
 
 class RestoreInstance(object):
     def __init__(self):
@@ -15,6 +15,7 @@ class RestoreInstance(object):
         self.instance_subnetid = None
         self.instance_keyname = None
         self.instance_tags = None
+        self.instance_az=None
         self.instance_sgs = []
         self.instance_virtualization_type=None
 
@@ -37,6 +38,7 @@ class RestoreInstance(object):
         self.instance_keyname = instance_info['Instances'][0]['KeyName']
         self.instance_tags = instance_info['Instances'][0]['Tags']
         self.instance_virtualization_type = instance_info['Instances'][0]['VirtualizationType']
+        self.instance_az=instance_info['Instances'][0]['Placement']['AvailabilityZone']
         for sg in instance_info['Instances'][0]['SecurityGroups']:
             self.instance_sgs.append(sg['GroupId'])
 
@@ -85,12 +87,30 @@ class RestoreInstance(object):
         }
         self.client.ec2_instance_create(instance_info)
 
+    def attach_volume(self):
+        volume_info={
+            'AvailabilityZone':self.instance_az,
+            'Size':self.volumesize,
+            'SnapshotId':volume_snapshotid,
+            'VolumeType':self.volumetype,
+            'Tags':self.instance_tags,
+        }
+        volume_id=self.client.ec2_volume_create(volume_info)
+        attach_info={
+            'Device':'xvdb',
+            'InstanceId':self.instanceid,
+            'VolumeId':volume_id,
+        }
+        self.client.ec2_volume_attach(attach_info)
+
+
     def main(self):
         self.get_snapshot_info()
         self.get_volume_info()
         self.get_instance_info()
-        self.register_image()
-        # self.launch_instance()
+        self.launch_instance()
+        self.attach_volume()
+
 
 
 if __name__ == '__main__':

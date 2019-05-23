@@ -195,7 +195,7 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_route_table_describe(self,route_table_id):
+    def ec2_route_table_describe(self, route_table_id):
         response = self.ec2_client.describe_route_tables(
             RouteTableIds=[
                 route_table_id,
@@ -287,7 +287,7 @@ class AWSEC2(object):
         )
         print(route)
 
-    def ec2_route_delete(self,destination,route_table_id):
+    def ec2_route_delete(self, destination, route_table_id):
         response = self.ec2_client.delete_route(
             DestinationCidrBlock=destination,
             RouteTableId=route_table_id
@@ -661,25 +661,30 @@ class AWSEC2(object):
         print(response)
 
     def ec2_volume_create(self, volume_info):
+        # volume_info={
+        #     'AvailabilityZone':'',
+        #     'Size':'',
+        #     'SnapshotId':'',
+        #     'VolumeType':'',
+        #     'Tags':'',
+        # }
+        print(volume_info['Tags'])
         response = self.ec2_client.create_volume(
-            AvailabilityZone=volume_info['availabile_zone'],
-            Size=volume_info['size'],
-            VolumeType=volume_info['volume_type'],
-            TagSpecifications=[
-                {
-                    'Tags': [
-                        {
-                            'Key': volume_info['tag'],
-                            'Value': volume_info['tag_description']
-                        },
-                    ]
-                },
-            ]
+            AvailabilityZone=volume_info['AvailabilityZone'],
+            Size=volume_info['Size'],
+            SnapshotId=volume_info['SnapshotId'],
+            VolumeType=volume_info['VolumeType'],
+            # TagSpecifications=[
+            #     {
+            #         'Tags': volume_info['Tags'],
+            #     },
+            # ]
         )
         print(response)
         volume_id = response['VolumeId']
-        self.ec2_tag_create(volume_id, volume_info)
+        self.ec2_tags_create(volume_id, volume_info['Tags'])
         print(volume_id)
+        return volume_id
 
     def ec2_volume_delete(self, volume_id):
         response = self.ec2_client.delete_volume(
@@ -700,6 +705,35 @@ class AWSEC2(object):
             # VolumeType='standard' | 'io1' | 'gp2' | 'sc1' | 'st1',
             VolumeType=volume_info['VolumeType'],
             # Iops=123
+        )
+        print(response)
+
+    def ec2_volume_attach(self, volume_info):
+        # info={
+        #     'Device':'',
+        #     'InstanceId':'',
+        #     'VolumeId':'',
+        # }
+        response = self.ec2_client.attach_volume(
+            Device=volume_info['Device'],
+            InstanceId=volume_info['InstanceId'],
+            VolumeId=volume_info['VolumeId'],
+            # DryRun=True | False
+        )
+        print(response)
+
+    def ec2_volume_detach(self, volume_info):
+        # info={
+        #     'Device':'',
+        #     'InstanceId':'',
+        #     'VolumeId':'',
+        # }
+        response = self.ec2_client.detach_volume(
+            Device=volume_info['Device'],
+            # Force=True | False,
+            InstanceId=volume_info['InstanceId'],
+            VolumeId=volume_info['VolumeId'],
+            # DryRun=True | False
         )
         print(response)
 

@@ -12,9 +12,11 @@ class Network(object):
         self.client = AWSEC2()
         self.sg_id = 'sg-0a97d9150f2dfb4a8'
         self.route_table_id = 'rtb-026894dd715d4c5c5'
-        self.inbound_policy_path = 'config/waf/sg_inbound_bastion.txt'
+        self.inbound_policy_path = 'config/waf/sg_inbound_access.txt'
         self.gw_id = 'igw-07c7878cae15f2ac8'
-        self.destination = '114.89.71.179/32'
+        # self.destinations =['114.55.164.102/32','58.247.155.150/32','220.248.34.166/32']
+        # self.destinations =['0.0.0.0/0',]
+        self.destinations =['0.0.0.0/0',] #AWS yum resource
         self.new_inbound_policy = self.read_file(self.inbound_policy_path)
 
     @staticmethod
@@ -39,17 +41,19 @@ class Network(object):
         print(route)
 
     def add_route(self):
-        route_table_info = {
-            'DestinationCidrBlock': self.destination,
-            'GatewayId': self.gw_id,
-        }
-        self.client.ec2_route_add_gw(self.route_table_id, route_table_info)
+        for destination in self.destinations:
+            route_table_info = {
+                'DestinationCidrBlock': destination,
+                'GatewayId': self.gw_id,
+            }
+            self.client.ec2_route_add_gw(self.route_table_id, route_table_info)
 
     def delete_route(self):
-        self.client.ec2_route_delete(self.destination, self.route_table_id)
+        for destination in self.destinations:
+            self.client.ec2_route_delete(destination, self.route_table_id)
 
     def main(self):
-        self.update_sg_inbound()
+        # self.update_sg_inbound()
         self.add_route()
         # self.delete_route()
 
