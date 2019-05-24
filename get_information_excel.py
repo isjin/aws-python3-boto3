@@ -1,5 +1,5 @@
 from function.aws_ec2 import AWSEC2
-from function.aws_rds import AWSRDS
+from function.aws_elb import AWSELB
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side
 
@@ -7,17 +7,25 @@ from openpyxl.styles import Border, Side
 # instanceids = ['i-0f8b3df82161baf5f', 'i-03a1c9ed8eb9b637e', 'i-00e50946ad570a835']
 instanceids = []
 
+# BPM
+elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/app/bpm-prod-app-alb/7f8313aafd785a39','arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b']
+# elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b',]
+# WAF
+# elb_arns = ['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/app/waf-app-internet-gw-alb/a00f07d65d31be5b', ]
+# elb_arns = []
+
 infomation_dict = {}
 instances_dict = {}
 securitygroup_dict = {}
 ebs_dict = {}
 route_tables_dict = {}
+elb_dict = {}
 
 filters = [
     {
         'Name': 'tag:System',
         'Values': [
-            'Branded Goods',
+            'BPM',
         ]
     },
     # {
@@ -36,7 +44,7 @@ class GetInfo(object):
     def __init__(self):
         self.line_count = 0
         self.ec2_client = AWSEC2()
-        self.rds_client = AWSRDS()
+        self.elb_client = AWSELB()
         self.instanceids = instanceids + self.ec2_client.get_instanceids(filters)
         # self.instanceids = instanceids
         self.sgids = set()
@@ -272,10 +280,62 @@ class GetInfo(object):
                     row = chr(97 + j) + str(i + 3)
                     route_tables_dict[row] = route_table_list[j]
 
+    def get_elb_info(self):
+        elbs_list = []
+        for i in range(len(elb_arns)):
+            elb_arn = elb_arns[i]
+            elb_info = self.elb_client.elbv2_load_balancer_describe(elb_arn)
+            elb_name = elb_info['LoadBalancerName']
+            elb_dns_name = elb_info['DNSName']
+            elb_listeners_info = self.elb_client.elbv2_listeners_describe(elb_arn)
+            for j in range(len(elb_listeners_info)):
+                listener_info = elb_listeners_info[j]
+                listener_arn = listener_info['ListenerArn']
+                listener_port = listener_info['Port']
+                listener_protocal = listener_info['Protocol']
+                listener_certificates_arn = ''
+                try:
+                    listener_certificates_info = self.elb_client.elbv2_listener_certificates_describe(listener_arn)
+                    if 'Certificates' in listener_certificates_info.keys():
+                        certificates_info = listener_certificates_info['Certificates']
+                        for certificate_info in certificates_info:
+                            listener_certificates_arn = listener_certificates_arn + certificate_info['CertificateArn'] + ';'
+                except Exception as e:
+                    print(e.__str__())
+                rules_info = self.elb_client.elbv2_rules_describe(listener_arn)
+                for k in range(len(rules_info)):
+                    rule_info = rules_info[k]
+                    rule_arn = rule_info['RuleArn']
+                    rule_priority = rule_info['Priority']
+                    rule_conditions = rule_info['Conditions']
+                    condition_field = ''
+                    condition_value = ''
+                    if len(rule_conditions) > 0:
+                        condition_field = rule_conditions[0]['Field']
+                        condition_value = rule_conditions[0]['Values'][0]
+                    rule_actions = rule_info['Actions'][0]
+                    rule_type = rule_actions['Type']
+                    rule_targetgroup_arn = rule_actions['TargetGroupArn']
+                    targetgroup_info = self.elb_client.elbv2_target_group_describe(rule_targetgroup_arn)
+                    targetgroup_name = targetgroup_info['TargetGroupName']
+                    targetgroup_protocal = targetgroup_info['Protocol']
+                    targetgroup_port = targetgroup_info['Port']
+                    target_type = targetgroup_info['TargetType']
+                    elb_info_list = [elb_arn, elb_name, elb_dns_name, listener_arn, listener_port, listener_protocal,
+                                     listener_certificates_arn, rule_arn, rule_priority, condition_field,
+                                     condition_value,
+                                     rule_type, rule_targetgroup_arn, targetgroup_name, targetgroup_protocal,
+                                     targetgroup_port, target_type]
+                    elbs_list.append(elb_info_list)
+        for l in range(len(elbs_list)):
+            for m in range(len(elbs_list[l])):
+                row = chr(97 + m) + str(l + 2)
+                elb_dict[row] = elbs_list[l][m]
+
     @staticmethod
     def store_excel():
         sheets = {'infomation': infomation_dict, 'instances': instances_dict, 'securitygroup': securitygroup_dict,
-                  'EBS': ebs_dict, 'routetable': route_tables_dict}
+                  'EBS': ebs_dict, 'routetable': route_tables_dict, 'ELB': elb_dict}
         wb = load_workbook('template_resource.xlsx')
         for key in sheets.keys():
             ws = wb[key]
@@ -301,6 +361,8 @@ class GetInfo(object):
         self.get_sg_info()
         self.get_volumes_info()
         self.get_route_tables_info()
+        if len(elb_arns) > 0:
+            self.get_elb_info()
         self.store_excel()
 
 

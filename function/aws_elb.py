@@ -131,7 +131,7 @@ class AWSELB(object):
     def elbv2_load_balancers_describe(self):
         response = self.elbv2_client.describe_load_balancers(
         )
-        print(response)
+        return response
 
     def elbv2_listener_create(self, listeners_info):
         # listeners_info = {
@@ -226,7 +226,7 @@ class AWSELB(object):
         response = self.elbv2_client.describe_listeners(
             LoadBalancerArn=lb_arn,
         )
-        print(response)
+        return response['Listeners']
 
     def elbv2_listener_certificates_add(self,certificate_info):
         # certificate_info={
@@ -264,7 +264,8 @@ class AWSELB(object):
             # Marker='string',
             # PageSize=123
         )
-        print(response)
+        return response
+
 
     def elbv2_rule_describe(self, rule_arn):
         response = self.elbv2_client.describe_rules(
@@ -279,7 +280,7 @@ class AWSELB(object):
         response = self.elbv2_client.describe_rules(
             ListenerArn=listener_arn,
         )
-        print(response)
+        return response['Rules']
 
     def elbv2_rule_delete(self, rule_arn):
         response = self.elbv2_client.delete_rule(
@@ -413,6 +414,8 @@ class AWSELB(object):
         #     'Port':22,
         #     'VpcId':'vpc-id',
         #     'TargetType':'instance',
+        #     'HealthCheckProtocol':'HTTP' | 'HTTPS' | 'TCP' | 'TLS',
+        #     'HealthCheckPort':'443'|'traffic-port',
         # }
         response = self.elbv2_client.create_target_group(
             Name=target_group_info['Name'],
@@ -420,8 +423,8 @@ class AWSELB(object):
             Protocol=target_group_info['Protocol'],
             Port=target_group_info['Port'],
             VpcId=target_group_info['VpcId'],
-            # HealthCheckProtocol='HTTP' | 'HTTPS' | 'TCP' | 'TLS',
-            # HealthCheckPort='string',
+            HealthCheckProtocol=target_group_info['HealthCheckProtocol'],
+            HealthCheckPort=target_group_info['HealthCheckPort'],
             # HealthCheckEnabled=True | False,
             # HealthCheckPath='string',
             # HealthCheckIntervalSeconds=123,
@@ -452,7 +455,6 @@ class AWSELB(object):
             #     group_name,
             # ],
         )
-        print(response)
         return response['TargetGroups'][0]
 
     def elbv2_target_groups_describe(self):

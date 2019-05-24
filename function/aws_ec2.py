@@ -203,6 +203,12 @@ class AWSEC2(object):
         )
         return response['RouteTables']
 
+    def ec2_route_tables_describe(self, filters):
+        response = self.ec2_client.describe_route_tables(
+            Filters=filters
+        )
+        return response['RouteTables']
+
     def ec2_route_add_egress_only_internet_gw(self, route_table_id, route_table_info):
         # route_table_info={
         #     'DestinationCidrBlock':'0.0.0.0/0',
