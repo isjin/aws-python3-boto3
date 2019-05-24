@@ -109,7 +109,8 @@ class RestoreInstance(object):
         self.get_volume_info()
         self.get_instance_info()
         self.launch_instance()
-        self.attach_volume()
+        if volume_snapshotid !='':
+            self.attach_volume()
 
 
 
