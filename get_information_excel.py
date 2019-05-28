@@ -8,10 +8,12 @@ from openpyxl.styles import Border, Side
 instanceids = []
 
 # BPM
-elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/app/bpm-prod-app-alb/7f8313aafd785a39','arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b']
-# elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b',]
+elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-uat-app-nlb/8816ab0078339a68','arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b']
+
 # WAF
 # elb_arns = ['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/app/waf-app-internet-gw-alb/a00f07d65d31be5b', ]
+
+
 # elb_arns = []
 
 infomation_dict = {}
@@ -299,7 +301,8 @@ class GetInfo(object):
                     if 'Certificates' in listener_certificates_info.keys():
                         certificates_info = listener_certificates_info['Certificates']
                         for certificate_info in certificates_info:
-                            listener_certificates_arn = listener_certificates_arn + certificate_info['CertificateArn'] + ';'
+                            listener_certificates_arn = listener_certificates_arn + certificate_info[
+                                'CertificateArn'] + ';'
                 except Exception as e:
                     print(e.__str__())
                 rules_info = self.elb_client.elbv2_rules_describe(listener_arn)
@@ -320,12 +323,18 @@ class GetInfo(object):
                     targetgroup_name = targetgroup_info['TargetGroupName']
                     targetgroup_protocal = targetgroup_info['Protocol']
                     targetgroup_port = targetgroup_info['Port']
+                    targetgroup_vpc = targetgroup_info['VpcId']
                     target_type = targetgroup_info['TargetType']
+                    target_instanceids = ''
+                    target_healthy_info = self.elb_client.elbv2_target_healthy_describe(rule_targetgroup_arn)
+                    for target_instance_info in target_healthy_info:
+                        instance_id = target_instance_info['Target']['Id']
+                        target_instanceids = target_instanceids + instance_id + ';'
                     elb_info_list = [elb_arn, elb_name, elb_dns_name, listener_arn, listener_port, listener_protocal,
                                      listener_certificates_arn, rule_arn, rule_priority, condition_field,
                                      condition_value,
                                      rule_type, rule_targetgroup_arn, targetgroup_name, targetgroup_protocal,
-                                     targetgroup_port, target_type]
+                                     targetgroup_port, targetgroup_vpc, target_type,target_instanceids]
                     elbs_list.append(elb_info_list)
         for l in range(len(elbs_list)):
             for m in range(len(elbs_list[l])):

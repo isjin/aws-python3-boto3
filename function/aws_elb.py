@@ -462,6 +462,19 @@ class AWSELB(object):
         )
         print(response)
 
+    def elbv2_target_healthy_describe(self,target_group_arn):
+        response = self.elbv2_client.describe_target_health(
+            TargetGroupArn=target_group_arn,
+            # Targets=[
+            #     {
+            #         'Id': 'string',
+            #         'Port': 123,
+            #         'AvailabilityZone': 'string'
+            #     },
+            # ]
+        )
+        return response['TargetHealthDescriptions']
+
     def elb_instances_register(self, info):
         # info = {
         #     'LoadBalancerName': 'name',
