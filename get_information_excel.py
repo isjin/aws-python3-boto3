@@ -8,13 +8,13 @@ from openpyxl.styles import Border, Side
 instanceids = []
 
 # BPM
-elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-uat-app-nlb/8816ab0078339a68','arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b']
+# elb_arns=['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-uat-app-nlb/8816ab0078339a68','arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/net/bpm-prod-app-nlb/c0e5e514f039f14b']
 
 # WAF
 # elb_arns = ['arn:aws-cn:elasticloadbalancing:cn-north-1:168677335524:loadbalancer/app/waf-app-internet-gw-alb/a00f07d65d31be5b', ]
 
 
-# elb_arns = []
+elb_arns = []
 
 infomation_dict = {}
 instances_dict = {}
@@ -27,7 +27,7 @@ filters = [
     {
         'Name': 'tag:System',
         'Values': [
-            'BPM',
+            'HRM',
         ]
     },
     # {
@@ -58,6 +58,7 @@ class GetInfo(object):
         for i in range(len(self.instanceids)):
             instanceid = self.instanceids.pop()
             instance_info = self.ec2_client.ec2_instance_describe(instanceid)['Instances'][0]
+            print(instance_info)
             instance_id = instance_info['InstanceId']
             instance_name = ''
             for tag in instance_info['Tags']:
@@ -83,15 +84,18 @@ class GetInfo(object):
                 self.sgids.add(sg_id)
                 sg_ids = sg_ids + sg_id + ';'
             key_name = instance_info['KeyName']
+            role = ''
+            if 'IamInstanceProfile' in instance_info.keys():
+                role = instance_info['IamInstanceProfile']['Arn']
             ebs_ids = ''
             ebs_infos = instance_info['BlockDeviceMappings']
             for ebs_info in ebs_infos:
                 ebs_id = ebs_info['Ebs']['VolumeId']
                 self.ebsids.append(ebs_id)
                 ebs_ids = ebs_ids + ebs_id + ';'
+
             instancs_lists = [instance_id, instance_name, instance_type, ebs_ids, cpu_count, ami_id, az, vpcid,
-                              subnet_id,
-                              private_ip, public_ip, sg_ids, key_name]
+                              subnet_id, private_ip, public_ip, sg_ids, role, key_name]
             for j in range(len(instancs_lists)):
                 row = chr(97 + j) + str(2 + i)
                 instances_dict[row] = instancs_lists[j]
@@ -334,7 +338,7 @@ class GetInfo(object):
                                      listener_certificates_arn, rule_arn, rule_priority, condition_field,
                                      condition_value,
                                      rule_type, rule_targetgroup_arn, targetgroup_name, targetgroup_protocal,
-                                     targetgroup_port, targetgroup_vpc, target_type,target_instanceids]
+                                     targetgroup_port, targetgroup_vpc, target_type, target_instanceids]
                     elbs_list.append(elb_info_list)
         for l in range(len(elbs_list)):
             for m in range(len(elbs_list[l])):
