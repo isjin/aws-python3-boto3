@@ -1,14 +1,12 @@
 import boto3
-from openpyxl import load_workbook
-from openpyxl.styles import Border, Side
 from datetime import datetime
 import re
 from operator import itemgetter
 
 date = datetime.now().strftime('%Y%m%d%H%M%S')
-# date = datetime.now().strftime('%Y%m%d')
-owner_ids = ['837727238323', '841869936221', '841258680906', '141808717104', '16951021795', '124890673580']
-# owner_ids = ['837727238323', ]
+# owner_ids = ['141808717104', ]
+owner_ids = ['837727238323', '841869936221', '841258680906', '141808717104', '016951021795', '124890673580']
+
 
 class GetImages(object):
     def __init__(self):
@@ -17,6 +15,9 @@ class GetImages(object):
     def descript_images(self, filters):
         response = self.ec2.describe_images(
             Filters=filters,
+            # ImageIds=[
+            #     'ami-0caeb068a98b44d18',
+            # ],
         )
         # print(response)
         return response['Images']
@@ -24,7 +25,6 @@ class GetImages(object):
     def get_image_info(self, filters):
         images_list = []
         images = self.descript_images(filters)
-
         for i in range(len(images)):
             create_time = images[i]['CreationDate']
             create_time = re.split(r'[T.]', str(create_time))
@@ -36,6 +36,7 @@ class GetImages(object):
             hypervisor = images[i]['Hypervisor']
             virtualization_type = images[i]['VirtualizationType']
             architecture = images[i]['Architecture']
+            root_device_type = images[i]['RootDeviceType']
             try:
                 ena_support = images[i]['EnaSupport']
                 ena_support = str(ena_support)
@@ -57,21 +58,22 @@ class GetImages(object):
                 name = re.sub(r'\d{8}-', '', str(name))
             elif owner_id == '141808717104':
                 name = re.sub(r'\.\d{8}|\d{4}\.\d{2}\.\d+', '', str(name))
-            # print(name)
-            # print(description)
+                name = re.sub(r'--|-\.', '-', str(name))
+            elif owner_id == '016951021795':
+                name = re.sub(r'-\d{4}\.\d{2}\.\d{2}', '', str(name))
             images_list.append(
-                [image_id, owner_id, hypervisor, virtualization_type, architecture, ena_support, sriov_net_support,
-                 name, description, create_time])
-        images_list = sorted(images_list, key=itemgetter(7,9), reverse=True)
-        new_images_list=[]
+                [image_id, owner_id, hypervisor, virtualization_type, architecture, root_device_type, ena_support,
+                 sriov_net_support, name, description, create_time])
+        images_list = sorted(images_list, key=itemgetter(8, 10), reverse=True)
+        new_images_list = []
         for image in images_list:
-            if len(new_images_list)==0:
+            if len(new_images_list) == 0:
                 new_images_list.append(image)
             else:
-                name=new_images_list[-1][7]
-                if image[7] != name:
+                name = new_images_list[-1][8]
+                if image[8] != name:
                     new_images_list.append(image)
-        f = open('images_%s.csv' % date, 'a+')
+        f = open('aws_amis_list_%s.csv' % date, 'a+')
         line = ''
         for image_info in new_images_list:
             for j in range(len(image_info)):
@@ -81,9 +83,9 @@ class GetImages(object):
         f.close()
 
     def main(self):
-        f = open('images_%s.csv' % date, 'w')
+        f = open('aws_amis_list_%s.csv' % date, 'w')
         f.write(
-            'ImageId,OwnerId,Hypervisor,VirtualizationType,Architecture,EnaSupport,SriovNetSupport,Name,Description,CreateTime' + '\n')
+            'ImageId,OwnerId,Hypervisor,VirtualizationType,Architecture,RootDeviceType,EnaSupport,SriovNetSupport,Name,Description,CreateTime' + '\n')
         f.close()
         for owner_id in owner_ids:
             filters = [
