@@ -12,39 +12,41 @@ class AWSS3(object):
         print(response)
         return response
 
-    def emr_cluster_create(self, emr_info):
-        # emr_info={
-        #     'Name':'aidatagov',
-        #     'LogUri':'s3://aidatagov.emr01/aidatagov-logs/',
-        #     'ReleaseLabel':'emr-5.24.0',
-        #     'Instances':{
-        #         'InstanceType':'m3.xlarge',
-        #         'Ec2KeyName':'aidatagov',
-        #         'Ec2SubnetIds':['subnet-8f3baceb',],
-        #     },
-        #     'Applications':[
-        #         {
-        #             'Name': 'Hadoop',
-        #             'Version': '2.8.5'
-        #         },
-        #         {
-        #             'Name': 'Hive',
-        #             'Version': '2.3.4'
-        #         },
-        #         {
-        #             'Name': 'Hue',
-        #             'Version': '4.4.0'
-        #         }
-        #     ],
-        #     'JobFlowRole': 'EMR_EC2_DefaultRole',
-        #     'ServiceRole': 'EMR_DefaultRole',
-        #     'Tags': [
-        #         # {
-        #         #     'Key': 'string',
-        #         #     'Value': 'string'
-        #         # },
-        #     ]
-        # }
+    # def emr_cluster_create(self, emr_info):
+    def emr_cluster_create(self):
+        emr_info = {
+            'Name': 'aidatagov',
+            'LogUri': 's3://aidatagov.emr01/aidatagov-logs/',
+            'ReleaseLabel': 'emr-5.24.1',
+            # 'ReleaseLabel':'',
+            'Instances': {
+                'InstanceType': 'm3.xlarge',
+                'Ec2KeyName': 'aidatagov',
+                'Ec2SubnetIds': ['subnet-8f3baceb', ],
+            },
+            'Applications': [
+                {
+                    'Name': 'Hadoop',
+                    # 'Version': '2.8.5'
+                },
+                {
+                    'Name': 'Hive',
+                    # 'Version': '2.3.4'
+                },
+                {
+                    'Name': 'Hue',
+                    # 'Version': '4.4.0'
+                }
+            ],
+            'JobFlowRole': 'EMR_EC2_DefaultRole',
+            'ServiceRole': 'EMR_DefaultRole',
+            'Tags': [
+                # {
+                #     'Key': 'string',
+                #     'Value': 'string'
+                # },
+            ]
+        }
         response = self.emr_client.run_job_flow(
             Name=emr_info['Name'],
             LogUri=emr_info['LogUri'],
@@ -250,6 +252,7 @@ class AWSS3(object):
             # SecurityConfiguration='string',
             # AutoScalingRole='string',
             # ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR' | 'TERMINATE_AT_TASK_COMPLETION',
+            ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
             # CustomAmiId='string',
             # EbsRootVolumeSize=123,
             # RepoUpgradeOnBoot='SECURITY' | 'NONE',
@@ -262,9 +265,10 @@ class AWSS3(object):
             # }
         )
         print(response)
-        return
+        # return response['JobFlowId']
 
 
 if __name__ == '__main__':
     app = AWSS3()
-    app.emr_cluster_describe('j-1D42XBDMWY41Y')
+    # app.emr_cluster_describe('j-1D42XBDMWY41Y')
+    app.emr_cluster_create()
