@@ -1,5 +1,6 @@
 import boto3
 import os
+import time
 
 
 class AWSEC2(object):
@@ -346,6 +347,7 @@ class AWSEC2(object):
             # PrivateIpAddress='string'
         )
         print(response)
+        return response
 
     def ec2_eip_disassociate_address(self, eipid):
         response = self.ec2_client.disassociate_address(
@@ -386,6 +388,13 @@ class AWSEC2(object):
 
     def ec2_internet_gateway_attach(self, internet_gatewayid, vpcid):
         response = self.ec2_client.attach_internet_gateway(
+            InternetGatewayId=internet_gatewayid,
+            VpcId=vpcid
+        )
+        print(response)
+
+    def ec2_internet_gateway_detach(self, internet_gatewayid, vpcid):
+        response = self.ec2_client.detach_internet_gateway(
             InternetGatewayId=internet_gatewayid,
             VpcId=vpcid
         )
@@ -751,6 +760,60 @@ class AWSEC2(object):
         )
         return response['Volumes'][0]
 
+    def ec2_instance_type_modify(self, instance_id, instance_type):
+        response = self.ec2_client.modify_instance_attribute(
+            # SourceDestCheck={
+            #     'Value': True | False
+            # },
+            # Attribute='instanceType' | 'kernel' | 'ramdisk' | 'userData' | 'disableApiTermination' | 'instanceInitiatedShutdownBehavior' | 'rootDeviceName' | 'blockDeviceMapping' | 'productCodes' | 'sourceDestCheck' | 'groupSet' | 'ebsOptimized' | 'sriovNetSupport' | 'enaSupport',
+            Attribute='instanceType',
+            # BlockDeviceMappings=[
+            #     {
+            #         'DeviceName': 'string',
+            #         'Ebs': {
+            #             'DeleteOnTermination': True | False,
+            #             'VolumeId': 'string'
+            #         },
+            #         'NoDevice': 'string',
+            #         'VirtualName': 'string'
+            #     },
+            # ],
+            # DisableApiTermination={
+            #     'Value': True | False
+            # },
+            # DryRun=True | False,
+            # EbsOptimized={
+            #     'Value': True | False
+            # },
+            # EnaSupport={
+            #     'Value': True | False
+            # },
+            # Groups=[
+            #     'string',
+            # ],
+            InstanceId=instance_id,
+            # InstanceInitiatedShutdownBehavior={
+            #     'Value': 'string'
+            # },
+            InstanceType={
+                'Value': instance_type
+            },
+            # Kernel={
+            #     'Value': 'string'
+            # },
+            # Ramdisk={
+            #     'Value': 'string'
+            # },
+            # SriovNetSupport={
+            #     'Value': 'string'
+            # },
+            # UserData={
+            #     'Value': b'bytes'
+            # },
+            # Value='string'
+        )
+        print(response)
+
     def ec2_instance_create(self, instance_info):
         # instance_info = {
         #     'BlockDeviceMappings': [
@@ -871,29 +934,30 @@ class AWSEC2(object):
             InstanceInitiatedShutdownBehavior='stop',
             # NetworkInterfaces=[
             # {
-            # 'AssociatePublicIpAddress': True | False,
-            # 'DeleteOnTermination': True | False,
-            # 'Description': 'string',
-            # 'DeviceIndex': 123,
-            # 'Groups': [
-            #     'string',
-            # ],
-            # 'Ipv6AddressCount': 123,
-            # 'Ipv6Addresses': [
-            #     {
-            #         'Ipv6Address': 'string'
-            #     },
-            # ],
-            # 'NetworkInterfaceId': 'string',
-            # 'PrivateIpAddress': 'string',
-            # 'PrivateIpAddresses': [
-            #     {
-            #         'Primary': True | False,
-            #         'PrivateIpAddress': 'string'
-            #     },
-            # ],
-            # 'SecondaryPrivateIpAddressCount': 123,
-            # 'SubnetId': 'subnet-0b88d4d63456d0dad'
+            # 'AssociatePublicIpAddress': False,
+            # # 'AssociatePublicIpAddress': True | False,
+            # # 'DeleteOnTermination': True | False,
+            # # 'Description': 'string',
+            # 'DeviceIndex': 0,
+            # # 'Groups': [
+            # #     'string',
+            # # ],
+            # # 'Ipv6AddressCount': 123,
+            # # 'Ipv6Addresses': [
+            # #     {
+            # #         'Ipv6Address': 'string'
+            # #     },
+            # # ],
+            # # 'NetworkInterfaceId': 'string',
+            # # 'PrivateIpAddress': 'string',
+            # # 'PrivateIpAddresses': [
+            # #     {
+            # #         'Primary': True | False,
+            # #         'PrivateIpAddress': 'string'
+            # #     },
+            # # ],
+            # # 'SecondaryPrivateIpAddressCount': 123,
+            # # 'SubnetId': 'subnet-0b88d4d63456d0dad'
             # },
             # ],
             # PrivateIpAddress='string',
