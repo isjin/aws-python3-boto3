@@ -1,0 +1,21 @@
+{
+  "RoleName":"devops-chain-ecs-instance-role",
+  "PolicyArns":[
+    "arn:aws-cn:iam::aws:policy\/service-role\/AmazonEC2ContainerServiceforEC2Role"
+  ],
+  "InstanceProfile":true,
+  "Description":"devops-chain-ecs-instance-role",
+  "AssumeRolePolicyDocument":{
+    "Version":"2008-10-17",
+    "Statement":[
+      {
+        "Sid":"",
+        "Effect":"Allow",
+        "Principal":{
+          "Service":"ec2.amazonaws.com.cn"
+        },
+        "Action":"sts:AssumeRole"
+      }
+    ]
+  }
+}

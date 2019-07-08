@@ -1,0 +1,11 @@
+{
+  "groupname":"devops-chain-sg",
+  "description":"devops-chain-sg",
+  "vpcid":"{self.vpcid}",
+  "tags":[
+    {
+      "Key":"Name",
+      "Value":"devops-chain-sg"
+    }
+  ]
+}
