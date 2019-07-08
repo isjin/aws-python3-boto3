@@ -63,7 +63,7 @@ class AWSIAM(object):
         )
         print(response)
 
-    def iam_role_create(self,role_info):
+    def iam_role_create(self, role_info):
         # role_info = {
         #     "RoleName": "testrole",
         #     "Description": "testrole",
@@ -96,9 +96,8 @@ class AWSIAM(object):
             # ]
         )
         print(response)
-        return response
 
-    def iam_role_delete(self,role_name):
+    def iam_role_delete(self, role_name):
         response = self.iam_client.delete_role(
             RoleName=role_name
         )
@@ -110,49 +109,71 @@ class AWSIAM(object):
         )
         print(response)
 
-    def iam_instance_profile_create(self,intance_profile_name):
+    def iam_instance_profile_create(self, intance_profile_name):
         response = self.iam_client.create_instance_profile(
             InstanceProfileName=intance_profile_name,
             # Path='string'
         )
         print(response)
 
-    def iam_instance_profile_delete(self,intance_profile_name):
+    def iam_instance_profile_delete(self, intance_profile_name):
         response = self.iam_client.delete_instance_profile(
             InstanceProfileName=intance_profile_name,
             # Path='string'
         )
         print(response)
 
-    def iam_instance_profile_get(self,intance_profile_name):
+    def iam_instance_profile_get(self, intance_profile_name):
         response = self.iam_client.get_instance_profile(
             InstanceProfileName=intance_profile_name,
             # Path='string'
         )
         print(response)
 
-    def iam_role_to_instance_profile_add(self,instance_profile_name,role_name):
+    def iam_role_to_instance_profile_add(self, instance_profile_name, role_name):
         response = self.iam_client.add_role_to_instance_profile(
             InstanceProfileName=instance_profile_name,
             RoleName=role_name
         )
         print(response)
 
-    def iam_role_policy_attach(self,role_name,policy_arn):
+    def iam_role_to_instance_profile_remove(self, instance_profile_name, role_name):
+        response = self.iam_client.remove_role_from_instance_profile(
+            InstanceProfileName=instance_profile_name,
+            RoleName=role_name
+        )
+        print(response)
+
+    def iam_instance_profile_for_role_list(self, role_name):
+        response = self.iam_client.list_instance_profiles_for_role(
+            RoleName=role_name,
+            # Marker='string',
+            # MaxItems=123
+        )
+        print(response)
+
+    def iam_role_policy_attach(self, role_name, policy_arn):
         response = self.iam_client.attach_role_policy(
             RoleName=role_name,
             PolicyArn=policy_arn
         )
         print(response)
 
-    def iam_role_policy_get(self,role_name,policy_name):
+    def iam_role_policy_detach(self, role_name, policy_arn):
+        response = self.iam_client.detach_role_policy(
+            RoleName=role_name,
+            PolicyArn=policy_arn
+        )
+        print(response)
+
+    def iam_role_policy_get(self, role_name, policy_name):
         response = self.iam_client.get_role_policy(
             RoleName=role_name,
             PolicyName=policy_name
         )
         print(response)
 
-    def iam_policy_get(self,policy_arn):
+    def iam_policy_get(self, policy_arn):
         response = self.iam_client.get_policy(
             PolicyArn=policy_arn
         )
@@ -164,4 +185,5 @@ if __name__ == '__main__':
     # app.iam_role_create('ecsInstanceRole',)
     # app.iam_instance_profile_create('testrole')
     # app.iam_role_to_instance_profile_add('testrole','testrole')
-    app.iam_role_policy_attach('testrole','arn:aws-cn:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')
+    # app.iam_role_policy_attach('testrole','arn:aws-cn:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')
+    app.iam_role_get('ecsAutoscaleRole')
