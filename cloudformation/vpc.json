@@ -1,0 +1,17 @@
+{
+  "AWSTemplateFormatVersion":"2010-09-09",
+  "Parameters" : {
+      "vpccidr": {
+          "Description" : "Name of an existing EC2 key pair for SSH access to the EC2 instance.",
+          "Type": "String" 
+    }  
+  },
+  "Resources":{
+     "Vpc":{
+   "Type" : "AWS::EC2::VPC",
+   "Properties" : {
+     "CidrBlock" : {"Ref":"vpccidr"}
+   }
+}  
+  }
+}
