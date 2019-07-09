@@ -1,0 +1,45 @@
+{
+  "BlockDeviceMappings":[
+    {
+      "DeviceName":"\/dev\/xvda",
+      "Ebs":{
+        "DeleteOnTermination":true,
+        "VolumeSize":50,
+        "VolumeType":"gp2"
+      }
+    }
+  ],
+  "ImageId":"ami-0cdb0bf27047e574c",
+  "InstanceType":"m4.large",
+  "maxcount":1,
+  "mincount":1,
+  "UserData":"#!\/bin\/bash\necho ECS_CLUSTER=ecs_test >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;",
+  "IamInstanceProfile":{
+    "Name":"ecsInstanceRole"
+  },
+  "KeyName":"devopschaindemo",
+  "SecurityGroupIds":[
+    "self.sg_prod_applicatioon_id"
+  ],
+  "SubnetId":"self.subnetid_prod_b",
+  "TagSpecifications":[
+    {
+      "ResourceType":"instance",
+      "Tags":[
+        {
+          "Key":"Name",
+          "Value":"ecs-test-ec2-1"
+        }
+      ]
+    },
+    {
+      "ResourceType":"volume",
+      "Tags":[
+        {
+          "Key":"Name",
+          "Value":"ecs-test-ec2-1"
+        }
+      ]
+    }
+  ]
+}

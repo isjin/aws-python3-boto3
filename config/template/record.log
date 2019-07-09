@@ -1,6 +1,1 @@
-{
-  "vpcid":"None",
-  "subnetid_1":"None",
-  "igwid":"None",
-  "sg_devopschain_application_id":"None"
-}
+{"vpcs": {}, "subnets": {}, "security_groups": {}, "ec2_instances": {}, "igws": {}, "ngws": {}, "eips": {}, "keypairs": {}, "roles": {}, "instance_profiles": {}, "policies": {}, "cloudformation": {}, "ecs": {}}

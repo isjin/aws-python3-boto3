@@ -325,9 +325,9 @@ class AWSEC2(object):
         print(eipip, eipid)
         return eipid
 
-    def ec2_eip_release(self, eipid):
+    def ec2_eip_release(self, allocation_id):
         response = self.ec2_client.release_address(
-            AllocationId=eipid,
+            AllocationId=allocation_id,
         )
         print(response)
 
@@ -378,7 +378,7 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_eip_describe(self, allocationId):
+    def ec2_eip_allocation_id_describe(self, allocationId):
         response = self.ec2_client.describe_addresses(
             # Filters=[
             #     {
@@ -394,6 +394,27 @@ class AWSEC2(object):
             AllocationIds=[
                 allocationId,
             ],
+            # DryRun=True | False
+        )
+        print(response)
+        return response
+
+    def ec2_eip_public_ip_describe(self, public_ip):
+        response = self.ec2_client.describe_addresses(
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            PublicIps=[
+                public_ip,
+            ],
+            # AllocationIds=[
+            #     allocationId,
+            # ],
             # DryRun=True | False
         )
         print(response)
@@ -1072,10 +1093,16 @@ class AWSEC2(object):
             instanceids.append(instanceid)
         return instanceids
 
-    def ec2_instance_delete(self, instanceids):
+    def ec2_instances_delete(self, instanceids):
         # instanceids is list
         response = self.ec2_client.terminate_instances(
             InstanceIds=instanceids,
+        )
+        print(response)
+
+    def ec2_instance_delete(self, instanceid):
+        response = self.ec2_client.terminate_instances(
+            InstanceIds=[instanceid],
         )
         print(response)
 

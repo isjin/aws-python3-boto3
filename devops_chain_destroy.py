@@ -7,7 +7,7 @@ import time
 
 
 key_pair = 'devopschaindemo'
-record_path = 'config/devops_chain/devops_chain2.log'
+record_path = 'config/devops_chain/devops_chain3.log'
 
 
 class DevopsChain(object):
@@ -144,12 +144,15 @@ class DevopsChain(object):
     def delete_ecs(self):
         print("Start to delete ECS")
         for key in list(self.record['ecs'].keys()):
-            try:
-                self.ecs.ecs_cluster_delete(self.record['ecs'][key])
-                del self.record['ecs'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
+            while True:
+                try:
+                    self.ecs.ecs_cluster_delete(self.record['ecs'][key])
+                    del self.record['ecs'][key]
+                    self.write_file()
+                    break
+                except Exception as e:
+                    print(e.__str__())
+                    time.sleep(15)
         print("Delete ECS is finished.")
 
     def delete_ec2(self):
@@ -157,7 +160,7 @@ class DevopsChain(object):
         for key in list(self.record['eips'].keys()):
             try:
                 eipid = self.record['eips'][key]
-                association_id=self.ec2.ec2_eip_describe(eipid)['Addresses'][0]['AssociationId']
+                association_id = self.ec2.ec2_eip_allocation_id_describe(eipid)['Addresses'][0]['AssociationId']
                 self.ec2.ec2_eip_disassociate_address(association_id)
                 self.ec2.ec2_eip_release(eipid)
                 del self.record['eips'][key]
@@ -167,13 +170,13 @@ class DevopsChain(object):
 
         for key in list(self.record['ec2_instances'].keys()):
             try:
-                instance_id=self.record['ec2_instances'][key]
-                volumes_info=self.ec2.ec2_instance_describe(instance_id)['Instances'][0]['BlockDeviceMappings']
-                self.ec2.ec2_instance_delete([instance_id])
+                instance_id = self.record['ec2_instances'][key]
+                volumes_info = self.ec2.ec2_instance_describe(instance_id)['Instances'][0]['BlockDeviceMappings']
+                self.ec2.ec2_instance_delete(instance_id)
                 for volume_info in volumes_info:
-                    device_name=volume_info['DeviceName']
-                    if device_name not in ['/dev/sda1','/dev/xvda']:
-                        volume_id=volume_info['Ebs']['VolumeId']
+                    device_name = volume_info['DeviceName']
+                    if device_name not in ['/dev/sda1', '/dev/xvda']:
+                        volume_id = volume_info['Ebs']['VolumeId']
                         self.ec2.ec2_volume_delete(volume_id)
                 del self.record['ec2_instances'][key]
                 self.write_file()
@@ -182,15 +185,15 @@ class DevopsChain(object):
         print("Delete EC2 is finished.")
 
     def main(self):
-        self.delete_ec2()
-        self.delete_cloudformation()
+        # self.delete_ec2()
+        # self.delete_cloudformation()
         self.delete_ecs()
-        self.delete_role()
-        self.delete_security_groups()
-        self.delete_keypair()
-        self.delete_igws()
-        self.delete_subnets()
-        self.delete_vpcs()
+        # self.delete_role()
+        # self.delete_security_groups()
+        # self.delete_keypair()
+        # self.delete_igws()
+        # self.delete_subnets()
+        # self.delete_vpcs()
 
 
 if __name__ == '__main__':

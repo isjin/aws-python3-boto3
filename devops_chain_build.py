@@ -5,7 +5,6 @@ import time
 
 # brandedgoods
 
-
 key_pair = 'devopschaindemo'
 record_path = 'config/devops_chain/devops_chain2.log'
 
@@ -105,7 +104,7 @@ class DevopsChain(object):
         self.record['roles'][role_key_name]['name'] = role_info['RoleName']
         self.record['roles'][role_key_name]['arn'] = role_arn
         self.write_file()
-        if role_info['InstanceProfile'] == True:
+        if role_info['InstanceProfile']:
             instance_profile_arn = self.iam.iam_instance_profile_create(role_info['RoleName'])
             self.record['instance_profiles'][role_key_name] = {}
             self.record['instance_profiles'][role_key_name]['name'] = role_info['RoleName']
@@ -245,85 +244,86 @@ class DevopsChain(object):
             self.create_security_group(devops_chain_sg_devopschain_path, devops_chain_sg_devopschain_inbound_path,
                                        devops_chain_sg_devopschain_keyname, devops_chain_vpc_keyname)
 
-        # create role
-        print("Create roles")
-        devops_chain_iam_ecs_instance_role_path = 'config/devops_chain/devops_chain_iam_ecs_instance_role.txt'
-        devops_chain_iam_ecs_instance_role_keyname = 'ecs_instance_role'
-        if devops_chain_iam_ecs_instance_role_keyname not in self.record['roles'].keys():
-            self.create_role(devops_chain_iam_ecs_instance_role_path, devops_chain_iam_ecs_instance_role_keyname)
-        devops_chain_iam_ecs_service_role_path = 'config/devops_chain/devops_chain_iam_ecs_service_role.txt'
-        devops_chain_iam_ecs_service_role_keyname = 'ecs_service_role'
-        if devops_chain_iam_ecs_service_role_keyname not in self.record['roles'].keys():
-            self.create_role(devops_chain_iam_ecs_service_role_path, devops_chain_iam_ecs_service_role_keyname)
-        devops_chain_iam_ecs_task_role_path = 'config/devops_chain/devops_chain_iam_ecs_task_role.txt'
-        devops_chain_iam_ecs_task_role_keyname = 'ecs_task_role'
-        if devops_chain_iam_ecs_task_role_keyname not in self.record['roles'].keys():
-            self.create_role(devops_chain_iam_ecs_task_role_path, devops_chain_iam_ecs_task_role_keyname)
-        devops_chain_iam_ecs_autoscale_role_path = 'config/devops_chain/devops_chain_iam_ecs_autoscale_role.txt'
-        devops_chain_iam_ecs_autoscale_role_keyname = 'ecs_autoscale_role'
-        if devops_chain_iam_ecs_autoscale_role_keyname not in self.record['roles'].keys():
-            self.create_role(devops_chain_iam_ecs_autoscale_role_path, devops_chain_iam_ecs_autoscale_role_keyname)
+        # # create role
+        # print("Create roles")
+        # devops_chain_iam_ecs_instance_role_path = 'config/devops_chain/devops_chain_iam_ecs_instance_role.txt'
+        # devops_chain_iam_ecs_instance_role_keyname = 'ecs_instance_role'
+        # if devops_chain_iam_ecs_instance_role_keyname not in self.record['roles'].keys():
+        #     self.create_role(devops_chain_iam_ecs_instance_role_path, devops_chain_iam_ecs_instance_role_keyname)
+        # devops_chain_iam_ecs_service_role_path = 'config/devops_chain/devops_chain_iam_ecs_service_role.txt'
+        # devops_chain_iam_ecs_service_role_keyname = 'ecs_service_role'
+        # if devops_chain_iam_ecs_service_role_keyname not in self.record['roles'].keys():
+        #     self.create_role(devops_chain_iam_ecs_service_role_path, devops_chain_iam_ecs_service_role_keyname)
+        # devops_chain_iam_ecs_task_role_path = 'config/devops_chain/devops_chain_iam_ecs_task_role.txt'
+        # devops_chain_iam_ecs_task_role_keyname = 'ecs_task_role'
+        # if devops_chain_iam_ecs_task_role_keyname not in self.record['roles'].keys():
+        #     self.create_role(devops_chain_iam_ecs_task_role_path, devops_chain_iam_ecs_task_role_keyname)
+        # devops_chain_iam_ecs_autoscale_role_path = 'config/devops_chain/devops_chain_iam_ecs_autoscale_role.txt'
+        # devops_chain_iam_ecs_autoscale_role_keyname = 'ecs_autoscale_role'
+        # if devops_chain_iam_ecs_autoscale_role_keyname not in self.record['roles'].keys():
+        #     self.create_role(devops_chain_iam_ecs_autoscale_role_path, devops_chain_iam_ecs_autoscale_role_keyname)
 
-        # create cloudformation
-        print("Create cloudformation")
-        cloudformation_template_path = 'cloudformation/ecs_template.json'
-        cloudformation_stack_path = 'config/devops_chain/devops_chain_cloudformation_ecs.txt'
-        cloudformation_stack_info = self.read_file(cloudformation_stack_path)
-        ecs_cluster_name = ''
-        for parameter in cloudformation_stack_info['Parameters']:
-            if parameter['ParameterKey'] == 'IamRoleInstanceProfile':
-                parameter['ParameterValue'] = \
-                self.record['instance_profiles'][devops_chain_iam_ecs_instance_role_keyname]['arn']
-            elif parameter['ParameterKey'] == 'SubnetIds':
-                cf_subnets = []
-                cf_subnets_id = ''
-                for subnet_key in self.record['subnets'].keys():
-                    cf_subnets.append(self.record['subnets'][subnet_key])
-                cf_subnets_length = len(cf_subnets)
-                for i in range(cf_subnets_length):
-                    if i == cf_subnets_length - 1:
-                        cf_subnets_id = cf_subnets_id + cf_subnets[i]
-                    else:
-                        cf_subnets_id = cf_subnets_id + cf_subnets[i] + ','
-                parameter['ParameterValue'] = cf_subnets_id
-            elif parameter['ParameterKey'] == 'SecurityGroupId':
-                parameter['ParameterValue'] = self.record['security_groups'][devops_chain_sg_devopschain_keyname]
-            # elif parameter['ParameterKey'] == 'KeyName':
-            #     parameter['ParameterValue'] = self.record['keypairs'][devops_chain_keypair_keyname]
-            elif parameter['ParameterKey'] == 'VpcId':
-                parameter['ParameterValue'] = self.record['vpcs'][devops_chain_vpc_keyname]
-            elif parameter['ParameterKey'] == 'EcsClusterName':
-                ecs_cluster_name = parameter['ParameterValue']
-        cf_stack__ecs_keyname = 'devops_chain_ecs'
-        if cf_stack__ecs_keyname not in self.record['cloudformation'].keys():
-            ecs_cluster_key_name='devops_chain_ecs'
-            if ecs_cluster_key_name not in self.record['ecs'].keys():
-                self.ecs.ecs_cluster_create(ecs_cluster_name)
-                self.record['ecs'][ecs_cluster_key_name]=ecs_cluster_name
-                self.write_file()
-            self.create_cloudformation(cloudformation_template_path, cloudformation_stack_info, cf_stack__ecs_keyname)
+        # # create ecs cloudformation
+        # print("Create cloudformation")
+        # cloudformation_template_path = 'cloudformation/ecs_template.json'
+        # cloudformation_stack_path = 'config/devops_chain/devops_chain_cloudformation_ecs.txt'
+        # cloudformation_stack_info = self.read_file(cloudformation_stack_path)
+        # ecs_cluster_name = ''
+        # for parameter in cloudformation_stack_info['Parameters']:
+        #     if parameter['ParameterKey'] == 'IamRoleInstanceProfile':
+        #         parameter['ParameterValue'] = \
+        #             self.record['instance_profiles'][devops_chain_iam_ecs_instance_role_keyname]['arn']
+        #     elif parameter['ParameterKey'] == 'SubnetIds':
+        #         cf_subnets = []
+        #         cf_subnets_id = ''
+        #         for subnet_key in self.record['subnets'].keys():
+        #             cf_subnets.append(self.record['subnets'][subnet_key])
+        #         cf_subnets_length = len(cf_subnets)
+        #         for i in range(cf_subnets_length):
+        #             if i == cf_subnets_length - 1:
+        #                 cf_subnets_id = cf_subnets_id + cf_subnets[i]
+        #             else:
+        #                 cf_subnets_id = cf_subnets_id + cf_subnets[i] + ','
+        #         parameter['ParameterValue'] = cf_subnets_id
+        #     elif parameter['ParameterKey'] == 'SecurityGroupId':
+        #         parameter['ParameterValue'] = self.record['security_groups'][devops_chain_sg_devopschain_keyname]
+        #     # elif parameter['ParameterKey'] == 'KeyName':
+        #     #     parameter['ParameterValue'] = self.record['keypairs'][devops_chain_keypair_keyname]
+        #     elif parameter['ParameterKey'] == 'VpcId':
+        #         parameter['ParameterValue'] = self.record['vpcs'][devops_chain_vpc_keyname]
+        #     elif parameter['ParameterKey'] == 'EcsClusterName':
+        #         ecs_cluster_name = parameter['ParameterValue']
+        # cf_stack__ecs_keyname = 'devops_chain_ecs'
+        # if cf_stack__ecs_keyname not in self.record['cloudformation'].keys():
+        #     ecs_cluster_key_name = 'devops_chain_ecs'
+        #     if ecs_cluster_key_name not in self.record['ecs'].keys():
+        #         self.ecs.ecs_cluster_create(ecs_cluster_name)
+        #         self.record['ecs'][ecs_cluster_key_name] = ecs_cluster_name
+        #         self.write_file()
+        #     self.create_cloudformation(cloudformation_template_path, cloudformation_stack_info, cf_stack__ecs_keyname)
 
-        # register ecs tasks definition
-        print("Register ecs tasks definition")
-        ecs_task_definition_hello_world_path='config/devops_chain/devops_chain_ecs_task_hello_world.txt'
-        self.register_task_definition(ecs_task_definition_hello_world_path)
-        ecs_task_definition_gitlab_path='config/devops_chain/devops_chain_ecs_task_gitlab.txt'
-        self.register_task_definition(ecs_task_definition_gitlab_path)
-        ecs_task_definition_jenkins_path='config/devops_chain/devops_chain_ecs_task_jenkins.txt'
-        self.register_task_definition(ecs_task_definition_jenkins_path)
-        ecs_task_definition_jira_path='config/devops_chain/devops_chain_ecs_task_jira.txt'
-        self.register_task_definition(ecs_task_definition_jira_path)
+        # # register ecs tasks definition
+        # print("Register ecs tasks definition")
+        # ecs_task_definition_hello_world_path = 'config/devops_chain/devops_chain_ecs_task_hello_world.txt'
+        # self.register_task_definition(ecs_task_definition_hello_world_path)
+        # ecs_task_definition_gitlab_path = 'config/devops_chain/devops_chain_ecs_task_gitlab.txt'
+        # self.register_task_definition(ecs_task_definition_gitlab_path)
+        # ecs_task_definition_jenkins_path = 'config/devops_chain/devops_chain_ecs_task_jenkins.txt'
+        # self.register_task_definition(ecs_task_definition_jenkins_path)
+        # ecs_task_definition_jira_path = 'config/devops_chain/devops_chain_ecs_task_jira.txt'
+        # self.register_task_definition(ecs_task_definition_jira_path)
 
-        # create windows ec2
-        print("Create EC2 Windows server")
-        ec2_instance_windows_path = 'config/devops_chain/devops_chain_instance_windows.txt'
-        ec2_instance_windows_info = self.read_file(ec2_instance_windows_path)
-        ec2_instance_windows_info['SecurityGroupIds'] = [self.record['security_groups'][devops_chain_sg_devopschain_keyname], ]
-        ec2_instance_windows_info['SubnetId'] = self.record['subnets'][devops_chain_subnet_1a_keyname]
-        ec2_instance_windows_keyname = 'windows'
-        if ec2_instance_windows_keyname not in self.record['ec2_instances'].keys():
-            self.create_ec2(ec2_instance_windows_info, ec2_instance_windows_keyname)
-        print("Devops chain environment deployment is Done.")
+        # # create windows ec2
+        # print("Create EC2 Windows server")
+        # ec2_instance_windows_path = 'config/devops_chain/devops_chain_instance_windows.txt'
+        # ec2_instance_windows_info = self.read_file(ec2_instance_windows_path)
+        # ec2_instance_windows_info['SecurityGroupIds'] = [
+        #     self.record['security_groups'][devops_chain_sg_devopschain_keyname], ]
+        # ec2_instance_windows_info['SubnetId'] = self.record['subnets'][devops_chain_subnet_1a_keyname]
+        # ec2_instance_windows_keyname = 'windows'
+        # if ec2_instance_windows_keyname not in self.record['ec2_instances'].keys():
+        #     self.create_ec2(ec2_instance_windows_info, ec2_instance_windows_keyname)
+        # print("Devops chain environment deployment is Done.")
 
 
 if __name__ == '__main__':
