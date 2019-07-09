@@ -4,19 +4,15 @@
       "DeviceName":"\/dev\/sda1",
       "Ebs":{
         "DeleteOnTermination":true,
-        "VolumeSize":100,
+        "VolumeSize":50,
         "VolumeType":"gp2"
       }
     }
   ],
-  "ImageId":"ami-0496ad23920953fc2",
-  "InstanceType":"t2.medium",
+  "ImageId":"ami-0a73dfda83b2f0fd6",
+  "InstanceType":"t2.xlarge",
   "maxcount":1,
   "mincount":1,
-  "UserData":"",
-  "IamInstanceProfile":{
-    
-  },
   "KeyName":"devopschaindemo",
   "SecurityGroupIds":[
     "self.sg_prod_applicatioon_id"
@@ -28,7 +24,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"devops-chain-windows-ec2-1"
+          "Value":"devops-chain-ec2-3"
         }
       ]
     },
@@ -37,7 +33,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"devops-chain-windows-ec2-1"
+          "Value":"devops-chain-ec2-3"
         }
       ]
     }

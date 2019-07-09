@@ -96,6 +96,7 @@ class AWSIAM(object):
             # ]
         )
         print(response)
+        return response['Role']
 
     def iam_role_delete(self, role_name):
         response = self.iam_client.delete_role(
@@ -115,6 +116,7 @@ class AWSIAM(object):
             # Path='string'
         )
         print(response)
+        return response['InstanceProfile']['Arn']
 
     def iam_instance_profile_delete(self, intance_profile_name):
         response = self.iam_client.delete_instance_profile(
@@ -183,7 +185,7 @@ class AWSIAM(object):
 if __name__ == '__main__':
     app = AWSIAM()
     # app.iam_role_create('ecsInstanceRole',)
-    # app.iam_instance_profile_create('testrole')
+    app.iam_instance_profile_delete('devops-chain-ecs-instance-role')
     # app.iam_role_to_instance_profile_add('testrole','testrole')
     # app.iam_role_policy_attach('testrole','arn:aws-cn:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')
-    app.iam_role_get('ecsAutoscaleRole')
+    # app.iam_role_get('ecsAutoscaleRole')

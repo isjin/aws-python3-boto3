@@ -4,31 +4,35 @@
       "DeviceName":"\/dev\/sda1",
       "Ebs":{
         "DeleteOnTermination":true,
-        "VolumeSize":40,
+        "VolumeSize":100,
+        "VolumeType":"gp2"
+      }
+    },
+    {
+      "DeviceName":"\/dev\/sdb",
+      "Ebs":{
+        "DeleteOnTermination":true,
+        "VolumeSize":100,
         "VolumeType":"gp2"
       }
     }
   ],
-  "ImageId":"ami-1971bb74",
+  "ImageId":"ami-0496ad23920953fc2",
   "InstanceType":"t2.medium",
   "maxcount":1,
   "mincount":1,
-  "KeyName":"key_pair_uat",
+  "KeyName":"devopschaindemo",
   "SecurityGroupIds":[
-    "self.sg_uat_application_id"
+    "self.sg_prod_applicatioon_id"
   ],
-  "SubnetId":"self.subnetid_uat_a",
+  "SubnetId":"self.subnetid_prod_b",
   "TagSpecifications":[
     {
       "ResourceType":"instance",
       "Tags":[
         {
           "Key":"Name",
-          "Value":"brandgoods-application-uat-ec2-1"
-        },
-        {
-          "Key":"System",
-          "Value":"Brandgoods"
+          "Value":"devops-chain-ec2-2"
         }
       ]
     },
@@ -37,11 +41,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"brandgoods-application-uat-ec2-1"
-        },
-        {
-          "Key":"System",
-          "Value":"Brandgoods"
+          "Value":"devops-chain-ec2-1"
         }
       ]
     }

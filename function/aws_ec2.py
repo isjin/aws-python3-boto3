@@ -222,7 +222,7 @@ class AWSEC2(object):
         )
         print(route)
 
-    def ec2_route_add_gw(self, route_table_id, route_table_info):
+    def ec2_route_add_igw(self, route_table_id, route_table_info):
         # route_table_info={
         #     'DestinationCidrBlock':'0.0.0.0/0',
         #     'GatewayId':'nid',
@@ -357,7 +357,28 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_eip_describe(self, public_ip):
+    def ec2_eips_describe(self,filters):
+        # filters=[
+        #         {
+        #             'Name': 'string',
+        #             'Values': [
+        #                 'string',
+        #             ]
+        #         },
+        #     ],
+        response = self.ec2_client.describe_addresses(
+            Filters=filters,
+            # PublicIps=[
+            #     'string',
+            # ],
+            # AllocationIds=[
+            #     'string',
+            # ],
+            # DryRun=True | False
+        )
+        print(response)
+
+    def ec2_eip_describe(self, allocationId):
         response = self.ec2_client.describe_addresses(
             # Filters=[
             #     {
@@ -367,12 +388,12 @@ class AWSEC2(object):
             #         ]
             #     },
             # ],
-            PublicIps=[
-                public_ip,
-            ],
-            # AllocationIds=[
-            #     'string',
+            # PublicIps=[
+            #     public_ip,
             # ],
+            AllocationIds=[
+                allocationId,
+            ],
             # DryRun=True | False
         )
         print(response)
@@ -842,6 +863,11 @@ class AWSEC2(object):
         #     'maxcount': 1,
         #     'mincount': 1,
         #     'KeyName': key_pair,
+        #     'UserData': 'echo hello world',
+        #     'IamInstanceProfile': {
+        #                  'Arn': 'string',
+        #                  'Name': 'string'
+        #              },
         #     'SecurityGroupIds': ['sg-0a97d9150f2dfb4a8', ],
         #     'SubnetId': self.subnetid_1,
         #     'TagSpecifications': [
@@ -921,12 +947,13 @@ class AWSEC2(object):
             #     'string',
             # ],
             SubnetId=instance_info['SubnetId'],
-            # UserData='string',
+            UserData=instance_info['UserData'],
             # AdditionalInfo='string',
             # ClientToken='string',
             # DisableApiTermination=True | False,
             # DryRun=True | False,
             # EbsOptimized=True | False,
+            IamInstanceProfile=instance_info['IamInstanceProfile'],
             # IamInstanceProfile={
             #     'Arn': 'string',
             #     'Name': 'string'
