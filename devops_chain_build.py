@@ -270,9 +270,8 @@ class DevopsChain(object):
         # cloudformation_stack_info = self.read_file(cloudformation_stack_path)
         # ecs_cluster_name = ''
         # for parameter in cloudformation_stack_info['Parameters']:
-        #     if parameter['ParameterKey'] == 'IamRoleInstanceProfile':
-        #         parameter['ParameterValue'] = \
-        #             self.record['instance_profiles'][devops_chain_iam_ecs_instance_role_keyname]['arn']
+        #     if parameter['ParameterKey'] == 'VpcId':
+        #         parameter['ParameterValue'] = self.record['vpcs'][devops_chain_vpc_keyname]
         #     elif parameter['ParameterKey'] == 'SubnetIds':
         #         cf_subnets = []
         #         cf_subnets_id = ''
@@ -291,16 +290,19 @@ class DevopsChain(object):
         #     #     parameter['ParameterValue'] = self.record['keypairs'][devops_chain_keypair_keyname]
         #     elif parameter['ParameterKey'] == 'VpcId':
         #         parameter['ParameterValue'] = self.record['vpcs'][devops_chain_vpc_keyname]
+        #     # elif parameter['ParameterKey'] == 'IamRoleInstanceProfile':
+        #     #     parameter['ParameterValue'] = \
+        #     #         self.record['instance_profiles'][devops_chain_iam_ecs_instance_role_keyname]['arn']
         #     elif parameter['ParameterKey'] == 'EcsClusterName':
         #         ecs_cluster_name = parameter['ParameterValue']
-        # cf_stack__ecs_keyname = 'devops_chain_ecs'
-        # if cf_stack__ecs_keyname not in self.record['cloudformation'].keys():
+        # cf_stack_ecs_keyname = 'devops_chain_ecs'
+        # if cf_stack_ecs_keyname not in self.record['cloudformation'].keys():
         #     ecs_cluster_key_name = 'devops_chain_ecs'
         #     if ecs_cluster_key_name not in self.record['ecs'].keys():
         #         self.ecs.ecs_cluster_create(ecs_cluster_name)
         #         self.record['ecs'][ecs_cluster_key_name] = ecs_cluster_name
         #         self.write_file()
-        #     self.create_cloudformation(cloudformation_template_path, cloudformation_stack_info, cf_stack__ecs_keyname)
+        #     self.create_cloudformation(cloudformation_template_path, cloudformation_stack_info, cf_stack_ecs_keyname)
 
         # # register ecs tasks definition
         # print("Register ecs tasks definition")
@@ -324,6 +326,17 @@ class DevopsChain(object):
         # if ec2_instance_windows_keyname not in self.record['ec2_instances'].keys():
         #     self.create_ec2(ec2_instance_windows_info, ec2_instance_windows_keyname)
         # print("Devops chain environment deployment is Done.")
+
+        # # run ecs task definitions
+        # ecs_instance_count = self.ecs.ecs_clusters_describe(ecs_cluster_name)['clusters'][0][
+        #     'registeredContainerInstancesCount']
+        # while True:
+        #     if ecs_instance_count > 0:
+        #         tasks = ['gitlab', 'jenkins', 'jira', 'hello_world']
+        #         for task in tasks:
+        #             self.ecs.ecs_task_run(ecs_cluster_name, task)
+        #         break
+        #     time.sleep(5)
 
 
 if __name__ == '__main__':

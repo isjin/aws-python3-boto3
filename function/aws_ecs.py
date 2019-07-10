@@ -36,7 +36,7 @@ class AWSECS(object):
                 clustername,
             ]
         )
-        print(response)
+        return response
 
     def ecs_task_definition_register(self,task_definition_info):
         # task_definition_info={
@@ -106,77 +106,132 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_task_run(self):
+    def ecs_task_run(self,cluster_name,task_definition_name):
         response = self.ecs_client.run_task(
+            cluster=cluster_name,
+            taskDefinition=task_definition_name,
+            # overrides={
+            #     'containerOverrides': [
+            #         {
+            #             'name': 'string',
+            #             'command': [
+            #                 'string',
+            #             ],
+            #             'environment': [
+            #                 {
+            #                     'name': 'string',
+            #                     'value': 'string'
+            #                 },
+            #             ],
+            #             'cpu': 123,
+            #             'memory': 123,
+            #             'memoryReservation': 123,
+            #             'resourceRequirements': [
+            #                 {
+            #                     'value': 'string',
+            #                     'type': 'GPU'
+            #                 },
+            #             ]
+            #         },
+            #     ],
+            #     'taskRoleArn': 'string',
+            #     'executionRoleArn': 'string'
+            # },
+            # count=123,
+            # startedBy='string',
+            # group='string',
+            # placementConstraints=[
+            #     {
+            #         'type': 'distinctInstance' | 'memberOf',
+            #         'expression': 'string'
+            #     },
+            # ],
+            # placementStrategy=[
+            #     {
+            #         'type': 'random' | 'spread' | 'binpack',
+            #         'field': 'string'
+            #     },
+            # ],
+            # launchType='EC2' | 'FARGATE',
+            # platformVersion='string',
+            # networkConfiguration={
+            #     'awsvpcConfiguration': {
+            #         'subnets': [
+            #             'string',
+            #         ],
+            #         'securityGroups': [
+            #             'string',
+            #         ],
+            #         'assignPublicIp': 'ENABLED' | 'DISABLED'
+            #     }
+            # },
+            # tags=[
+            #     {
+            #         'key': 'string',
+            #         'value': 'string'
+            #     },
+            # ],
+            # enableECSManagedTags=True | False,
+            # propagateTags='TASK_DEFINITION' | 'SERVICE'
+        )
+        print(response)
+
+    def ecs_task_stop(self,clustername,task_name):
+        response = self.ecs_client.stop_task(
+            cluster=clustername,
+            task=task_name,
+            # reason='string'
+        )
+        print(response)
+
+    def ecs_container_instance_register(self):
+        response = self.ecs_client.register_container_instance(
             cluster='string',
-            taskDefinition='string',
-            overrides={
-                'containerOverrides': [
-                    {
-                        'name': 'string',
-                        'command': [
-                            'string',
-                        ],
-                        'environment': [
-                            {
-                                'name': 'string',
-                                'value': 'string'
-                            },
-                        ],
-                        'cpu': 123,
-                        'memory': 123,
-                        'memoryReservation': 123,
-                        'resourceRequirements': [
-                            {
-                                'value': 'string',
-                                'type': 'GPU'
-                            },
-                        ]
-                    },
-                ],
-                'taskRoleArn': 'string',
-                'executionRoleArn': 'string'
-            },
-            count=123,
-            startedBy='string',
-            group='string',
-            placementConstraints=[
+            instanceIdentityDocument='string',
+            instanceIdentityDocumentSignature='string',
+            totalResources=[
                 {
-                    'type': 'distinctInstance' | 'memberOf',
-                    'expression': 'string'
+                    'name': 'string',
+                    'type': 'string',
+                    'doubleValue': 123.0,
+                    'longValue': 123,
+                    'integerValue': 123,
+                    'stringSetValue': [
+                        'string',
+                    ]
                 },
             ],
-            placementStrategy=[
+            versionInfo={
+                'agentVersion': 'string',
+                'agentHash': 'string',
+                'dockerVersion': 'string'
+            },
+            containerInstanceArn='string',
+            attributes=[
                 {
-                    'type': 'random' | 'spread' | 'binpack',
-                    'field': 'string'
+                    'name': 'string',
+                    'value': 'string',
+                    'targetType': 'container-instance',
+                    'targetId': 'string'
                 },
             ],
-            launchType='EC2' | 'FARGATE',
-            platformVersion='string',
-            networkConfiguration={
-                'awsvpcConfiguration': {
-                    'subnets': [
-                        'string',
-                    ],
-                    'securityGroups': [
-                        'string',
-                    ],
-                    'assignPublicIp': 'ENABLED' | 'DISABLED'
-                }
-            },
+            platformDevices=[
+                {
+                    'id': 'string',
+                    'type': 'GPU'
+                },
+            ],
             tags=[
                 {
                     'key': 'string',
                     'value': 'string'
                 },
-            ],
-            enableECSManagedTags=True | False,
-            propagateTags='TASK_DEFINITION' | 'SERVICE'
+            ]
         )
         print(response)
 
 
 if __name__ == '__main__':
     app = AWSECS()
-    app.ecs_task_definition_deregister('hello_world:4')
+    # app.ecs_task_run('ecs_test','hello_world')
+    app.ecs_clusters_describe('ecs_test')
