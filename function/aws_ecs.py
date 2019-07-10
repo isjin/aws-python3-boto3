@@ -1,7 +1,5 @@
 import boto3
 
-#ami id is ami-0cdb0bf27047e574c or ami-0e81f5d171d41f252
-
 
 class AWSECS(object):
     def __init__(self):
@@ -38,7 +36,7 @@ class AWSECS(object):
         )
         return response
 
-    def ecs_task_definition_register(self,task_definition_info):
+    def ecs_task_definition_register(self, task_definition_info):
         # task_definition_info={
         #     'family':'hello world',
         #     'taskRoleArn':'arn:aws-cn:iam::952375741452:role/ECSTaskRole',
@@ -90,7 +88,7 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_task_definition_describe(self,task_definition):
+    def ecs_task_definition_describe(self, task_definition):
         response = self.ecs_client.describe_task_definition(
             taskDefinition=task_definition,
             # include=[
@@ -99,14 +97,14 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_task_definition_deregister(self,task_definition):
+    def ecs_task_definition_deregister(self, task_definition):
         # task_definition and version number
         response = self.ecs_client.deregister_task_definition(
             taskDefinition=task_definition
         )
         print(response)
 
-    def ecs_task_run(self,cluster_name,task_definition_name):
+    def ecs_task_run(self, cluster_name, task_definition_name):
         response = self.ecs_client.run_task(
             cluster=cluster_name,
             taskDefinition=task_definition_name,
@@ -176,7 +174,7 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_task_stop(self,clustername,task_name):
+    def ecs_task_stop(self, clustername, task_name):
         response = self.ecs_client.stop_task(
             cluster=clustername,
             task=task_name,
@@ -184,54 +182,20 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_container_instance_register(self):
-        response = self.ecs_client.register_container_instance(
-            cluster='string',
-            instanceIdentityDocument='string',
-            instanceIdentityDocumentSignature='string',
-            totalResources=[
-                {
-                    'name': 'string',
-                    'type': 'string',
-                    'doubleValue': 123.0,
-                    'longValue': 123,
-                    'integerValue': 123,
-                    'stringSetValue': [
-                        'string',
-                    ]
-                },
+    def ecs_container_instance_describe(self, cluster, container_instance):
+        response = self.ecs_client.describe_container_instances(
+            cluster=cluster,
+            containerInstances=[
+                container_instance,
             ],
-            versionInfo={
-                'agentVersion': 'string',
-                'agentHash': 'string',
-                'dockerVersion': 'string'
-            },
-            containerInstanceArn='string',
-            attributes=[
-                {
-                    'name': 'string',
-                    'value': 'string',
-                    'targetType': 'container-instance',
-                    'targetId': 'string'
-                },
-            ],
-            platformDevices=[
-                {
-                    'id': 'string',
-                    'type': 'GPU'
-                },
-            ],
-            tags=[
-                {
-                    'key': 'string',
-                    'value': 'string'
-                },
-            ]
+            # include=[
+            #     'TAGS',
+            # ]
         )
         print(response)
+        return response
 
 
 if __name__ == '__main__':
     app = AWSECS()
     # app.ecs_task_run('ecs_test','hello_world')
-    app.ecs_clusters_describe('ecs_test')

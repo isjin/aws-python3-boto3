@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs,aws_ecr
 import json
 import os
 import time
@@ -16,6 +16,7 @@ class DevopsChain(object):
         self.iam = aws_iam.AWSIAM()
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.ecs = aws_ecs.AWSECS()
+        self.ecr=aws_ecr.AWSECR()
         self.record = {}
         self.init_record()
 
@@ -184,10 +185,22 @@ class DevopsChain(object):
                 print(e.__str__())
         print("Delete EC2 is finished.")
 
+    def delete_ecr(self):
+        print("Start to delete ECR")
+        for key in list(self.record['ecrs'].keys()):
+            try:
+                self.ecr.repository_delete(self.record['ecrs'][key])
+                del self.record['ecrs'][key]
+                self.write_file()
+            except Exception as e:
+                print(e.__str__())
+        print("Delete ECR is finished.")
+
     def main(self):
         # self.delete_ec2()
         # self.delete_cloudformation()
         self.delete_ecs()
+        # self.delete_ecr()
         # self.delete_role()
         # self.delete_security_groups()
         # self.delete_keypair()

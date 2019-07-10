@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr
 import json
 import os
 import time
@@ -14,6 +14,7 @@ class DevopsChain(object):
         self.ec2 = aws_ec2.AWSEC2()
         self.iam = aws_iam.AWSIAM()
         self.ecs = aws_ecs.AWSECS()
+        self.ecr = aws_ecr.AWSECR()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
         self.record = {}
         self.init_record()
@@ -39,6 +40,7 @@ class DevopsChain(object):
             self.record['policies'] = {}
             self.record['cloudformation'] = {}
             self.record['ecs'] = {}
+            self.record['ecrs'] = {}
             self.write_file()
 
     @staticmethod
@@ -114,6 +116,11 @@ class DevopsChain(object):
         for policy_arn in role_info['PolicyArns']:
             self.iam.iam_role_policy_attach(role_info['RoleName'], policy_arn)
         self.record['policies'][role_key_name] = role_info['PolicyArns']
+        self.write_file()
+
+    def create_repository(self, repository_name, repository_keyname):
+        self.ecr.repository_create(repository_name)
+        self.record['ecrs'][repository_keyname] = repository_name
         self.write_file()
 
     def create_cloudformation(self, cloudformation_template_path, cloudformation_stack_info,
@@ -262,6 +269,12 @@ class DevopsChain(object):
         # devops_chain_iam_ecs_autoscale_role_keyname = 'ecs_autoscale_role'
         # if devops_chain_iam_ecs_autoscale_role_keyname not in self.record['roles'].keys():
         #     self.create_role(devops_chain_iam_ecs_autoscale_role_path, devops_chain_iam_ecs_autoscale_role_keyname)
+
+        # create ecr
+        repository_name = 'devops_chain_ecr'
+        repository_keyname = 'devops_chain_ecr'
+        if repository_keyname not in self.record['ecrs'].keys():
+            self.create_repository(repository_name, repository_keyname)
 
         # # create ecs cloudformation
         # print("Create cloudformation")
