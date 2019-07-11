@@ -2,8 +2,10 @@ from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr
 import json
 import os
 import time
+from configparser import ConfigParser
 
-# brandedgoods
+cf=ConfigParser()
+cf.read('config.ini')
 
 key_pair = 'devopschaindemo'
 record_path = 'config/devops_chain/devops_chain2.log'
@@ -38,7 +40,7 @@ class DevopsChain(object):
             self.record['roles'] = {}
             self.record['instance_profiles'] = {}
             self.record['policies'] = {}
-            self.record['cloudformation'] = {}
+            self.record['cloudformations'] = {}
             self.record['ecs'] = {}
             self.record['ecrs'] = {}
             self.write_file()
@@ -132,7 +134,7 @@ class DevopsChain(object):
         cloudformation_stack_info['TemplateBody'] = template_data
         # print(stack_info)
         self.cloudformation.cloudformation_stack_create(cloudformation_stack_info)
-        self.record['cloudformation'][cloudformation_stack_keyname] = cloudformation_stack_info['StackName']
+        self.record['cloudformations'][cloudformation_stack_keyname] = cloudformation_stack_info['StackName']
         self.write_file()
 
     def create_ec2(self, instance_info, ec2_instance_keyname):

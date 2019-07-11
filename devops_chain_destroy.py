@@ -125,8 +125,8 @@ class DevopsChain(object):
 
     def delete_cloudformation(self):
         print("Start to delete cloudformations")
-        for key in list(self.record['cloudformation'].keys()):
-            stack_name = self.record['cloudformation'][key]
+        for key in list(self.record['cloudformations'].keys()):
+            stack_name = self.record['cloudformations'][key]
             try:
                 self.cf.cloudformation_stack_delete(stack_name)
                 while True:
@@ -136,7 +136,7 @@ class DevopsChain(object):
                     except Exception:
                         print("Deleting cloudformation stack %s." % stack_name)
                         break
-                del self.record['cloudformation'][key]
+                del self.record['cloudformations'][key]
                 self.write_file()
             except Exception as e:
                 print(e.__str__())
