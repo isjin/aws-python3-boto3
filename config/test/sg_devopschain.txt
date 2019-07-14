@@ -1,0 +1,11 @@
+{
+  "groupname":"test-sg",
+  "description":"test-sg",
+  "vpcid":"{self.vpcid}",
+  "tags":[
+    {
+      "Key":"Name",
+      "Value":"test-sg"
+    }
+  ]
+}

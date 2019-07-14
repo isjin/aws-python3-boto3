@@ -28,7 +28,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"ecs-test-ec2-2"
+          "Value":"ecs-test-ec2-1"
         }
       ]
     },
@@ -37,7 +37,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"ecs-test-ec2-2"
+          "Value":"ecs-test-ec2-1"
         }
       ]
     }

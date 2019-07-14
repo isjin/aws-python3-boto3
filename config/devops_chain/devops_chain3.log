@@ -1,1 +1,48 @@
-{"vpcs": {"devops_chain_vpc": "vpc-067f7c5af3e85b9ac"}, "subnets": {"devops_chain_subnet_1a": "subnet-05739129b334ccb78", "devops_chain_subnet_1b": "subnet-0c3585821db4c78d5", "devops_chain_subnet_1c": "subnet-03f52ff23f3e74490"}, "security_groups": {"devops_chain_sg_devopschain": "sg-04009c55167c36015"}, "ec2_instances": {"windows": "i-004a96c77deedf4da", "ecs-test-ec2-1": "i-0281ab6b8c52e8fd9"}, "igws": {"devops_chain_igw": "igw-0e83f53b2d27ab409"}, "ngws": {}, "eips": {"windows": "eipalloc-094dd8ba23f625e46", "ecs-test-ec2-1": "eipalloc-0903808a16a8d7d43"}, "keypairs": {}, "roles": {}, "instance_profiles": {}, "policies": {}, "cloudformations": {}, "ecs": {"ecs_test": "ecs_test"}, "ecrs": {}}
+{
+  "vpcs":{
+    "devops_chain_vpc":"vpc-067f7c5af3e85b9ac"
+  },
+  "subnets":{
+    "devops_chain_subnet_1a":"subnet-05739129b334ccb78",
+    "devops_chain_subnet_1b":"subnet-0c3585821db4c78d5"
+  },
+  "security_groups":{
+    "devops_chain_sg_devopschain":"sg-04009c55167c36015"
+  },
+  "ec2_instances":{
+    "windows":"i-004a96c77deedf4da",
+    "ecs-test-ec2-1":"i-0281ab6b8c52e8fd9",
+    "ecs-test-ec2-2":"i-066f73b7793b103f1"
+  },
+  "igws":{
+    "devops_chain_igw":"igw-0e83f53b2d27ab409"
+  },
+  "ngws":{
+    
+  },
+  "eips":{
+    "windows":"eipalloc-094dd8ba23f625e46",
+    "ecs-test-ec2-1":"eipalloc-0903808a16a8d7d43"
+  },
+  "keypairs":{
+    
+  },
+  "roles":{
+    
+  },
+  "instance_profiles":{
+    
+  },
+  "policies":{
+    
+  },
+  "cloudformations":{
+    
+  },
+  "ecs":{
+    "ecs_test":"ecs_test"
+  },
+  "ecrs":{
+    
+  }
+}

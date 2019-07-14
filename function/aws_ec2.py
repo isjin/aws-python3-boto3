@@ -538,7 +538,6 @@ class AWSEC2(object):
         print(response)
         sgid = response['GroupId']
         self.ec2_tags_create(sgid, sg_info['tags'])
-        print(sgid)
         return sgid
 
     def ec2_security_group_delete(self, sgid):
@@ -702,7 +701,7 @@ class AWSEC2(object):
         response = self.ec2_client.create_key_pair(
             KeyName=key_name,
         )
-        # print(response)
+        print(response)
         key_pem = response['KeyMaterial']
         file = '%s.pem' % key_name
         if os.path.exists(file):

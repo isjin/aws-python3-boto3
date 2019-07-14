@@ -1,0 +1,11 @@
+{
+  "zone":"cn-northwest-1c",
+  "cidr":"10.2.2.0/24",
+  "vpc":"{self.vpcid}",
+  "tags":[
+    {
+      "Key":"Name",
+      "Value":"test-1c-subnet"
+    }
+  ]
+}

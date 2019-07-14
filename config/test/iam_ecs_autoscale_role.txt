@@ -1,0 +1,20 @@
+{
+  "RoleName":"devops-chain-ecs-autoscale-role",
+  "PolicyArns":[
+    "arn:aws-cn:iam::aws:policy\/service-role\/AmazonEC2ContainerServiceAutoscaleRole"
+  ],
+  "InstanceProfile":false,
+  "Description":"devops-chain-ecs-autoscale-role",
+  "AssumeRolePolicyDocument":{
+    "Version":"2012-10-17",
+    "Statement":[
+      {
+        "Effect":"Allow",
+        "Principal":{
+          "Service":"application-autoscaling.amazonaws.com.cn"
+        },
+        "Action":"sts:AssumeRole"
+      }
+    ]
+  }
+}
