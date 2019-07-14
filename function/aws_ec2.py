@@ -357,7 +357,7 @@ class AWSEC2(object):
         )
         print(response)
 
-    def ec2_eips_describe(self,filters):
+    def ec2_eips_describe(self, filters):
         # filters=[
         #         {
         #             'Name': 'string',
@@ -376,7 +376,7 @@ class AWSEC2(object):
             # ],
             # DryRun=True | False
         )
-        print(response)
+        return response['Addresses']
 
     def ec2_eip_allocation_id_describe(self, allocationId):
         response = self.ec2_client.describe_addresses(
@@ -716,6 +716,41 @@ class AWSEC2(object):
         )
         print(response)
 
+    def ec2_key_pairs_describe(self, filters):
+        # filters=[
+        #         {
+        #             'Name': 'string',
+        #             'Values': [
+        #                 'string',
+        #             ]
+        #         },
+        #     ]
+        response = self.ec2_client.describe_key_pairs(
+            Filters=filters,
+            # KeyNames=[
+            #     'string',
+            # ],
+            # DryRun=True | False
+        )
+        return response['KeyPairs']
+
+    def ec2_key_pair_describe(self, key_pair_name):
+        response = self.ec2_client.describe_key_pairs(
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            KeyNames=[
+                key_pair_name,
+            ],
+            # DryRun=True | False
+        )
+        return response['KeyPairs']
+
     def ec2_volume_create(self, volume_info):
         # volume_info={
         #     'AvailabilityZone':'',
@@ -800,6 +835,26 @@ class AWSEC2(object):
             ],
         )
         return response['Volumes'][0]
+
+    def ec2_volumes_describe(self, filters):
+        # filters = [
+        #               {
+        #                   'Name': 'string',
+        #                   'Values': [
+        #                       'string',
+        #                   ]
+        #               },
+        #           ],
+        response = self.ec2_client.describe_volumes(
+            Filters=filters,
+            # VolumeIds=[
+            #     'string',
+            # ],
+            # DryRun=True | False,
+            # MaxResults=123,
+            # NextToken='string'
+        )
+        return response['Volumes']
 
     def ec2_instance_type_modify(self, instance_id, instance_type):
         response = self.ec2_client.modify_instance_attribute(
@@ -1198,6 +1253,53 @@ class AWSEC2(object):
         print(response)
         return response['ImageId']
 
+    def ec2_images_describe(self, filters):
+        # filters = [
+        #     {
+        #         'Name': 'string',
+        #         'Values': [
+        #             'string',
+        #         ]
+        #     },
+        # ]
+        response = self.ec2_client.describe_images(
+            # ExecutableUsers=[
+            #     'string',
+            # ],
+            Filters=filters,
+            # ImageIds=[
+            #     'string',
+            # ],
+            # Owners=[
+            #     'string',
+            # ],
+            # DryRun=True | False
+        )
+        return response['Images']
+
+    def ec2_image_describe(self, image_id):
+        response = self.ec2_client.describe_images(
+            # ExecutableUsers=[
+            #     'string',
+            # ],
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            ImageIds=[
+                image_id,
+            ],
+            # Owners=[
+            #     'string',
+            # ],
+            # DryRun=True | False
+        )
+        return response['Images'][0]
+
     def ec2_register_image(self, snapshot_info):
         # snapshot_info = {
         #     'DeviceName': self.devicename,
@@ -1235,6 +1337,45 @@ class AWSEC2(object):
             ImageId=imageid,
         )
         print(response)
+
+    def ec2_network_acls_describe(self, filters):
+        # filters=[
+        #         {
+        #             'Name': 'string',
+        #             'Values': [
+        #                 'string',
+        #             ]
+        #         },
+        #     ]
+        response = self.ec2_client.describe_network_acls(
+            Filters=filters,
+            # DryRun=True | False,
+            # NetworkAclIds=[
+            #     'string',
+            # ],
+            # NextToken='string',
+            # MaxResults=123
+        )
+        return response['NetworkAcls']
+
+    def ec2_network_acl_describe(self, network_acl_id):
+        response = self.ec2_client.describe_network_acls(
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            # DryRun=True | False,
+            NetworkAclIds=[
+                network_acl_id,
+            ],
+            # NextToken='string',
+            # MaxResults=123
+        )
+        return response['NetworkAcls']
 
 
 if __name__ == '__main__':

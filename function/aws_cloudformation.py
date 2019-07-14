@@ -11,8 +11,7 @@ class AWSCloudFormation(object):
             # StackName=cloudformation_name,
             # NextToken='string'
         )
-        # print(response)
-        return response
+        return response['Stacks']
 
     def cloudformation_stack_describe(self, cloudformation_name):
         response = self.cloudformation_client.describe_stacks(

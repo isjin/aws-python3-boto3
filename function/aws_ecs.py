@@ -28,13 +28,21 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_clusters_describe(self, clustername):
+    def ecs_cluster_describe(self,clustername):
         response = self.ecs_client.describe_clusters(
             clusters=[
                 clustername,
             ]
         )
+        print(response)
         return response
+
+    def ecs_clusters_list(self):
+        response = self.ecs_client.list_clusters(
+            # nextToken='string',
+            # maxResults=123
+        )
+        return response['clusterArns']
 
     def ecs_task_definition_register(self, task_definition_info):
         # task_definition_info={
@@ -96,6 +104,16 @@ class AWSECS(object):
             # ]
         )
         print(response)
+
+    def ecs_task_definition_list(self):
+        response = self.ecs_client.list_task_definitions(
+            # familyPrefix='string',
+            # status='ACTIVE' | 'INACTIVE',
+            # sort='ASC' | 'DESC',
+            # nextToken='string',
+            # maxResults=123
+        )
+        return response['taskDefinitionArns']
 
     def ecs_task_definition_deregister(self, task_definition):
         # task_definition and version number

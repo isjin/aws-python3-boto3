@@ -36,6 +36,17 @@ class AWSECR(object):
         )
         print(response)
 
+    def repositories_describe(self):
+        response = self.ecr_client.describe_repositories(
+            # registryId='string',
+            # repositoryNames=[
+            #     repository_name,
+            # ],
+            # nextToken='string',
+            # maxResults=123
+        )
+        return response['repositories']
+
 
 if __name__ == '__main__':
     app = AWSECR()
