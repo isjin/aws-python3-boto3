@@ -295,7 +295,7 @@ class DevopsChain(object):
             ecs_cluster_name = task_info[0]
             task_definition_name = task_info[1]
             while True:
-                ecs_instance_count = self.ecs.ecs_clusters_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
+                ecs_instance_count = self.ecs.ecs_cluster_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
                 if ecs_instance_count > 0:
                     self.ecs.ecs_task_run(ecs_cluster_name, task_definition_name)
                     break

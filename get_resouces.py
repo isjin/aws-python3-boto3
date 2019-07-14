@@ -2,7 +2,7 @@ from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation
 import json
 import os
 
-resource_path = 'aws_resouces.txt'
+resource_path = 'resouces_list.txt'
 filters = []
 owner_id = '952375741452'
 
@@ -17,7 +17,8 @@ class GetResources(object):
         self.init_resources()
 
     def init_resources(self):
-        os.remove(resource_path)
+        if os.path.exists(resource_path):
+            os.remove(resource_path)
         if os.path.exists(resource_path):
             f = open(resource_path, 'r')
             data = f.read()
@@ -25,6 +26,8 @@ class GetResources(object):
             if len(data) > 0:
                 self.resources = json.loads(data)
         else:
+            self.resources['resource'] = {}
+            self.resources['resource']['path'] = resource_path
             self.resources['vpcs'] = {}
             self.resources['subnets'] = {}
             self.resources['igws'] = {}
@@ -151,13 +154,14 @@ class GetResources(object):
         eips_info = self.ec2.ec2_eips_describe(filters)
         for i in range(len(eips_info)):
             eip_keyname = 'eip' + str(i + 1)
-            eip_allocation_id = eips_info[i]['AllocationId']
-            eip_association_id = eips_info[i]['AssociationId']
-            eip_ip = eips_info[i]['PublicIp']
             self.resources['eips'][eip_keyname] = {}
+            eip_allocation_id = eips_info[i]['AllocationId']
+            eip_ip = eips_info[i]['PublicIp']
             self.resources['eips'][eip_keyname]['AllocationId'] = eip_allocation_id
-            self.resources['eips'][eip_keyname]['AssociationId'] = eip_association_id
             self.resources['eips'][eip_keyname]['PublicIp'] = eip_ip
+            if 'AssociationId' in eips_info[i].keys():
+                eip_association_id = eips_info[i]['AssociationId']
+                self.resources['eips'][eip_keyname]['AssociationId'] = eip_association_id
         self.write_file()
 
     def get_volumes(self):
@@ -243,7 +247,7 @@ class GetResources(object):
         self.write_file()
 
     def get_cloudformations(self):
-        cfs_info=self.cf.cloudformation_stacks_describe()
+        cfs_info = self.cf.cloudformation_stacks_describe()
         for i in range(len(cfs_info)):
             stack_keyname = 'stack' + str(i + 1)
             stack_id = cfs_info[i]['StackId']
