@@ -2,7 +2,7 @@ from configparser import ConfigParser
 import json
 
 cf = ConfigParser()
-cf.read('initialize_resources_config.ini')
+cf.read('format_resources_config.ini')
 services_dict = {}
 record_path = cf.get('file', 'path')
 
