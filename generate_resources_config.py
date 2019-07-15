@@ -47,7 +47,6 @@ class GenerateConfig(object):
                     else:
                         for key in self.resources[service][option].keys():
                             self.set_cf(service, option, key)
-
         f = open(resource_config_path, 'w')
         self.cf.write(f)
 
