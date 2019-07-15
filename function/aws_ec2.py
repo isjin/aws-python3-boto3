@@ -202,7 +202,7 @@ class AWSEC2(object):
                 route_table_id,
             ]
         )
-        return response['RouteTables']
+        return response['RouteTables'][0]
 
     def ec2_route_tables_describe(self, filters):
         response = self.ec2_client.describe_route_tables(
@@ -308,6 +308,13 @@ class AWSEC2(object):
         )
         print(route_table_association)
 
+    def ec2_route_table_subnet_disassociate(self, association_id):
+        response = self.ec2_client.disassociate_route_table(
+            AssociationId=association_id,
+            # DryRun=True | False
+        )
+        print(response)
+
     def ec2_eip_allocate(self, tags):
         # tags=[
         #     {
@@ -325,7 +332,22 @@ class AWSEC2(object):
         print(eipip, eipid)
         return eipid
 
-    def ec2_eip_release(self, allocation_id):
+    def ec2_eip_release_allocation_id(self, allocation_id):
+        eip_info=self.ec2_eip_allocation_id_describe(allocation_id)
+        if 'AssociationId' in eip_info.keys():
+            association_id = eip_info['AssociationId']
+            self.ec2_eip_disassociate_address(association_id)
+        response = self.ec2_client.release_address(
+            AllocationId=allocation_id,
+        )
+        print(response)
+
+    def ec2_eip_release_public_ip(self, public_ip):
+        eip_info=self.ec2_eip_public_ip_describe(public_ip)
+        if 'AssociationId' in eip_info.keys():
+            association_id = eip_info['AssociationId']
+            self.ec2_eip_disassociate_address(association_id)
+        allocation_id = eip_info['AllocationId']
         response = self.ec2_client.release_address(
             AllocationId=allocation_id,
         )
@@ -396,8 +418,7 @@ class AWSEC2(object):
             ],
             # DryRun=True | False
         )
-        print(response)
-        return response
+        return response['Addresses'][0]
 
     def ec2_eip_public_ip_describe(self, public_ip):
         response = self.ec2_client.describe_addresses(
@@ -417,8 +438,7 @@ class AWSEC2(object):
             # ],
             # DryRun=True | False
         )
-        print(response)
-        return response
+        return response['Addresses'][0]
 
     def ec2_internet_gateway_create(self, igw_info):
         response = self.ec2_client.create_internet_gateway(
@@ -454,7 +474,7 @@ class AWSEC2(object):
                 igw_id,
             ],
         )
-        return response
+        return response['InternetGateways']
 
     def ec2_internet_gateways_describe(self, filters):
         # filters = [
@@ -1380,5 +1400,5 @@ class AWSEC2(object):
 
 if __name__ == '__main__':
     app = AWSEC2()
-    app.ec2_key_pair_create('keypair')
+    app.ec2_eip_release_allocation_id('eipalloc-08764cc9d6c758f34')
     # app.ec2_deregister_image('ami-id')

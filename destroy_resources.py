@@ -2,12 +2,13 @@ from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr
 import json
 import os
 import time
-
-# brandedgoods
+from datetime import datetime
 from configparser import ConfigParser
 
-key_pair = 'devopschaindemo'
-record_path = 'config/test/test.log'
+resouces_conf_path = 'resouces_config.ini'
+resource_log_path = 'resources.log'
+cf = ConfigParser()
+cf.read(resouces_conf_path)
 
 
 class DevopsChain(object):
@@ -21,193 +22,207 @@ class DevopsChain(object):
         self.init_record()
 
     def init_record(self):
-        if os.path.exists(record_path):
-            f = open(record_path, 'r')
+        if os.path.exists(resource_log_path):
+            f = open(resource_log_path, 'r')
             data = f.read()
             f.close()
             if len(data) > 0:
                 self.record = json.loads(data)
 
-    @staticmethod
-    def read_file(path):
-        f = open(path, 'r')
-        data = f.read()
-        f.close()
-        data = json.loads(data)
-        return data
-
     def write_file(self):
-        f = open(record_path, 'w')
+        f = open(resource_log_path, 'w')
         f.write(json.dumps(self.record))
         f.close()
 
-    def delete_vpcs(self):
-        print("Start to delete vpcs")
-        for key in list(self.record['vpcs'].keys()):
-            try:
-                self.ec2.ec2_vpc_delete(self.record['vpcs'][key])
-                del self.record['vpcs'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete vpcs are finished.")
+    def delete_vpc(self, vpc_id, keyname):
+        try:
+            self.ec2.ec2_vpc_delete(vpc_id)
+            del self.record['vpcs'][keyname]
+            self.write_file()
+            print("%s VPC %s has deleted." % (datetime.now(), vpc_id))
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_subnets(self):
-        print("Start to delete subnets")
-        for key in list(self.record['subnets'].keys()):
-            try:
-                self.ec2.ec2_subnet_delete(self.record['subnets'][key])
-                del self.record['subnets'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete subnets are finished.")
+    def delete_subnet(self, subnet_id, keyname):
+        try:
+            self.ec2.ec2_subnet_delete(subnet_id)
+            del self.record['subnets'][keyname]
+            self.write_file()
 
-    def delete_igws(self):
-        print("Start to delete internet gateways")
-        for key in list(self.record['igws'].keys()):
-            try:
-                vpcid = \
-                    self.ec2.ec2_internet_gateway_describe(self.record['igws'][key])['InternetGateways'][0][
-                        'Attachments'][
-                        0]['VpcId']
-                self.ec2.ec2_internet_gateway_detach(self.record['igws'][key], vpcid)
-                self.ec2.ec2_internet_gateway_delete(self.record['igws'][key])
-                del self.record['igws'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete internet gateways are finished.")
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_keypair(self):
-        print("Start to delete keypairs")
-        for key in list(self.record['keypairs'].keys()):
-            try:
-                self.ec2.ec2_key_pair_delete(self.record['keypairs'][key])
-                del self.record['keypairs'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete keypairs are finished.")
+    def delete_igws(self, igw_id, keyname):
+        try:
+            igw_info = self.ec2.ec2_internet_gateway_describe(igw_id)
+            attachments_length = len(igw_info[0]['Attachments'])
+            if attachments_length > 0:
+                vpcid = igw_info['InternetGateways'][0]['Attachments'][0]['VpcId']
+                self.ec2.ec2_internet_gateway_detach(igw_id, vpcid)
+            self.ec2.ec2_internet_gateway_delete(igw_id)
+            del self.record['igws'][keyname]
+            print("%s Internet gateway %s has deleted." % (datetime.now(), igw_id))
+            self.write_file()
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_security_groups(self):
-        print("Start to delete security groups")
-        for key in list(self.record['security_groups'].keys()):
-            try:
-                self.ec2.ec2_security_group_delete(self.record['security_groups'][key])
-                del self.record['security_groups'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete security groups are finished.")
+    def delete_keypair(self, keypair_name, keyname):
+        try:
+            self.ec2.ec2_key_pair_delete(keypair_name)
+            del self.record['keypairs'][keyname]
+            self.write_file()
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_role(self):
-        print("Start to delete roles")
-        for key in list(self.record['roles'].keys()):
-            try:
-                if key in self.record['instance_profiles'].keys():
-                    self.iam.iam_role_to_instance_profile_remove(self.record['instance_profiles'][key]['name'],
-                                                                 self.record['roles'][key]['name'])
-                    self.iam.iam_instance_profile_delete(self.record['instance_profiles'][key]['name'])
-                    del self.record['instance_profiles'][key]
-                    self.write_file()
-                for policy_arn in self.record['policies'][key]:
-                    self.iam.iam_role_policy_detach(self.record['roles'][key]['name'], policy_arn)
-                self.iam.iam_role_delete(self.record['roles'][key]['name'])
-                del self.record['policies'][key]
-                self.write_file()
-                del self.record['roles'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
+    def delete_security_group(self, sg_id, keyname):
+        try:
+            self.ec2.ec2_security_group_delete(sg_id)
+            del self.record['security_groups'][keyname]
+            self.write_file()
+            print("%s Security group %s has deleted." % (datetime.now(), sg_id))
+        except Exception as e:
+            print(e.__str__())
 
-        print("Delete roles are finished.")
-
-    def delete_cloudformation(self):
-        print("Start to delete cloudformations")
-        for key in list(self.record['cloudformations'].keys()):
-            stack_name = self.record['cloudformations'][key]
-            try:
-                self.cf.cloudformation_stack_delete(stack_name)
-                while True:
-                    try:
-                        self.cf.cloudformation_stack_describe(stack_name)
-                        time.sleep(5)
-                    except Exception:
-                        print("Deleting cloudformation stack %s." % stack_name)
-                        break
-                del self.record['cloudformations'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete cloudformations are finished.")
-
-    def delete_ecs(self):
-        print("Start to delete ECS")
-        for key in list(self.record['ecs'].keys()):
+    def delete_cloudformation(self, stack_name, keyname):
+        try:
+            self.cf.cloudformation_stack_delete(stack_name)
             while True:
                 try:
-                    self.ecs.ecs_cluster_delete(self.record['ecs'][key])
-                    del self.record['ecs'][key]
-                    self.write_file()
+                    self.cf.cloudformation_stack_describe(stack_name)
+                    time.sleep(5)
+                except Exception:
+                    print("%s Cloudformation stack %s has deleted." % (datetime.now(), stack_name))
                     break
-                except Exception as e:
-                    print(e.__str__())
-                    time.sleep(15)
-        print("Delete ECS is finished.")
+            del self.record['cloudformations'][keyname]
+            self.write_file()
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_ec2(self):
-        print("Start to delete EC2")
-        for key in list(self.record['eips'].keys()):
-            try:
-                eipid = self.record['eips'][key]
-                association_id = self.ec2.ec2_eip_allocation_id_describe(eipid)['Addresses'][0]['AssociationId']
-                self.ec2.ec2_eip_disassociate_address(association_id)
-                self.ec2.ec2_eip_release(eipid)
-                del self.record['eips'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
+    def delete_ecs_cluster(self, cluster_name, keyname):
+        try:
+            self.ecs.ecs_cluster_delete(cluster_name)
+            del self.record['ecs_clusters'][keyname]
+            self.write_file()
+            print("%s ECS cluster %s has deleted." % (datetime.now(), cluster_name))
+        except Exception as e:
+            print(e.__str__())
 
-        for key in list(self.record['ec2_instances'].keys()):
-            try:
-                instance_id = self.record['ec2_instances'][key]
-                volumes_info = self.ec2.ec2_instance_describe(instance_id)['Instances'][0]['BlockDeviceMappings']
-                self.ec2.ec2_instance_delete(instance_id)
-                for volume_info in volumes_info:
-                    device_name = volume_info['DeviceName']
-                    if device_name not in ['/dev/sda1', '/dev/xvda']:
-                        volume_id = volume_info['Ebs']['VolumeId']
-                        self.ec2.ec2_volume_delete(volume_id)
-                del self.record['ec2_instances'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete EC2 is finished.")
+    def delete_eip(self, public_ip, keyname):
+        try:
+            self.ec2.ec2_eip_release_public_ip(public_ip)
+            del self.record['eips'][keyname]
+            print("%s Elastic IP %s has deleted." % (datetime.now(), public_ip))
+        except Exception as e:
+            print(e.__str__())
 
-    def delete_ecr(self):
-        print("Start to delete ECR")
-        for key in list(self.record['ecrs'].keys()):
-            try:
-                self.ecr.repository_delete(self.record['ecrs'][key])
-                del self.record['ecrs'][key]
-                self.write_file()
-            except Exception as e:
-                print(e.__str__())
-        print("Delete ECR is finished.")
+    def delete_ec2_instance(self, instance_id, keyname):
+        try:
+            instance_info = self.ec2.ec2_instance_describe(instance_id)['Instances'][0]
+            if 'PublicIpAddress' in instance_info.keys():
+                public_ip = instance_info['PublicIpAddress']
+                self.ec2.ec2_eip_release_public_ip(public_ip)
+            volumes_info = instance_info['BlockDeviceMappings']
+            self.ec2.ec2_instance_delete(instance_id)
+            for volume_info in volumes_info:
+                device_name = volume_info['DeviceName']
+                if device_name not in ['/dev/sda1', '/dev/xvda']:
+                    volume_id = volume_info['Ebs']['VolumeId']
+                    self.ec2.ec2_volume_delete(volume_id)
+            del self.record['ec2_instances'][keyname]
+            print("%s EC2 instance %s has deleted." % (datetime.now(), instance_id))
+            self.write_file()
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_ecr_repository(self, repository_name, keyname):
+        try:
+            self.ecr.repository_delete(repository_name)
+            del self.record['ecr_repositories'][keyname]
+            self.write_file()
+            print("%s ECR repository %s has deleted." % (datetime.now(), repository_name))
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_volume(self, volume_id, keyname):
+        try:
+            self.ec2.ec2_volume_delete(volume_id)
+            del self.record['volumes'][keyname]
+            self.write_file()
+            print("%s Volume %s has deleted." % (datetime.now(), volume_id))
+        except Exception as e:
+            print(e.__str__())
+
+    def deregister_task_definition(self, task_definition_arn, keyname):
+        try:
+            self.ecs.ecs_task_definition_deregister(task_definition_arn)
+            del self.record['task_definition_arn'][keyname]
+            self.write_file()
+            print("%s ECS task definition %s has deleted." % (datetime.now(), task_definition_arn))
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_rtb(self, rtb_id, keyname):
+        try:
+            rtb_info = self.ec2.ec2_route_table_describe(rtb_id)
+            associations_length = len(rtb_info['Associations'])
+            if associations_length > 0:
+                for i in range(associations_length):
+                    association_id = rtb_info['Associations'][i]['RouteTableAssociationId']
+                    self.ec2.ec2_route_table_subnet_disassociate(association_id)
+            self.ec2.ec2_route_table_delete(rtb_id)
+            del self.record['rtbs'][keyname]
+            self.write_file()
+            print("%s Route table %s has deleted." % (datetime.now(), rtb_id))
+        except Exception as e:
+            print(e.__str__())
 
     def main(self):
-        self.delete_ec2()
-        self.delete_cloudformation()
-        self.delete_ecs()
-        self.delete_ecr()
-        self.delete_role()
-        self.delete_security_groups()
-        self.delete_keypair()
-        self.delete_igws()
-        self.delete_subnets()
-        time.sleep(60)
-        self.delete_vpcs()
+        # self.delete_ec2()
+        # self.delete_keypair()
+        # time.sleep(60)
+        for service in cf.sections():
+            print("%s Start to delete %s" % (datetime.now(), service))
+            for option in cf.options(service):
+                item = cf.get(service, option)
+                if service == 'cloudformations':
+                    self.delete_cloudformation(item, option)
+                elif service == 'vpcs':
+                    self.delete_vpc(item, option)
+                elif service == 'security_groups':
+                    self.delete_security_group(item, option)
+                elif service == 'subnets':
+                    self.delete_subnet(item, option)
+                elif service == 'volumes':
+                    self.delete_volume(item, option)
+                elif service == 'ecs_clusters':
+                    self.delete_ecs_cluster(item, option)
+                elif service == 'ecs_task_definitions':
+                    self.deregister_task_definition(item, option)
+                elif service == 'ecr_repositories':
+                    self.delete_ecr_repository(item, option)
+                elif service == 'igws':
+                    self.delete_igws(item, option)
+                elif service == 'ngws':
+                    pass
+                elif service == 'rtbs':
+                    self.delete_rtb(item, option)
+                elif service == 'nacls':
+                    pass
+                elif service == 'keypairs':
+                    self.delete_keypair(item, option)
+                elif service == 'auto_scaling':
+                    pass
+                elif service == 'ec2_instances':
+                    self.delete_ec2_instance(item, option)
+                elif service == 'eips':
+                    self.delete_eip(item, option)
+                elif service == 'snapshots':
+                    pass
+                elif service == 'images':
+                    pass
+            print("%s Delete %s are finished." % (datetime.now(), service))
+        # os.system("python get_resouces.py")
+        # os.system("python generate_resources_config.py")
 
 
 if __name__ == '__main__':

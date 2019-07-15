@@ -28,7 +28,6 @@ class GetResources(object):
         else:
             self.resources['resource'] = {}
             self.resources['resource']['path'] = resource_path
-            self.resources['cloudformations'] = {}
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
@@ -47,6 +46,7 @@ class GetResources(object):
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
+            self.resources['cloudformations'] = {}
             self.write_file()
 
     @staticmethod
@@ -182,7 +182,7 @@ class GetResources(object):
             {
                 'Name': 'owner-alias',
                 'Values': [
-                    'self ',
+                    'self',
                 ]
             },
         ]
@@ -241,9 +241,11 @@ class GetResources(object):
             repository_keyname = 'repository_arn' + str(i + 1)
             repository_arn = repositories_info[i]['repositoryArn']
             repository_uri = repositories_info[i]['repositoryUri']
+            repository_name = repositories_info[i]['repositoryName']
             self.resources['ecr_repositories'][repository_keyname] = {}
             self.resources['ecr_repositories'][repository_keyname]['repositoryArn'] = repository_arn
             self.resources['ecr_repositories'][repository_keyname]['repositoryUri'] = repository_uri
+            self.resources['ecr_repositories'][repository_keyname]['repositoryName'] = repository_name
         self.write_file()
 
     def get_cloudformations(self):
@@ -252,9 +254,9 @@ class GetResources(object):
             stack_keyname = 'stack' + str(i + 1)
             stack_id = cfs_info[i]['StackId']
             stack_name = cfs_info[i]['StackName']
-            self.resources['cfs'][stack_keyname] = {}
-            self.resources['cfs'][stack_keyname]['StackId'] = stack_id
-            self.resources['cfs'][stack_keyname]['StackName'] = stack_name
+            self.resources['cloudformations'][stack_keyname] = {}
+            self.resources['cloudformations'][stack_keyname]['StackId'] = stack_id
+            self.resources['cloudformations'][stack_keyname]['StackName'] = stack_name
         self.write_file()
 
     def main(self):
@@ -277,6 +279,7 @@ class GetResources(object):
         self.get_ecs_task_definitions()
         self.get_ecr_repositories()
         self.get_cloudformations()
+        os.system('python generate_resources_config.py')
 
 
 if __name__ == '__main__':
