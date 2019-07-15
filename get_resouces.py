@@ -28,25 +28,25 @@ class GetResources(object):
         else:
             self.resources['resource'] = {}
             self.resources['resource']['path'] = resource_path
-            self.resources['vpcs'] = {}
-            self.resources['subnets'] = {}
+            self.resources['cloudformations'] = {}
+            self.resources['ecs_clusters'] = {}
+            self.resources['ecs_task_definitions'] = {}
+            self.resources['ecr_repositories'] = {}
             self.resources['igws'] = {}
             self.resources['ngws'] = {}
             self.resources['rtbs'] = {}
             self.resources['nacls'] = {}
             self.resources['keypairs'] = {}
-            self.resources['security_groups'] = {}
+            self.resources['auto_scaling'] = {}
             self.resources['ec2_instances'] = {}
             self.resources['eips'] = {}
             self.resources['volumes'] = {}
             self.resources['snapshots'] = {}
             self.resources['images'] = {}
             self.resources['elbs'] = {}
-            self.resources['auto_scaling'] = {}
-            self.resources['ecs_clusters'] = {}
-            self.resources['ecs_task_definitions'] = {}
-            self.resources['ecr_repositories'] = {}
-            self.resources['cloudformations'] = {}
+            self.resources['security_groups'] = {}
+            self.resources['subnets'] = {}
+            self.resources['vpcs'] = {}
             self.write_file()
 
     @staticmethod
