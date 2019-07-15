@@ -3,7 +3,7 @@ import os
 import json
 
 resource_path = 'resouces_list.txt'
-resource_config_path = 'resouce_config.ini'
+resource_config_path = 'resouces_config.ini'
 
 
 class GenerateConfig(object):
