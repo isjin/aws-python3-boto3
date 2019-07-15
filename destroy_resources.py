@@ -18,26 +18,26 @@ class DevopsChain(object):
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
-        self.record = {}
-        self.init_record()
+        self.resources = {}
+        self.init_resources()
 
-    def init_record(self):
+    def init_resources(self):
         if os.path.exists(resource_log_path):
             f = open(resource_log_path, 'r')
             data = f.read()
             f.close()
             if len(data) > 0:
-                self.record = json.loads(data)
+                self.resources = json.loads(data)
 
     def write_file(self):
         f = open(resource_log_path, 'w')
-        f.write(json.dumps(self.record))
+        f.write(json.dumps(self.resources))
         f.close()
 
     def delete_vpc(self, vpc_id, keyname):
         try:
             self.ec2.ec2_vpc_delete(vpc_id)
-            del self.record['vpcs'][keyname]
+            del self.resources['vpcs'][keyname]
             self.write_file()
             print("%s VPC %s has deleted." % (datetime.now(), vpc_id))
         except Exception as e:
@@ -46,7 +46,7 @@ class DevopsChain(object):
     def delete_subnet(self, subnet_id, keyname):
         try:
             self.ec2.ec2_subnet_delete(subnet_id)
-            del self.record['subnets'][keyname]
+            del self.resources['subnets'][keyname]
             self.write_file()
 
         except Exception as e:
@@ -57,10 +57,10 @@ class DevopsChain(object):
             igw_info = self.ec2.ec2_internet_gateway_describe(igw_id)
             attachments_length = len(igw_info[0]['Attachments'])
             if attachments_length > 0:
-                vpcid = igw_info['InternetGateways'][0]['Attachments'][0]['VpcId']
+                vpcid = igw_info[0]['Attachments'][0]['VpcId']
                 self.ec2.ec2_internet_gateway_detach(igw_id, vpcid)
             self.ec2.ec2_internet_gateway_delete(igw_id)
-            del self.record['igws'][keyname]
+            del self.resources['igws'][keyname]
             print("%s Internet gateway %s has deleted." % (datetime.now(), igw_id))
             self.write_file()
         except Exception as e:
@@ -69,7 +69,7 @@ class DevopsChain(object):
     def delete_keypair(self, keypair_name, keyname):
         try:
             self.ec2.ec2_key_pair_delete(keypair_name)
-            del self.record['keypairs'][keyname]
+            del self.resources['keypairs'][keyname]
             self.write_file()
         except Exception as e:
             print(e.__str__())
@@ -77,7 +77,7 @@ class DevopsChain(object):
     def delete_security_group(self, sg_id, keyname):
         try:
             self.ec2.ec2_security_group_delete(sg_id)
-            del self.record['security_groups'][keyname]
+            del self.resources['security_groups'][keyname]
             self.write_file()
             print("%s Security group %s has deleted." % (datetime.now(), sg_id))
         except Exception as e:
@@ -93,7 +93,7 @@ class DevopsChain(object):
                 except Exception:
                     print("%s Cloudformation stack %s has deleted." % (datetime.now(), stack_name))
                     break
-            del self.record['cloudformations'][keyname]
+            del self.resources['cloudformations'][keyname]
             self.write_file()
         except Exception as e:
             print(e.__str__())
@@ -101,7 +101,7 @@ class DevopsChain(object):
     def delete_ecs_cluster(self, cluster_name, keyname):
         try:
             self.ecs.ecs_cluster_delete(cluster_name)
-            del self.record['ecs_clusters'][keyname]
+            del self.resources['ecs_clusters'][keyname]
             self.write_file()
             print("%s ECS cluster %s has deleted." % (datetime.now(), cluster_name))
         except Exception as e:
@@ -110,7 +110,7 @@ class DevopsChain(object):
     def delete_eip(self, public_ip, keyname):
         try:
             self.ec2.ec2_eip_release_public_ip(public_ip)
-            del self.record['eips'][keyname]
+            del self.resources['eips'][keyname]
             print("%s Elastic IP %s has deleted." % (datetime.now(), public_ip))
         except Exception as e:
             print(e.__str__())
@@ -128,7 +128,7 @@ class DevopsChain(object):
                 if device_name not in ['/dev/sda1', '/dev/xvda']:
                     volume_id = volume_info['Ebs']['VolumeId']
                     self.ec2.ec2_volume_delete(volume_id)
-            del self.record['ec2_instances'][keyname]
+            del self.resources['ec2_instances'][keyname]
             print("%s EC2 instance %s has deleted." % (datetime.now(), instance_id))
             self.write_file()
         except Exception as e:
@@ -137,7 +137,7 @@ class DevopsChain(object):
     def delete_ecr_repository(self, repository_name, keyname):
         try:
             self.ecr.repository_delete(repository_name)
-            del self.record['ecr_repositories'][keyname]
+            del self.resources['ecr_repositories'][keyname]
             self.write_file()
             print("%s ECR repository %s has deleted." % (datetime.now(), repository_name))
         except Exception as e:
@@ -146,7 +146,7 @@ class DevopsChain(object):
     def delete_volume(self, volume_id, keyname):
         try:
             self.ec2.ec2_volume_delete(volume_id)
-            del self.record['volumes'][keyname]
+            del self.resources['volumes'][keyname]
             self.write_file()
             print("%s Volume %s has deleted." % (datetime.now(), volume_id))
         except Exception as e:
@@ -155,7 +155,7 @@ class DevopsChain(object):
     def deregister_task_definition(self, task_definition_arn, keyname):
         try:
             self.ecs.ecs_task_definition_deregister(task_definition_arn)
-            del self.record['task_definition_arn'][keyname]
+            del self.resources['task_definition_arn'][keyname]
             self.write_file()
             print("%s ECS task definition %s has deleted." % (datetime.now(), task_definition_arn))
         except Exception as e:
@@ -170,7 +170,7 @@ class DevopsChain(object):
                     association_id = rtb_info['Associations'][i]['RouteTableAssociationId']
                     self.ec2.ec2_route_table_subnet_disassociate(association_id)
             self.ec2.ec2_route_table_delete(rtb_id)
-            del self.record['rtbs'][keyname]
+            del self.resources['rtbs'][keyname]
             self.write_file()
             print("%s Route table %s has deleted." % (datetime.now(), rtb_id))
         except Exception as e:
@@ -207,6 +207,8 @@ class DevopsChain(object):
                 elif service == 'rtbs':
                     self.delete_rtb(item, option)
                 elif service == 'nacls':
+                    pass
+                elif service == 'roles':
                     pass
                 elif service == 'keypairs':
                     self.delete_keypair(item, option)

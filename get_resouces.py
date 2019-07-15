@@ -35,6 +35,7 @@ class GetResources(object):
             self.resources['ngws'] = {}
             self.resources['rtbs'] = {}
             self.resources['nacls'] = {}
+            self.resources['roles'] = {}
             self.resources['keypairs'] = {}
             self.resources['auto_scaling'] = {}
             self.resources['ec2_instances'] = {}

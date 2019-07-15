@@ -7,7 +7,7 @@ from configparser import ConfigParser
 
 cf = ConfigParser()
 cf.read('build_resources_config.ini')
-record_path = cf.get('record', 'path')
+resource_path = cf.get('resource', 'path')
 
 
 class DevopsChain(object):
@@ -17,32 +17,37 @@ class DevopsChain(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
-        self.record = {}
-        self.init_record()
+        self.resources = {}
+        self.init_resources()
 
-    def init_record(self):
-        if os.path.exists(record_path):
-            f = open(record_path, 'r')
+    def init_resources(self):
+        if os.path.exists(resource_path):
+            f = open(resource_path, 'r')
             data = f.read()
             f.close()
             if len(data) > 0:
-                self.record = json.loads(data)
+                self.resources = json.loads(data)
         else:
-            self.record['vpcs'] = {}
-            self.record['subnets'] = {}
-            self.record['security_groups'] = {}
-            self.record['ec2_instances'] = {}
-            self.record['igws'] = {}
-            self.record['ngws'] = {}
-            self.record['eips'] = {}
-            self.record['keypairs'] = {}
-            self.record['roles'] = {}
-            self.record['instance_profiles'] = {}
-            self.record['policies'] = {}
-            self.record['cloudformations'] = {}
-            self.record['ecs'] = {}
-            self.record['ecrs'] = {}
-            self.record['ecs_tasks_definitions'] = {}
+            self.resources['ecs_clusters'] = {}
+            self.resources['ecs_task_definitions'] = {}
+            self.resources['ecr_repositories'] = {}
+            self.resources['igws'] = {}
+            self.resources['ngws'] = {}
+            self.resources['rtbs'] = {}
+            self.resources['roles'] = {}
+            self.resources['nacls'] = {}
+            self.resources['keypairs'] = {}
+            self.resources['auto_scaling'] = {}
+            self.resources['ec2_instances'] = {}
+            self.resources['eips'] = {}
+            self.resources['volumes'] = {}
+            self.resources['snapshots'] = {}
+            self.resources['images'] = {}
+            self.resources['elbs'] = {}
+            self.resources['security_groups'] = {}
+            self.resources['subnets'] = {}
+            self.resources['vpcs'] = {}
+            self.resources['cloudformations'] = {}
             self.write_file()
 
     @staticmethod
@@ -56,8 +61,8 @@ class DevopsChain(object):
     def write_file(self):
         while True:
             try:
-                f = open(record_path, 'w')
-                f.write(json.dumps(self.record))
+                f = open(resource_path, 'w')
+                f.write(json.dumps(self.resources))
                 f.close()
                 break
             except Exception as e:
@@ -66,21 +71,21 @@ class DevopsChain(object):
     def create_vpc(self, vpc_info_path, vpc_key_name):
         vpc_info = self.read_file(vpc_info_path)
         vpc_id = self.ec2.ec2_vpc_create(vpc_info)
-        self.record['vpcs'][vpc_key_name] = vpc_id
+        self.resources['vpcs'][vpc_key_name] = vpc_id
         self.write_file()
 
     def create_subnet(self, subnet_info_path, subnet_key_name, vpc_key_name):
         subnet_info = self.read_file(subnet_info_path)
-        subnet_info['vpc'] = self.record['vpcs'][vpc_key_name]
+        subnet_info['vpc'] = self.resources['vpcs'][vpc_key_name]
         subnet_id = self.ec2.ec2_subnet_create(subnet_info)
-        self.record['subnets'][subnet_key_name] = subnet_id
+        self.resources['subnets'][subnet_key_name] = subnet_id
         self.write_file()
 
     def create_igw(self, igw_info_path, igw_key_name, vpc_key_name):
         igw_info = self.read_file(igw_info_path)
         igw_id = self.ec2.ec2_internet_gateway_create(igw_info)
-        self.ec2.ec2_internet_gateway_attach(igw_id, self.record['vpcs'][vpc_key_name])
-        self.record['igws'][igw_key_name] = igw_id
+        self.ec2.ec2_internet_gateway_attach(igw_id, self.resources['vpcs'][vpc_key_name])
+        self.resources['igws'][igw_key_name] = igw_id
         self.write_file()
 
     def create_default_route(self, vpc_key_name, igw_key_name, route_table_name):
@@ -88,7 +93,7 @@ class DevopsChain(object):
             {
                 'Name': 'vpc-id',
                 'Values': [
-                    self.record['vpcs'][vpc_key_name]
+                    self.resources['vpcs'][vpc_key_name]
                 ]
             }
         ]
@@ -100,7 +105,7 @@ class DevopsChain(object):
         self.ec2.ec2_tag_create(routetable_id, route_table_tag)
         route_info = {
             'DestinationCidrBlock': '0.0.0.0/0',
-            'GatewayId': self.record['igws'][igw_key_name]
+            'GatewayId': self.resources['igws'][igw_key_name]
         }
         self.ec2.ec2_route_add_igw(routetable_id, route_info)
 
@@ -109,14 +114,14 @@ class DevopsChain(object):
 
     def create_keypair(self, keypair_name, keypair_key_name):
         self.ec2.ec2_key_pair_create(keypair_name)
-        self.record['keypairs'][keypair_key_name] = keypair_name
+        self.resources['keypairs'][keypair_key_name] = keypair_name
         self.write_file()
 
     def create_security_group(self, sg_info_path, sg_rule_info_path, sg_key_name, vpc_key_name):
         security_group_info = self.read_file(sg_info_path)
-        security_group_info['vpcid'] = self.record['vpcs'][vpc_key_name]
+        security_group_info['vpcid'] = self.resources['vpcs'][vpc_key_name]
         security_group_id = self.ec2.ec2_security_group_create(security_group_info)
-        self.record['security_groups'][sg_key_name] = security_group_id
+        self.resources['security_groups'][sg_key_name] = security_group_id
         self.write_file()
         security_group_rule_info = self.read_file(sg_rule_info_path)
         security_group_rule_info['securitygroupid'] = security_group_id
@@ -125,30 +130,30 @@ class DevopsChain(object):
     def create_role(self, role_info_path, role_key_name):
         role_info = self.read_file(role_info_path)
         role_arn = self.iam.iam_role_create(role_info)['Arn']
-        self.record['roles'][role_key_name] = {}
-        self.record['roles'][role_key_name]['name'] = role_info['RoleName']
-        self.record['roles'][role_key_name]['arn'] = role_arn
+        self.resources['roles'][role_key_name] = {}
+        self.resources['roles'][role_key_name]['name'] = role_info['RoleName']
+        self.resources['roles'][role_key_name]['arn'] = role_arn
         self.write_file()
         if role_info['InstanceProfile']:
             instance_profile_arn = self.iam.iam_instance_profile_create(role_info['RoleName'])
-            self.record['instance_profiles'][role_key_name] = {}
-            self.record['instance_profiles'][role_key_name]['name'] = role_info['RoleName']
-            self.record['instance_profiles'][role_key_name]['arn'] = instance_profile_arn
+            self.resources['instance_profiles'][role_key_name] = {}
+            self.resources['instance_profiles'][role_key_name]['name'] = role_info['RoleName']
+            self.resources['instance_profiles'][role_key_name]['arn'] = instance_profile_arn
             self.write_file()
             self.iam.iam_role_to_instance_profile_add(role_info['RoleName'], role_info['RoleName'])
         for policy_arn in role_info['PolicyArns']:
             self.iam.iam_role_policy_attach(role_info['RoleName'], policy_arn)
-        self.record['policies'][role_key_name] = role_info['PolicyArns']
+        self.resources['policies'][role_key_name] = role_info['PolicyArns']
         self.write_file()
 
     def create_ecr_repository(self, repository_name, repository_keyname):
         self.ecr.repository_create(repository_name)
-        self.record['ecrs'][repository_keyname] = repository_name
+        self.resources['ecr_repositories'][repository_keyname] = repository_name
         self.write_file()
 
-    def create_ecs(self, cluster_name, ecs_keyname):
+    def create_ecs_cluster(self, cluster_name, ecs_keyname):
         self.ecs.ecs_cluster_create(cluster_name)
-        self.record['ecs'][ecs_keyname] = cluster_name
+        self.resources['ecs_clusters'][ecs_keyname] = cluster_name
         self.write_file()
 
     def create_cloudformation(self, cf_template_path, cf_stack_info, cf_stack_keyname):
@@ -159,15 +164,15 @@ class DevopsChain(object):
         cf_stack_info['TemplateBody'] = template_data
         # print(stack_info)
         self.cloudformation.cloudformation_stack_create(cf_stack_info)
-        self.record['cloudformations'][cf_stack_keyname] = cf_stack_info['StackName']
+        self.resources['cloudformations'][cf_stack_keyname] = cf_stack_info['StackName']
         self.write_file()
 
     def create_ec2_instance(self, ec2_instance_path, sg_keyname, subnet_keyname, ec2_instance_keyname, eip_value):
         instance_info = self.read_file(ec2_instance_path)
-        instance_info['SecurityGroupIds'] = [self.record['security_groups'][sg_keyname]]
-        instance_info['SubnetId'] = self.record['subnets'][subnet_keyname]
+        instance_info['SecurityGroupIds'] = [self.resources['security_groups'][sg_keyname]]
+        instance_info['SubnetId'] = self.resources['subnets'][subnet_keyname]
         instance_id = self.ec2.ec2_instance_create(instance_info)[0]
-        self.record['ec2_instances'][ec2_instance_keyname] = instance_id
+        self.resources['ec2_instances'][ec2_instance_keyname] = instance_id
         self.write_file()
         while True:
             # status = self.ec2.ec2_instance_describe('i-0064841176315c612')['Instances'][0]['State']['Name']
@@ -210,19 +215,19 @@ class DevopsChain(object):
             'InstanceId': instanceid,
         }
         self.ec2.ec2_eip_associate_address(associate_info)
-        self.record['eips'][ec2_instance_keyname] = eipid
+        self.resources['eips'][ec2_instance_keyname] = eipid
         self.write_file()
 
     def register_task_definition(self, ecs_task_definition_path, ecs_task_definition_keyname):
         task_definition_info = self.read_file(ecs_task_definition_path)
         self.ecs.ecs_task_definition_register(task_definition_info)
-        self.record['ecs_tasks_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
+        self.resources['ecs_tasks_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
         self.write_file()
 
     def main(self):
         for service in cf.sections():
             service = str(service)
-            if service not in ['record', 'ecs_tasks']:
+            if service not in ['resource', 'ecs_tasks']:
                 print("%s Start create %s." % (datetime.now(), service))
                 for item in cf.options(service):
                     info = str(cf.get(service, item))
@@ -231,7 +236,7 @@ class DevopsChain(object):
                         if info[3] == "true":
                             self.create_default_route(info[0], info[1], info[2])
                         pass
-                    elif info[0] not in self.record[service].keys():
+                    elif info[0] not in self.resources[service].keys():
                         if service == 'vpcs':
                             self.create_vpc(info[1], info[0])
                         elif service == 'subnets':
@@ -244,10 +249,10 @@ class DevopsChain(object):
                             self.create_security_group(info[1], info[2], info[0], info[3])
                         elif service == 'roles':
                             self.create_role(info[1], info[0])
-                        elif service == 'ecrs':
+                        elif service == 'ecr_repositories':
                             self.create_ecr_repository(info[1], info[0])
-                        elif service == 'ecs':
-                            self.create_ecs(info[1], info[0])
+                        elif service == 'ecs_clusters':
+                            self.create_ecs_cluster(info[1], info[0])
                         elif service == 'cloudformations':
                             cf_stack_info = self.read_file(info[1])
                             cf_parameters = str(info[3]).split(';')
@@ -255,7 +260,7 @@ class DevopsChain(object):
                             subnetids_keyname_length = len(subnetids_keyname)
                             subnetids = ''
                             for i in range(subnetids_keyname_length):
-                                subnet_id = self.record['subnets'][subnetids_keyname[i]]
+                                subnet_id = self.resources['subnets'][subnetids_keyname[i]]
                                 if i == subnetids_keyname_length - 1:
                                     subnetids = subnetids + subnet_id
                                 else:
@@ -265,13 +270,13 @@ class DevopsChain(object):
                             parameters = []
                             for parameter in cf_stack_info['Parameters']:
                                 if parameter['ParameterKey'] == 'VpcId':
-                                    parameter['ParameterValue'] = self.record['vpcs'][vpc_keyname]
+                                    parameter['ParameterValue'] = self.resources['vpcs'][vpc_keyname]
                                     parameters.append(parameter)
                                 elif parameter['ParameterKey'] == 'SubnetIds':
                                     parameter['ParameterValue'] = subnetids
                                     parameters.append(parameter)
                                 elif parameter['ParameterKey'] == 'SecurityGroupId':
-                                    parameter['ParameterValue'] = self.record['security_groups'][sg_keyname]
+                                    parameter['ParameterValue'] = self.resources['security_groups'][sg_keyname]
                                     parameters.append(parameter)
                                 else:
                                     parameters.append(parameter)
