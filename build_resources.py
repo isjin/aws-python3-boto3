@@ -302,6 +302,7 @@ class DevopsChain(object):
             while True:
                 ecs_instance_count = self.ecs.ecs_cluster_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
                 if ecs_instance_count > 0:
+                    print("%s Deploy task %s" % (datetime.now(), task_definition_name))
                     self.ecs.ecs_task_run(ecs_cluster_name, task_definition_name)
                     break
                 time.sleep(5)
