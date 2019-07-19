@@ -28,7 +28,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"devops-chain-windows-ec2-1"
+          "Value":"test-windows-ec2-1"
         }
       ]
     },

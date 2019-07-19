@@ -1,0 +1,8 @@
+{
+  "DashboardName":"test",
+  "DashboardBody":{
+    "widgets":[
+      
+    ]
+  }
+}

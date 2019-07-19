@@ -1,1 +1,0 @@
-{"vpcs": {}, "subnets": {}, "igws": {}, "ngws": {}, "keypairs": {}, "security_groups": {}, "ec2_instances": {}, "eips": {}, "roles": {}, "instance_profiles": {}, "policies": {}, "cloudformations": {}, "ecs": {}, "ecrs": {}, "ecs_task_definitions": {}}
