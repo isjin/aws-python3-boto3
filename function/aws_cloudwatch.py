@@ -74,7 +74,8 @@ class AWSCloudWatch(object):
             # MaxRecords=123,
             # NextToken='string'
         )
-        print(response)
+        # print(response)
+        return response['MetricAlarms']
 
     def cloudwatch_alarm_describe(self, alarm_name):
         response = self.cloudwatch_client.describe_alarms(
@@ -87,7 +88,8 @@ class AWSCloudWatch(object):
             # MaxRecords=123,
             # NextToken='string'
         )
-        print(response)
+        # print(response)
+        return response['MetricAlarms'][0]
 
     def cloudwatch_alarm_create(self, alarm_info):
         # alarm_info = {
@@ -165,10 +167,26 @@ class AWSCloudWatch(object):
             # ThresholdMetricId='string'
         )
         print(response)
+        return response
+
+    def cloudwatch_alarm_delete(self, alarmname):
+        response = self.cloudwatch_client.delete_alarms(
+            AlarmNames=[
+                alarmname,
+            ]
+        )
+        print(response)
+
+    def cloudwatch_alarms_delete(self, alarmnames_list):
+        response = self.cloudwatch_client.delete_alarms(
+            AlarmNames=alarmnames_list
+        )
+        print(response)
 
 
 if __name__ == '__main__':
     app = AWSCloudWatch()
     # app.cloudwatch_alarm_create()
     # app.cloudwatch_alarms_for_metric_describe()
-    app.cloudwatch_alarm_describe('test')
+    # app.cloudwatch_alarm_describe('alarm_email2')
+    app.cloudwatch_alarms_describe()

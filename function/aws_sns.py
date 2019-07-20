@@ -52,6 +52,7 @@ class AWSSNS(object):
             # ReturnSubscriptionArn=True | False
         )
         print(response)
+        return response['SubscriptionArn']
 
     def sns_subscription_delete(self, subscription_arn):
         # http,https,email,email-json,sms,sqs,application,lambda
