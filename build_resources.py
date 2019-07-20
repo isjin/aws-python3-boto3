@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch
 import json
 import os
 import time
@@ -16,6 +16,7 @@ class DevopsChain(object):
         self.iam = aws_iam.AWSIAM()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
+        self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
         self.resources = {}
         self.init_resources()
@@ -48,6 +49,8 @@ class DevopsChain(object):
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
             self.resources['cloudformations'] = {}
+            self.resources['cloudwatch_dashboards'] = {}
+            self.resources['cloudwatch_alarms'] = {}
             self.write_file()
 
     @staticmethod
@@ -224,6 +227,12 @@ class DevopsChain(object):
         self.resources['ecs_tasks_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
         self.write_file()
 
+    def create_cloudwatch_dashboard(self, cloudwatch_path, keyname):
+        dashboard_info = self.read_file(cloudwatch_path)
+        self.cloudwatch.cloudwatch_dashboard_create(dashboard_info)
+        self.resources['cloudwatch'][keyname] = dashboard_info['DashboardName']
+        self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
@@ -286,7 +295,8 @@ class DevopsChain(object):
                             self.register_task_definition(info[1], info[0])
                         elif service == 'ec2_instances':
                             self.create_ec2_instance(info[1], info[2], info[3], info[0], info[4])
-                            pass
+                        elif service == 'cloudwatch_dashboards':
+                            self.create_cloudwatch_dashboard(info[1], info[0])
                         else:
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))

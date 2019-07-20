@@ -60,7 +60,6 @@ class GenerateMetrics(object):
         self.create_ec2_instance_metric()
         self.cloudwatch_data['DashboardBody']['widgets'] = self.widgets
         self.write_file('config/test/cloudwatch.txt', self.cloudwatch_data)
-        print(self.cloudwatch_data)
 
 
 if __name__ == '__main__':
