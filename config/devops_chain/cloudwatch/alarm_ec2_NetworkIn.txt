@@ -15,5 +15,5 @@
   "Period":300,
   "EvaluationPeriods":1,
   "ComparisonOperator":"GreaterThanOrEqualToThreshold",
-  "Threshold":70
+  "Threshold":80000000
 }

@@ -3,7 +3,7 @@
   "AlarmActions":[
     "arn:aws-cn:sns:cn-northwest-1:952375741452:test"
   ],
-  "MetricName":"DiskReadOps",
+  "MetricName":"DiskWriteOps",
   "Namespace":"AWS\/EC2",
   "Statistic":"Average",
   "Dimensions":[
