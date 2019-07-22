@@ -230,7 +230,7 @@ class GetResources(object):
             ecs_cluster_keyname = 'cluster_arn' + str(i + 1)
             ecs_cluster_arn = ecs_clusters_info[i]
             self.resources['ecs_clusters'][ecs_cluster_keyname] = {}
-            self.resources['ecs_clusters'][ecs_cluster_keyname]['ClusterArn'] = ecs_cluster_arn
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterArn'] = ecs_cluster_arn
         self.write_file()
 
     def get_ecs_task_definitions(self):
