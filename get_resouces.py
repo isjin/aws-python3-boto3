@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation
+from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch
 import json
 import os
 
@@ -13,6 +13,8 @@ class GetResources(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.cf = aws_cloudformation.AWSCloudFormation()
+        self.sns = aws_sns.AWSSNS()
+        self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.resources = {}
         self.init_resources()
 
@@ -48,6 +50,10 @@ class GetResources(object):
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
             self.resources['cloudformations'] = {}
+            self.resources['cloudwatch_dashboards'] = {}
+            self.resources['cloudwatch_alarms'] = {}
+            self.resources['sns_topics'] = {}
+            self.resources['sns_subscriptions'] = {}
             self.write_file()
 
     @staticmethod
@@ -260,6 +266,45 @@ class GetResources(object):
             self.resources['cloudformations'][stack_keyname]['StackName'] = stack_name
         self.write_file()
 
+    def get_cloudwatch_dashboards(self):
+        dashboards_info = self.cloudwatch.cloudwatch_dashboards_list()
+        for i in range(len(dashboards_info)):
+            dashboard_keyname = 'dashboard' + str(i + 1)
+            dashboard_name = dashboards_info[i]['DashboardName']
+            self.resources['cloudwatch_dashboards'][dashboard_keyname] = dashboard_name
+        self.write_file()
+
+    def get_cloudwatch_alarms(self):
+        alarms_info = self.cloudwatch.cloudwatch_alarms_describe()
+        for i in range(len(alarms_info)):
+            alarm_keyname = 'alarm' + str(i + 1)
+            alarm_name = alarms_info[i]['AlarmName']
+            self.resources['cloudwatch_alarms'][alarm_keyname] = alarm_name
+        self.write_file()
+
+    def get_sns_topics(self):
+        sns_topics_info = self.sns.sns_topics_list()
+        for i in range(len(sns_topics_info)):
+            sns_topic_keyname = 'topic' + str(i + 1)
+            sns_topic_arn = sns_topics_info[i]['TopicArn']
+            self.resources['sns_topics'][sns_topic_keyname] = sns_topic_arn
+        self.write_file()
+
+    def get_sns_subscriptions(self):
+        for topic_arn in self.resources['sns_topics'].values():
+            sns_subscriptions_info = self.sns.sns_subscriptions_by_topic_list(topic_arn)
+            for i in range(len(sns_subscriptions_info)):
+                sns_subscription_keyname = 'subscription' + str(i + 1)
+                sns_subscription_arn = sns_subscriptions_info[i]['SubscriptionArn']
+                sns_subscription_protocol = sns_subscriptions_info[i]['Protocol']
+                sns_subscription_endpoint = sns_subscriptions_info[i]['Endpoint']
+                self.resources['sns_subscriptions'][sns_subscription_keyname] = {}
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['SubscriptionArn'] = sns_subscription_arn
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['Protocol'] = sns_subscription_protocol
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['Endpoint'] = sns_subscription_endpoint
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['TopicArn'] = topic_arn
+            self.write_file()
+
     def main(self):
         self.get_vpcs()
         self.get_subnets()
@@ -280,6 +325,10 @@ class GetResources(object):
         self.get_ecs_task_definitions()
         self.get_ecr_repositories()
         self.get_cloudformations()
+        self.get_cloudwatch_dashboards()
+        self.get_cloudwatch_alarms()
+        self.get_sns_topics()
+        self.get_sns_subscriptions()
         os.system('python generate_resources_config.py')
 
 
