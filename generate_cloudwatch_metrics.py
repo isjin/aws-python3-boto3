@@ -61,8 +61,8 @@ class GenerateMetrics(object):
             metrics = []
             for instance in instances:
                 metric = metric_list.copy()
-                metric.append(instance)
-                metric.append(service_metric)
+                metric[3]=instance
+                metric[1]=service_metric
                 metrics.append(metric)
             # print(metrics)
             data['properties']['metrics'] = metrics
@@ -71,16 +71,14 @@ class GenerateMetrics(object):
 
     def create_ecs_metric(self):
         metric_file = self.cf.get('resource','ecs_mertic')
-        # ecs_metrics = ['CPUReservation', 'CPUUtilization', 'MemoryReservation', 'MemoryUtilization']
         service_name = 'ECS'
-        metric = ['AWS/ECS', 'ClusterName']
+        metric = ['AWS/ECS','CPUUtilization', 'ClusterName','ecs-cluster']
         self.create_metrics(metric_file, ecs_metrics, service_name, metric, self.ecs_clusters)
 
     def create_ec2_instance_metric(self):
         metric_file = self.cf.get('resource','ec2_mertic')
-        # ec2_metrics = ['CPUUtilization', 'DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'StatusCheckFailed_Instance']
         service_name = 'EC2'
-        metric = ['AWS/EC2', 'InstanceId']
+        metric = ['AWS/EC2', 'CPUUtilization','InstanceId','i-1234567']
         self.create_metrics(metric_file, ec2_metrics, service_name, metric, self.instance_ids)
 
     def main(self):

@@ -209,20 +209,19 @@ class DevopsChain(object):
                 'Value': instance_name
             }
         ]
-        eipid = self.ec2.ec2_eip_allocate(tags)
-
-        return eipid
+        eipid,eip_ip = self.ec2.ec2_eip_allocate(tags)
+        return eipid,eip_ip
 
     def assign_eip(self, instanceid, ec2_instance_keyname):
         instance_name = self.get_instance_name(instanceid)
-        eipid = self.create_eip(instance_name)
+        eipid,eip_ip = self.create_eip(instance_name)
         associate_info = {
             'AllocationId': eipid,
             # 'AllocationId': 'eipalloc-0e0be917bbb463d1c',
             'InstanceId': instanceid,
         }
         self.ec2.ec2_eip_associate_address(associate_info)
-        self.resources['eips'][ec2_instance_keyname] = eipid
+        self.resources['eips'][ec2_instance_keyname] = eip_ip
         self.write_file()
 
     def register_task_definition(self, ecs_task_definition_path, ecs_task_definition_keyname):

@@ -1,8 +1,10 @@
-from configparser import RawConfigParser
+from configparser import RawConfigParser,ConfigParser
 import json
 import os
 
-resource_path = 'config/devops_chain/resource.txt'
+cf=ConfigParser()
+cf.read('build_resources_config.ini')
+resource_path = cf.get('resource','path')
 config_file_path = 'resource_j2c.ini'
 
 

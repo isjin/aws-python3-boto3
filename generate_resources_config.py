@@ -44,7 +44,7 @@ class GenerateConfig(object):
                     elif service == 'subnets':
                         self.set_cf(service, option, 'SubnetId')
                     elif service == 'ecs_clusters':
-                        self.set_cf(service, option, 'ClusterArn')
+                        self.set_cf(service, option, 'clusterArn')
                     elif service == 'ecs_task_definitions':
                         self.set_cf(service, option, 'taskDefinitionArns')
                     elif service == 'ecr_repositories':
