@@ -9,6 +9,6 @@
       "ecs_test"
     ],
     "region":"cn-northwest-1",
-    "title":"CPUReservation-devops-chain2"
+    "title":"CPUReservation-EC2"
   }
 }

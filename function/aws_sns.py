@@ -9,7 +9,8 @@ class AWSSNS(object):
         response = self.sns_client.list_topics(
             # NextToken='string'
         )
-        print(response)
+        # print(response)
+        return response['Topics']
 
     def sns_topic_create(self, topic_name):
         response = self.sns_client.create_topic(
@@ -38,7 +39,8 @@ class AWSSNS(object):
             TopicArn=topic_arn,
             # NextToken='string'
         )
-        print(response)
+        # print(response)
+        return response['Subscriptions']
 
     def sns_subscription_create(self, topic_arn, protocol, endpoint):
         # http,https,email,email-json,sms,sqs,application,lambda
@@ -73,4 +75,5 @@ class AWSSNS(object):
 if __name__ == '__main__':
     app = AWSSNS()
     # topic_arn = app.sns_topic_create('test')
-    app.sns_subscription_delete('arn:aws-cn:sns:cn-northwest-1:952375741452:test:c368a503-2d9f-419d-8ceb-d4d3a1bae436')
+    topic_arn = app.sns_subscription_create('arn:aws-cn:sns:cn-northwest-1:952375741452:email-alarm', 'email', 'isjin1@163.com')
+    # app.sns_subscription_delete('arn:aws-cn:sns:cn-northwest-1:952375741452:test:c368a503-2d9f-419d-8ceb-d4d3a1bae436')

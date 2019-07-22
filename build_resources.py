@@ -1,6 +1,7 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
 import json
 import os
+import re
 import time
 from datetime import datetime
 from configparser import ConfigParser
@@ -16,6 +17,7 @@ class DevopsChain(object):
         self.iam = aws_iam.AWSIAM()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
+        self.sns = aws_sns.AWSSNS()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
         self.resources = {}
@@ -51,6 +53,8 @@ class DevopsChain(object):
             self.resources['cloudformations'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
+            self.resources['sns_topics'] = {}
+            self.resources['sns_subscriptions'] = {}
             self.write_file()
 
     @staticmethod
@@ -227,10 +231,49 @@ class DevopsChain(object):
         self.resources['ecs_tasks_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
         self.write_file()
 
-    def create_cloudwatch_dashboard(self, cloudwatch_path, keyname):
-        dashboard_info = self.read_file(cloudwatch_path)
+    def create_cloudwatch_dashboard(self, dashboard_path, keyname):
+        dashboard_info = self.read_file(dashboard_path)
         self.cloudwatch.cloudwatch_dashboard_create(dashboard_info)
-        self.resources['cloudwatch'][keyname] = dashboard_info['DashboardName']
+        self.resources['cloudwatch_dashboards'][keyname] = dashboard_info['DashboardName']
+        self.write_file()
+
+    def create_cloudwatch_alarm(self, alarm_path, sns_keyname, service_type, instance_type, type_value, keyname):
+        alarm_info = self.read_file(alarm_path)
+        alarm_name = None
+        alarm_dimension = None
+        alarm_path_split = re.split(r'[_.]', str(alarm_path))
+        metric = alarm_path_split[2]
+        if instance_type == 'instance':
+            alarm_name = metric + '_' + service_type + '_' + type_value
+            alarm_dimension = type_value
+        else:
+            if service_type == 'ec2':
+                alarm_name = metric + '_' + service_type + '_' + self.resources['ec2_instances'][type_value]
+                alarm_dimension = self.resources['ec2_instances'][type_value]
+            elif service_type == 'ecs':
+                alarm_name = metric + '_' + service_type + '_' + self.resources['ecs_clusters'][type_value]
+                alarm_dimension = self.resources['ecs_clusters'][type_value]
+            elif service_type == 'rds':
+                pass
+        alarm_info['AlarmName'] = alarm_name
+        alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+        if type_value == 'all':
+            alarm_info['Dimensions'] = []
+        else:
+            alarm_info['Dimensions'][0]['Value'] = alarm_dimension
+        self.cloudwatch.cloudwatch_alarm_create(alarm_info)
+        self.resources['cloudwatch_alarms'][keyname] = alarm_name
+        self.write_file()
+
+    def create_sns_topic(self, topic_name, keyname):
+        topic_arn = self.sns.sns_topic_create(topic_name)
+        self.resources['sns_topics'][keyname] = topic_arn
+        self.write_file()
+
+    def create_sns_subscription(self, topic_keyname, protocol, endpoint, keyname):
+        topic_arn = self.resources['sns_topics'][topic_keyname]
+        subscription_arn = self.sns.sns_subscription_create(topic_arn, protocol, endpoint)
+        self.resources['sns_subscriptions'][keyname] = subscription_arn
         self.write_file()
 
     def main(self):
@@ -295,13 +338,18 @@ class DevopsChain(object):
                             self.register_task_definition(info[1], info[0])
                         elif service == 'ec2_instances':
                             self.create_ec2_instance(info[1], info[2], info[3], info[0], info[4])
+                        elif service == 'sns_topics':
+                            self.create_sns_topic(info[1], info[0])
+                        elif service == 'sns_subscriptions':
+                            self.create_sns_subscription(info[1], info[2], info[3], info[0])
                         elif service == 'cloudwatch_dashboards':
                             self.create_cloudwatch_dashboard(info[1], info[0])
+                        elif service == 'cloudwatch_alarms':
+                            self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
                         else:
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))
         print("%s Infrastructure deployment is done." % (datetime.now()))
-
         # run ecs task definitions
         print('%s Start to deploy ECS tasks.' % (datetime.now()))
         for item in cf.options('ecs_tasks'):

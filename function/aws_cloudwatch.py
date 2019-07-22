@@ -41,6 +41,14 @@ class AWSCloudWatch(object):
         )
         print(response)
 
+    def cloudwatch_dashboards_list(self):
+        response = self.cloudwatch_client.list_dashboards(
+            # DashboardNamePrefix='string',
+            # NextToken='string'
+        )
+        # print(response)
+        return response['DashboardEntries']
+
     def cloudwatch_dashboard_delete(self, dashboard_name):
         response = self.cloudwatch_client.delete_dashboards(
             DashboardNames=[
@@ -88,7 +96,7 @@ class AWSCloudWatch(object):
             # MaxRecords=123,
             # NextToken='string'
         )
-        # print(response)
+        print(response)
         return response['MetricAlarms'][0]
 
     def cloudwatch_alarm_create(self, alarm_info):
@@ -188,5 +196,5 @@ if __name__ == '__main__':
     app = AWSCloudWatch()
     # app.cloudwatch_alarm_create()
     # app.cloudwatch_alarms_for_metric_describe()
-    # app.cloudwatch_alarm_describe('alarm_email2')
+    app.cloudwatch_alarm_describe('test')
     app.cloudwatch_alarms_describe()
