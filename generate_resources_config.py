@@ -2,6 +2,7 @@ from configparser import RawConfigParser, ConfigParser
 import os
 import json
 
+# resource_path = 'config/devops_chain/resouces.txt'
 resource_path = 'resouces_list.txt'
 resource_config_path = 'resouces_config.ini'
 resource_log_path = 'resources.log'

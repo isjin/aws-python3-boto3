@@ -31,6 +31,11 @@ class DevopsChain(object):
             if len(data) > 0:
                 self.resources = json.loads(data)
         else:
+            self.resources['cloudformations'] = {}
+            self.resources['cloudwatch_dashboards'] = {}
+            self.resources['cloudwatch_alarms'] = {}
+            self.resources['sns_subscriptions'] = {}
+            self.resources['sns_topics'] = {}
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
@@ -50,11 +55,6 @@ class DevopsChain(object):
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
-            self.resources['cloudformations'] = {}
-            self.resources['cloudwatch_dashboards'] = {}
-            self.resources['cloudwatch_alarms'] = {}
-            self.resources['sns_subscriptions'] = {}
-            self.resources['sns_topics'] = {}
             self.write_file()
 
     @staticmethod

@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
 import json
 import os
 import time
@@ -14,6 +14,8 @@ class DevopsChain(object):
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
+        self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
+        self.sns = aws_sns.AWSSNS()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.resources = {}
         self.init_resources()

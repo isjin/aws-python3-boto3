@@ -30,6 +30,11 @@ class GetResources(object):
         else:
             self.resources['resource'] = {}
             self.resources['resource']['path'] = resource_path
+            self.resources['cloudformations'] = {}
+            self.resources['cloudwatch_dashboards'] = {}
+            self.resources['cloudwatch_alarms'] = {}
+            self.resources['sns_subscriptions'] = {}
+            self.resources['sns_topics'] = {}
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
@@ -49,11 +54,6 @@ class GetResources(object):
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
-            self.resources['cloudformations'] = {}
-            self.resources['cloudwatch_dashboards'] = {}
-            self.resources['cloudwatch_alarms'] = {}
-            self.resources['sns_subscriptions'] = {}
-            self.resources['sns_topics'] = {}
             self.write_file()
 
     @staticmethod
