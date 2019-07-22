@@ -1,8 +1,0 @@
-{
-  "tags":[
-    {
-      "Key":"Name",
-      "Value":"test_igw"
-    }
-  ]
-}

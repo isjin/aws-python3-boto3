@@ -1,5 +1,5 @@
 {
-  "CidrBlock":"10.1.0.0/16",
+  "CidrBlock":"10.2.0.0/16",
   "Tags":[
     {
       "Key":"Name",

@@ -5,7 +5,7 @@
   "tags":[
     {
       "Key":"Name",
-      "Value":"test-1b-subnet"
+      "Value":"devops-chain-1b-subnet"
     }
   ]
 }

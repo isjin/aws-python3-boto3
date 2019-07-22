@@ -35,7 +35,6 @@ class GenerateConfig(object):
 
     def generate_resources_config_file(self):
         for service in self.resources.keys():
-            print(service)
             if service != 'resource':
                 self.cfw.add_section(service)
                 for option in self.resources[service]:

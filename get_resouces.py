@@ -52,8 +52,8 @@ class GetResources(object):
             self.resources['cloudformations'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
-            self.resources['sns_topics'] = {}
             self.resources['sns_subscriptions'] = {}
+            self.resources['sns_topics'] = {}
             self.write_file()
 
     @staticmethod

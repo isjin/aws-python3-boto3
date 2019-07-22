@@ -1,21 +1,21 @@
 {
   "BlockDeviceMappings":[
     {
-      "DeviceName":"\/dev\/sda1",
+      "DeviceName":"\/dev\/xvda",
       "Ebs":{
         "DeleteOnTermination":true,
-        "VolumeSize":100,
+        "VolumeSize":50,
         "VolumeType":"gp2"
       }
     }
   ],
-  "ImageId":"ami-0496ad23920953fc2",
-  "InstanceType":"t2.medium",
+  "ImageId":"ami-0cdb0bf27047e574c",
+  "InstanceType":"m4.large",
   "maxcount":1,
   "mincount":1,
-  "UserData":"",
+  "UserData":"#!\/bin\/bash\necho ECS_CLUSTER=devops-chain-ecs >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;",
   "IamInstanceProfile":{
-    
+    "Name":"ecsInstanceRole"
   },
   "KeyName":"devopschaindemo",
   "SecurityGroupIds":[
@@ -28,7 +28,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"test-windows-ec2-1"
+          "Value":"ecs-test-ec2-2"
         }
       ]
     },
@@ -37,7 +37,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"devops-chain-windows-ec2-1"
+          "Value":"ecs-test-ec2-2"
         }
       ]
     }

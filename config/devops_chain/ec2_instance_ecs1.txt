@@ -13,7 +13,7 @@
   "InstanceType":"m4.large",
   "maxcount":1,
   "mincount":1,
-  "UserData":"#!\/bin\/bash\necho ECS_CLUSTER=ecs_test >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;",
+  "UserData":"#!\/bin\/bash\necho ECS_CLUSTER=devops-chain-ecs >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;",
   "IamInstanceProfile":{
     "Name":"ecsInstanceRole"
   },
@@ -28,7 +28,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"ecs-test-ec2-1"
+          "Value":"devops-chain-ecs-ec2-1"
         }
       ]
     },
@@ -37,7 +37,7 @@
       "Tags":[
         {
           "Key":"Name",
-          "Value":"ecs-test-ec2-1"
+          "Value":"devops-chain-ecs-ec2-1"
         }
       ]
     }

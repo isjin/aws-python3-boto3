@@ -1,6 +1,6 @@
 {
-  "groupname":"test-sg",
-  "description":"test-sg",
+  "groupname":"devopschaindemo-sg",
+  "description":"devopschaindemo-sg",
   "vpcid":"{self.vpcid}",
   "tags":[
     {

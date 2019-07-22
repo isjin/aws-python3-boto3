@@ -53,8 +53,8 @@ class DevopsChain(object):
             self.resources['cloudformations'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
-            self.resources['sns_topics'] = {}
             self.resources['sns_subscriptions'] = {}
+            self.resources['sns_topics'] = {}
             self.write_file()
 
     @staticmethod
@@ -226,9 +226,10 @@ class DevopsChain(object):
         self.write_file()
 
     def register_task_definition(self, ecs_task_definition_path, ecs_task_definition_keyname):
+        print(ecs_task_definition_path, ecs_task_definition_keyname)
         task_definition_info = self.read_file(ecs_task_definition_path)
         self.ecs.ecs_task_definition_register(task_definition_info)
-        self.resources['ecs_tasks_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
+        self.resources['ecs_task_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
         self.write_file()
 
     def create_cloudwatch_dashboard(self, dashboard_path, keyname):
@@ -242,7 +243,7 @@ class DevopsChain(object):
         alarm_name = None
         alarm_dimension = None
         alarm_path_split = re.split(r'[_.]', str(alarm_path))
-        metric = alarm_path_split[2]
+        metric = alarm_path_split[-2]
         if instance_type == 'instance':
             alarm_name = metric + '_' + service_type + '_' + type_value
             alarm_dimension = type_value
@@ -287,7 +288,6 @@ class DevopsChain(object):
                     if service == 'default_routes':
                         if info[3] == "true":
                             self.create_default_route(info[0], info[1], info[2])
-                        pass
                     elif info[0] not in self.resources[service].keys():
                         if service == 'vpcs':
                             self.create_vpc(info[1], info[0])
@@ -334,7 +334,7 @@ class DevopsChain(object):
                                     parameters.append(parameter)
                             cf_stack_info['Parameters'] = parameters
                             self.create_cloudformation(info[2], cf_stack_info, info[0])
-                        elif service == 'ecs_tasks_definitions':
+                        elif service == 'ecs_task_definitions':
                             self.register_task_definition(info[1], info[0])
                         elif service == 'ec2_instances':
                             self.create_ec2_instance(info[1], info[2], info[3], info[0], info[4])

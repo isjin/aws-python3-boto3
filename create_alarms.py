@@ -39,7 +39,6 @@ class CreateAlarms(object):
                 alarm_name = instance_id + '_'+metric
                 alarm_info['AlarmName'] = alarm_name
                 alarm_info['MetricName'] = metric
-                alarm_info['AlarmActions'] = [self.topic_name]
                 alarm_info['Dimensions'][0]['Value'] = instance_id
                 alarm_info['AlarmActions'] = [topic_arn]
                 self.cloudwatch.cloudwatch_alarm_create(alarm_info)

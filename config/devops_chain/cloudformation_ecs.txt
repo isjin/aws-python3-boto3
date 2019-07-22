@@ -1,5 +1,5 @@
 {
-  "StackName":"devops-chain-demo01",
+  "StackName":"devops-chain-ecs",
   "TemplateBody":"self.templatebody",
   "Parameters":[
     {
@@ -16,7 +16,7 @@
     },
     {
       "ParameterKey":"UserData",
-      "ParameterValue":"#!\/bin\/bash\necho ECS_CLUSTER=devops-chain-demo01 >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;"
+      "ParameterValue":"#!\/bin\/bash\necho ECS_CLUSTER=devops-chain >> \/etc\/ecs\/ecs.config;echo ECS_BACKEND_HOST= >> \/etc\/ecs\/ecs.config;"
     },
     {
       "ParameterKey":"IsWindows",
@@ -80,7 +80,7 @@
     },
     {
       "ParameterKey":"EcsClusterName",
-      "ParameterValue":"devops-chain-demo01"
+      "ParameterValue":"test-ecs"
     },
     {
       "ParameterKey":"UseSpot",
