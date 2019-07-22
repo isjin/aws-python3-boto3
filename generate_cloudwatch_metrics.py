@@ -1,16 +1,35 @@
 from function.aws_cloudwatch import AWSCloudWatch
+from configparser import ConfigParser
 import json
+import os
 
-ecs_clusters = ['ecs_test', 'test-ecs']
-instance_ids = ['i-004a96c77deedf4da', 'i-0281ab6b8c52e8fd9']
+cf=ConfigParser()
+cf.read('build_resources_config.ini')
+ecs_metrics = ['CPUReservation', 'CPUUtilization', 'MemoryReservation', 'MemoryUtilization']
+ec2_metrics = ['CPUUtilization', 'DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'StatusCheckFailed_Instance']
 
 
 class GenerateMetrics(object):
     def __init__(self):
+        self.cf=ConfigParser()
+        self.cf.read('build_resources_config.ini')
+        self.resources={}
+        self.init_resources()
         self.cloudwatch = AWSCloudWatch()
-        self.cloudwatch_path = 'config/test/cloudwatch/cloudwatch.txt'
+        self.cloudwatch_path = self.cf.get('resource','cloudwatch')
         self.cloudwatch_data = self.read_file(self.cloudwatch_path)
         self.widgets = []
+        self.instance_ids=[]
+        self.ecs_clusters=[]
+
+    def init_resources(self):
+        resource_path =self.cf.get('resource','path')
+        if os.path.exists(resource_path):
+            f = open(resource_path, 'r')
+            data = f.read()
+            f.close()
+            if len(data) > 0:
+                self.resources = json.loads(data)
 
     @staticmethod
     def read_file(path):
@@ -25,6 +44,15 @@ class GenerateMetrics(object):
         f = open(path, 'w')
         f.write(json.dumps(data))
         f.close()
+
+    def get_compute_resources(self):
+        instances_info=self.resources['ec2_instances']
+        for key in instances_info.keys():
+            self.instance_ids.append(instances_info[key])
+        ecs_clusters_info=self.resources['ecs_clusters']
+        for key in ecs_clusters_info.keys():
+            self.ecs_clusters.append(ecs_clusters_info[key])
+
 
     def create_metrics(self, metric_file, service_metrics, service, metric_list, instances):
         for service_metric in service_metrics:
@@ -42,26 +70,29 @@ class GenerateMetrics(object):
             self.widgets.append(data)
 
     def create_ecs_metric(self):
-        metric_file = 'config/test/cloudwatch/metric_ecs.txt'
-        ecs_metrics = ['CPUReservation', 'CPUUtilization', 'MemoryReservation', 'MemoryUtilization']
+        metric_file = self.cf.get('resource','ecs_mertic')
+        # ecs_metrics = ['CPUReservation', 'CPUUtilization', 'MemoryReservation', 'MemoryUtilization']
         service_name = 'ECS'
         metric = ['AWS/ECS', 'ClusterName']
-        self.create_metrics(metric_file, ecs_metrics, service_name, metric, ecs_clusters)
+        self.create_metrics(metric_file, ecs_metrics, service_name, metric, self.ecs_clusters)
 
     def create_ec2_instance_metric(self):
-        metric_file = 'config/test/cloudwatch/metric_ec2_instance.txt'
-        ec2_metrics = ['CPUUtilization', 'DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'StatusCheckFailed_Instance']
+        metric_file = self.cf.get('resource','ec2_mertic')
+        # ec2_metrics = ['CPUUtilization', 'DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'StatusCheckFailed_Instance']
         service_name = 'EC2'
         metric = ['AWS/EC2', 'InstanceId']
-        self.create_metrics(metric_file, ec2_metrics, service_name, metric, instance_ids)
+        self.create_metrics(metric_file, ec2_metrics, service_name, metric, self.instance_ids)
 
     def main(self):
+        self.get_compute_resources()
         self.create_ecs_metric()
         self.create_ec2_instance_metric()
         self.cloudwatch_data['DashboardBody']['widgets'] = self.widgets
-        self.write_file('config/test/cloudwatch.txt', self.cloudwatch_data)
+        cloudwatch_save_file = self.cf.get('resource','cloudwatch_save')
+        self.write_file(cloudwatch_save_file, self.cloudwatch_data)
 
 
 if __name__ == '__main__':
     app = GenerateMetrics()
     app.main()
+    # app.get_instance_ids()
