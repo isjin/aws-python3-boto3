@@ -271,7 +271,8 @@ class GetResources(object):
         for i in range(len(dashboards_info)):
             dashboard_keyname = 'dashboard' + str(i + 1)
             dashboard_name = dashboards_info[i]['DashboardName']
-            self.resources['cloudwatch_dashboards'][dashboard_keyname] = dashboard_name
+            self.resources['cloudwatch_dashboards'][dashboard_keyname] = {}
+            self.resources['cloudwatch_dashboards'][dashboard_keyname]['DashboardName'] = dashboard_name
         self.write_file()
 
     def get_cloudwatch_alarms(self):
@@ -279,7 +280,8 @@ class GetResources(object):
         for i in range(len(alarms_info)):
             alarm_keyname = 'alarm' + str(i + 1)
             alarm_name = alarms_info[i]['AlarmName']
-            self.resources['cloudwatch_alarms'][alarm_keyname] = alarm_name
+            self.resources['cloudwatch_alarms'][alarm_keyname] = {}
+            self.resources['cloudwatch_alarms'][alarm_keyname]['AlarmName'] = alarm_name
         self.write_file()
 
     def get_sns_topics(self):
@@ -287,12 +289,13 @@ class GetResources(object):
         for i in range(len(sns_topics_info)):
             sns_topic_keyname = 'topic' + str(i + 1)
             sns_topic_arn = sns_topics_info[i]['TopicArn']
-            self.resources['sns_topics'][sns_topic_keyname] = sns_topic_arn
+            self.resources['sns_topics'][sns_topic_keyname] = {}
+            self.resources['sns_topics'][sns_topic_keyname]['TopicArn'] = sns_topic_arn
         self.write_file()
 
     def get_sns_subscriptions(self):
-        for topic_arn in self.resources['sns_topics'].values():
-            sns_subscriptions_info = self.sns.sns_subscriptions_by_topic_list(topic_arn)
+        for topic_info in self.resources['sns_topics'].values():
+            sns_subscriptions_info = self.sns.sns_subscriptions_by_topic_list(topic_info['TopicArn'])
             for i in range(len(sns_subscriptions_info)):
                 sns_subscription_keyname = 'subscription' + str(i + 1)
                 sns_subscription_arn = sns_subscriptions_info[i]['SubscriptionArn']
@@ -302,7 +305,7 @@ class GetResources(object):
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['SubscriptionArn'] = sns_subscription_arn
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['Protocol'] = sns_subscription_protocol
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['Endpoint'] = sns_subscription_endpoint
-                self.resources['sns_subscriptions'][sns_subscription_keyname]['TopicArn'] = topic_arn
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['TopicArn'] = topic_info['TopicArn']
             self.write_file()
 
     def main(self):
