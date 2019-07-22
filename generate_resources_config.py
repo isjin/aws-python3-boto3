@@ -35,6 +35,7 @@ class GenerateConfig(object):
 
     def generate_resources_config_file(self):
         for service in self.resources.keys():
+            print(service)
             if service != 'resource':
                 self.cfw.add_section(service)
                 for option in self.resources[service]:
@@ -52,6 +53,8 @@ class GenerateConfig(object):
                         self.set_cf(service, option, 'PublicIp')
                     elif service == 'volumes':
                         self.set_cf(service, option, 'VolumeId')
+                    elif service == 'sns_subscriptions':
+                        self.set_cf(service, option, 'SubscriptionArn')
                     else:
                         for key in self.resources[service][option].keys():
                             self.set_cf(service, option, key)
