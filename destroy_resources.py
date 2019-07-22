@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
 import json
 import os
 import time
@@ -18,6 +18,8 @@ class DevopsChain(object):
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
+        self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
+        self.sns = aws_sns.AWSSNS()
         self.resources = {}
         self.init_resources()
 
@@ -176,6 +178,42 @@ class DevopsChain(object):
         except Exception as e:
             print(e.__str__())
 
+    def delete_cloudwatch_dashboard(self, dashboard_name, keyname):
+        try:
+            self.cloudwatch.cloudwatch_dashboard_delete(dashboard_name)
+            del self.resources['cloudwatch_dashboards'][keyname]
+            self.write_file()
+            print("%s Cloudwatch dashboard %s has deleted." % (datetime.now(), dashboard_name))
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_cloudwatch_alarm(self, alarm_name, keyname):
+        try:
+            self.cloudwatch.cloudwatch_alarm_delete(alarm_name)
+            del self.resources['cloudwatch_alarms'][keyname]
+            self.write_file()
+            print("%s Cloudwatch alarm %s has deleted." % (datetime.now(), alarm_name))
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_sns_subscription(self, subscription_arn, keyname):
+        try:
+            self.sns.sns_subscription_delete(subscription_arn)
+            del self.resources['sns_subscriptions'][keyname]
+            self.write_file()
+            print("%s SNS subscription %s has deleted." % (datetime.now(), subscription_arn))
+        except Exception as e:
+            print(e.__str__())
+
+    def delete_sns_topic(self, topic_arn, keyname):
+        try:
+            self.sns.sns_topic_delete(topic_arn)
+            del self.resources['sns_subscriptions'][keyname]
+            self.write_file()
+            print("%s SNS subscription %s has deleted." % (datetime.now(), topic_arn))
+        except Exception as e:
+            print(e.__str__())
+
     def main(self):
         # self.delete_ec2()
         # self.delete_keypair()
@@ -222,6 +260,14 @@ class DevopsChain(object):
                     pass
                 elif service == 'images':
                     pass
+                elif service == 'cloudwatch_dashboards':
+                    self.delete_cloudwatch_dashboard(item, option)
+                elif service == 'cloudwatch_alarms':
+                    self.delete_cloudwatch_alarm(item, option)
+                elif service == 'sns_topics':
+                    self.delete_sns_topic(item, option)
+                elif service == 'sns_subscriptions':
+                    self.delete_sns_subscription(item, option)
             print("%s Delete %s are finished." % (datetime.now(), service))
         # os.system("python get_resouces.py")
         # os.system("python generate_resources_config.py")
