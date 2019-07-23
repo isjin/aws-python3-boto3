@@ -209,12 +209,12 @@ class DevopsChain(object):
                 'Value': instance_name
             }
         ]
-        eipid,eip_ip = self.ec2.ec2_eip_allocate(tags)
-        return eipid,eip_ip
+        eipid, eip_ip = self.ec2.ec2_eip_allocate(tags)
+        return eipid, eip_ip
 
     def assign_eip(self, instanceid, ec2_instance_keyname):
         instance_name = self.get_instance_name(instanceid)
-        eipid,eip_ip = self.create_eip(instance_name)
+        eipid, eip_ip = self.create_eip(instance_name)
         associate_info = {
             'AllocationId': eipid,
             # 'AllocationId': 'eipalloc-0e0be917bbb463d1c',
@@ -256,7 +256,9 @@ class DevopsChain(object):
             elif service_type == 'rds':
                 pass
         alarm_info['AlarmName'] = alarm_name
+        alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
         alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+        alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
         if type_value == 'all':
             alarm_info['Dimensions'] = []
         else:
