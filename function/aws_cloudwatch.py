@@ -196,5 +196,6 @@ if __name__ == '__main__':
     app = AWSCloudWatch()
     # app.cloudwatch_alarm_create()
     # app.cloudwatch_alarms_for_metric_describe()
-    app.cloudwatch_alarm_describe('test')
-    app.cloudwatch_alarms_describe()
+    # app.cloudwatch_alarm_describe('test')
+    # app.cloudwatch_alarms_describe()
+    app.cloudwatch_dashboard_get('Devops-chain')

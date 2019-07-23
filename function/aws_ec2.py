@@ -330,7 +330,7 @@ class AWSEC2(object):
         eipid = response['AllocationId']
         self.ec2_tags_create(eipid, tags)
         print(eipip, eipid)
-        return eipid
+        return eipid,eipip
 
     def ec2_eip_release_allocation_id(self, allocation_id):
         eip_info=self.ec2_eip_allocation_id_describe(allocation_id)

@@ -20,7 +20,7 @@ class AWSECS(object):
             # tags=cluster_info['tags'],
         )
         print(response)
-        return response
+        return response['cluster']
 
     def ecs_cluster_delete(self, clustername):
         response = self.ecs_client.delete_cluster(
@@ -95,6 +95,7 @@ class AWSECS(object):
             # }
         )
         print(response)
+        return response['taskDefinition']
 
     def ecs_task_definition_describe(self, task_definition):
         response = self.ecs_client.describe_task_definition(

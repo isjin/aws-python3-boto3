@@ -1,7 +1,7 @@
 {
   "AlarmName":"test3",
   "AlarmActions":[
-    "arn:aws-cn:sns:cn-northwest-1:952375741452:test"
+    "arn:aws-cn:sns:cn-northwest-1:952375741452:alarm_email"
   ],
   "MetricName":"CPUUtilization",
   "Namespace":"AWS\/EC2",
