@@ -190,7 +190,7 @@ class AWSCloudWatch(object):
 
 if __name__ == '__main__':
     app = AWSCloudWatch()
-    app.cloudwatch_alarm_create()
+    # app.cloudwatch_alarm_create()
     # app.cloudwatch_alarms_for_metric_describe()
     app.cloudwatch_alarm_describe('CPUUtilization_ec2_i-0ef5e11df8ff12bb0')
     # app.cloudwatch_alarms_describe()

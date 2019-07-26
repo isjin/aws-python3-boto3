@@ -1396,10 +1396,10 @@ class AWSEC2(object):
         )
         return response['NetworkAcls']
 
-    def ec2_iam_instance_profile_associate(self, iam_instance_profile__arn, instance_id):
+    def ec2_iam_instance_profile_associate(self, iam_instance_profile_arn, instance_id):
         response = self.ec2_client.associate_iam_instance_profile(
             IamInstanceProfile={
-                'Arn': iam_instance_profile__arn,
+                'Arn': iam_instance_profile_arn,
                 # 'Name': 'string'
             },
             InstanceId=instance_id
@@ -1431,13 +1431,7 @@ class AWSEC2(object):
         # print(response)
         return response['IamInstanceProfileAssociations']
 
-    def ec2_iam_instance_profile_associate_replace(self, iam_instance_profile_arn, instance_id):
-        association_id=None
-        iam_instance_profiles_info=self.ec2_iam_instance_profiles_associate_describe()
-        for iam_instance_profile_info in iam_instance_profiles_info:
-            if iam_instance_profile_info['InstanceId'] == instance_id:
-                association_id=iam_instance_profile_info['AssociationId']
-                break
+    def ec2_iam_instance_profile_associate_replace(self, iam_instance_profile_arn, association_id):
         response = self.ec2_client.replace_iam_instance_profile_association(
             IamInstanceProfile={
                 'Arn': iam_instance_profile_arn,
@@ -1447,10 +1441,30 @@ class AWSEC2(object):
         )
         print(response)
 
+    def ec2_iam_instance_profile_associate_customization(self, iam_instance_profile_arn, instance_id):
+        association_id=None
+        iam_instance_profiles_info = self.ec2_iam_instance_profiles_associate_describe()
+        for iam_instance_profile_info in iam_instance_profiles_info:
+            if iam_instance_profile_info['InstanceId'] == instance_id:
+                association_id = iam_instance_profile_info['AssociationId']
+                break
+        instance_info=self.ec2_instance_describe(instance_id)
+        instance_status=instance_info['Instances'][0]['State']['Name']
+        if instance_status == 'stopped':
+            if 'IamInstanceProfile' in instance_info['Instances'][0].keys():
+                self.ec2_iam_instance_profile_disassociate(association_id)
+                self.ec2_iam_instance_profile_associate(iam_instance_profile_arn,instance_id)
+            else:
+                self.ec2_iam_instance_profile_associate(iam_instance_profile_arn,instance_id)
+        elif instance_status == 'running':
+            self.ec2_iam_instance_profile_associate_replace(iam_instance_profile_arn,association_id)
+
+
+
 
 if __name__ == '__main__':
     app = AWSEC2()
     # app.ec2_iam_instance_profile_associate('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-0ef5e11df8ff12bb0')
     # app.ec2_iam_instance_profile_disassociate('iip-assoc-0f46408438940eba3')
     # app.ec2_deregister_image('ami-id')
-    app.ec2_iam_instance_profile_associate_replace('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-0ef5e11df8ff12bb0')
+    app.ec2_iam_instance_profile_associate_customization('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-05ccd5ae16e6cc2b5')
