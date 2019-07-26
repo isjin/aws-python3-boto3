@@ -121,13 +121,9 @@ class AWSCloudWatch(object):
             AlarmName=alarm_info['AlarmName'],
             # AlarmDescription='string',
             # ActionsEnabled=True | False,
-            # OKActions=[
-            #     'string',
-            # ],
+            OKActions=alarm_info['OKActions'],
             AlarmActions=alarm_info['AlarmActions'],
-            # InsufficientDataActions=[
-            #     'string',
-            # ],
+            InsufficientDataActions=alarm_info['InsufficientDataActions'],
             MetricName=alarm_info['MetricName'],
             Namespace=alarm_info['Namespace'],
             # Statistic='SampleCount' | 'Average' | 'Sum' | 'Minimum' | 'Maximum',
@@ -194,8 +190,8 @@ class AWSCloudWatch(object):
 
 if __name__ == '__main__':
     app = AWSCloudWatch()
-    # app.cloudwatch_alarm_create()
+    app.cloudwatch_alarm_create()
     # app.cloudwatch_alarms_for_metric_describe()
-    app.cloudwatch_alarm_describe('memory')
+    app.cloudwatch_alarm_describe('CPUUtilization_ec2_i-0ef5e11df8ff12bb0')
     # app.cloudwatch_alarms_describe()
     # app.cloudwatch_dashboard_get('Devops-chain')

@@ -1,6 +1,5 @@
 import boto3
 import os
-import time
 
 
 class AWSEC2(object):
@@ -330,10 +329,10 @@ class AWSEC2(object):
         eipid = response['AllocationId']
         self.ec2_tags_create(eipid, tags)
         print(eipip, eipid)
-        return eipid,eipip
+        return eipid, eipip
 
     def ec2_eip_release_allocation_id(self, allocation_id):
-        eip_info=self.ec2_eip_allocation_id_describe(allocation_id)
+        eip_info = self.ec2_eip_allocation_id_describe(allocation_id)
         if 'AssociationId' in eip_info.keys():
             association_id = eip_info['AssociationId']
             self.ec2_eip_disassociate_address(association_id)
@@ -343,7 +342,7 @@ class AWSEC2(object):
         print(response)
 
     def ec2_eip_release_public_ip(self, public_ip):
-        eip_info=self.ec2_eip_public_ip_describe(public_ip)
+        eip_info = self.ec2_eip_public_ip_describe(public_ip)
         if 'AssociationId' in eip_info.keys():
             association_id = eip_info['AssociationId']
             self.ec2_eip_disassociate_address(association_id)
@@ -400,7 +399,7 @@ class AWSEC2(object):
         )
         return response['Addresses']
 
-    def ec2_eip_allocation_id_describe(self, allocationId):
+    def ec2_eip_allocation_id_describe(self, allocation_id):
         response = self.ec2_client.describe_addresses(
             # Filters=[
             #     {
@@ -414,7 +413,7 @@ class AWSEC2(object):
             #     public_ip,
             # ],
             AllocationIds=[
-                allocationId,
+                allocation_id,
             ],
             # DryRun=True | False
         )
@@ -1397,8 +1396,61 @@ class AWSEC2(object):
         )
         return response['NetworkAcls']
 
+    def ec2_iam_instance_profile_associate(self, iam_instance_profile__arn, instance_id):
+        response = self.ec2_client.associate_iam_instance_profile(
+            IamInstanceProfile={
+                'Arn': iam_instance_profile__arn,
+                # 'Name': 'string'
+            },
+            InstanceId=instance_id
+        )
+        print(response)
+
+    def ec2_iam_instance_profile_disassociate(self, association_id):
+        response = self.ec2_client.disassociate_iam_instance_profile(
+            AssociationId=association_id
+        )
+        print(response)
+
+    def ec2_iam_instance_profiles_associate_describe(self):
+        response = self.ec2_client.describe_iam_instance_profile_associations(
+            # AssociationIds=[
+            #     'string',
+            # ],
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            # MaxResults=123,
+            # NextToken='string'
+        )
+        # print(response)
+        return response['IamInstanceProfileAssociations']
+
+    def ec2_iam_instance_profile_associate_replace(self, iam_instance_profile_arn, instance_id):
+        association_id=None
+        iam_instance_profiles_info=self.ec2_iam_instance_profiles_associate_describe()
+        for iam_instance_profile_info in iam_instance_profiles_info:
+            if iam_instance_profile_info['InstanceId'] == instance_id:
+                association_id=iam_instance_profile_info['AssociationId']
+                break
+        response = self.ec2_client.replace_iam_instance_profile_association(
+            IamInstanceProfile={
+                'Arn': iam_instance_profile_arn,
+                # 'Name': 'string'
+            },
+            AssociationId=association_id
+        )
+        print(response)
+
 
 if __name__ == '__main__':
     app = AWSEC2()
-    app.ec2_eip_release_allocation_id('eipalloc-08764cc9d6c758f34')
+    # app.ec2_iam_instance_profile_associate('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-0ef5e11df8ff12bb0')
+    # app.ec2_iam_instance_profile_disassociate('iip-assoc-0f46408438940eba3')
     # app.ec2_deregister_image('ami-id')
+    app.ec2_iam_instance_profile_associate_replace('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-0ef5e11df8ff12bb0')
