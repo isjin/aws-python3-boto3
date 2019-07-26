@@ -181,11 +181,96 @@ class AWSIAM(object):
         )
         print(response)
 
+    def iam_policy_create(self, policy_info):
+        # policy_info = {
+        #     "PolicyName": "ecs_cloudwatch2",
+        #     "PolicyDocument": {
+        #         "Version": "2012-10-17",
+        #         "Statement": [
+        #             {
+        #                 "Sid": "VisualEditor0",
+        #                 "Effect": "Allow",
+        #                 "Action": [
+        #                     "logs:CreateLogStream",
+        #                     "logs:DescribeLogStreams",
+        #                     "logs:PutLogEvents"
+        #                 ],
+        #                 "Resource": "*"
+        #             },
+        #             {
+        #                 "Sid": "VisualEditor1",
+        #                 "Effect": "Allow",
+        #                 "Action": "ec2:DescribeTags",
+        #                 "Resource": "*"
+        #             },
+        #             {
+        #                 "Sid": "VisualEditor2",
+        #                 "Effect": "Allow",
+        #                 "Action": [
+        #                     "cloudwatch:PutMetricData",
+        #                     "cloudwatch:GetMetricStatistics",
+        #                     "cloudwatch:ListMetrics"
+        #                 ],
+        #                 "Resource": "*"
+        #             },
+        #             {
+        #                 "Sid": "VisualEditor3",
+        #                 "Effect": "Allow",
+        #                 "Action": "logs:CreateLogGroup",
+        #                 "Resource": "*"
+        #             }
+        #         ]
+        #     },
+        #     "Description": "ECS instance service and cloudwatch logs"
+        # }
+        response = self.iam_client.create_policy(
+            PolicyName=policy_info['PolicyName'],
+            # Path='string',
+            PolicyDocument=json.dumps(policy_info['PolicyDocument']),
+            Description=policy_info['Description'],
+        )
+        print(response)
+        return response['Policy']
+
+    def iam_policy_delete(self, policy_arn):
+        response = self.iam_client.delete_policy(
+            PolicyArn=policy_arn
+        )
+        print(response)
+
+    def iam_access_key_create(self, user_name):
+        response = self.iam_client.create_access_key(
+            UserName=user_name
+        )
+        user_name = response['AccessKey']['UserName']
+        access_key_id = response['AccessKey']['AccessKeyId']
+        secret_access_key = response['AccessKey']['SecretAccessKey']
+        f = open('%s_credential.txt' % user_name, 'w')
+        f.write(user_name + ',' + access_key_id + ',' + secret_access_key)
+        f.close()
+        print(response)
+
+    def iam_access_key_delete(self, user_name, access_key_id):
+        response = self.iam_client.delete_access_key(
+            AccessKeyId=access_key_id,
+            UserName=user_name,
+        )
+        print(response)
+
+    def iam_access_keys_list(self):
+        response = self.iam_client.list_access_keys(
+            # UserName='string',
+            # Marker='string',
+            # MaxItems=123
+        )
+        print(response)
+
 
 if __name__ == '__main__':
     app = AWSIAM()
     # app.iam_role_create('ecsInstanceRole',)
-    app.iam_instance_profile_delete('devops-chain-ecs-instance-role')
+    # app.iam_instance_profile_delete('devops-chain-ecs-instance-role')
     # app.iam_role_to_instance_profile_add('testrole','testrole')
     # app.iam_role_policy_attach('testrole','arn:aws-cn:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')
     # app.iam_role_get('ecsAutoscaleRole')
+    app.iam_access_keys_list()
