@@ -232,6 +232,7 @@ class DevopsChain(object):
         self.write_file()
 
     def create_cloudwatch_dashboard(self, dashboard_path, keyname):
+        os.system('python generate_cloudwatch_metrics.py')
         dashboard_info = self.read_file(dashboard_path)
         self.cloudwatch.cloudwatch_dashboard_create(dashboard_info)
         self.resources['cloudwatch_dashboards'][keyname] = dashboard_info['DashboardName']
