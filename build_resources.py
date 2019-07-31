@@ -309,7 +309,7 @@ class DevopsChain(object):
                         elif service == 'cloudformations':
                             cf_stack_info = self.read_file(info[1])
                             cf_parameters = str(info[3]).split(';')
-                            subnetids_keyname = cf_parameters[0].split('=')[1].split('-')
+                            subnetids_keyname = cf_parameters[0].split('=')[1].split('|')
                             subnetids_keyname_length = len(subnetids_keyname)
                             subnetids = ''
                             for i in range(subnetids_keyname_length):
