@@ -279,6 +279,19 @@ class DevopsChain(object):
         self.resources['sns_subscriptions'][keyname] = subscription_arn
         self.write_file()
 
+    def get_ecs_instance_ids(self):
+        ecs_cluster_options = cf.options('ecs_clusters')
+        for i in range(len(ecs_cluster_options)):
+            ecs_cluster_name = str(cf.get('ecs_clusters', ecs_cluster_options[i])).split(',')[1]
+            container_instances_info = self.ecs.ecs_container_instance_list(ecs_cluster_name)
+            for j in range(len(container_instances_info)):
+                ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
+                for k in range(len(ecs_instances_info)):
+                    ecs_instance_id = ecs_instances_info[k]['ec2InstanceId']
+                    ecs_instance_key = 'instance_ecs_' + '%d%d%d' % (i, j, k)
+                    self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
+                    self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
@@ -345,6 +358,7 @@ class DevopsChain(object):
                         elif service == 'sns_subscriptions':
                             self.create_sns_subscription(info[1], info[2], info[3], info[0])
                         elif service == 'cloudwatch_dashboards':
+                            self.get_ecs_instance_ids()
                             self.create_cloudwatch_dashboard(info[1], info[0])
                         elif service == 'cloudwatch_alarms':
                             self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
@@ -372,4 +386,5 @@ class DevopsChain(object):
 
 if __name__ == '__main__':
     app = DevopsChain()
-    app.main()
+    # app.main()
+    app.get_ecs_instance_ids()

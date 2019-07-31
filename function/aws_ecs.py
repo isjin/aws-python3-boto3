@@ -28,7 +28,7 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_cluster_describe(self,clustername):
+    def ecs_cluster_describe(self, clustername):
         response = self.ecs_client.describe_clusters(
             clusters=[
                 clustername,
@@ -211,10 +211,21 @@ class AWSECS(object):
             #     'TAGS',
             # ]
         )
-        print(response)
-        return response
+        # print(response)
+        return response['containerInstances']
+
+    def ecs_container_instance_list(self, cluster_name):
+        response = self.ecs_client.list_container_instances(
+            cluster=cluster_name,
+            # filter='string',
+            # nextToken='string',
+            # maxResults=123,
+            # status='ACTIVE' | 'DRAINING' | 'REGISTERING' | 'DEREGISTERING' | 'REGISTRATION_FAILED'
+        )
+        return response['containerInstanceArns']
 
 
 if __name__ == '__main__':
     app = AWSECS()
-    # app.ecs_task_run('ecs_test','hello_world')
+    # app.ecs_container_instance_list('devops-chain-ecs')
+    app.ecs_container_instance_describe('devops-chain-ecs','arn:aws-cn:ecs:cn-northwest-1:952375741452:container-instance/7c2aee02-e6e9-4d18-8036-e75e42d80229')
