@@ -288,9 +288,9 @@ class DevopsChain(object):
                 ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
                 for k in range(len(ecs_instances_info)):
                     ecs_instance_id = ecs_instances_info[k]['ec2InstanceId']
-                    ecs_instance_key = 'instance_ecs_' + '%d%d%d' % (i, j, k)
+                    ecs_instance_key = 'instance_ecs_' + '%d%d' % (i, j+1)
                     self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
-                    self.write_file()
+        self.write_file()
 
     def main(self):
         for service in cf.sections():
@@ -361,12 +361,13 @@ class DevopsChain(object):
                             self.get_ecs_instance_ids()
                             self.create_cloudwatch_dashboard(info[1], info[0])
                         elif service == 'cloudwatch_alarms':
+                            self.get_ecs_instance_ids()
                             self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
                         else:
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))
         print("%s Infrastructure deployment is done." % (datetime.now()))
-        # run ecs task definitions
+        # run ecs task
         print('%s Start to deploy ECS tasks.' % (datetime.now()))
         for item in cf.options('ecs_tasks'):
             task_info = cf.get('ecs_tasks', item)
@@ -386,5 +387,4 @@ class DevopsChain(object):
 
 if __name__ == '__main__':
     app = DevopsChain()
-    # app.main()
-    app.get_ecs_instance_ids()
+    app.main()
