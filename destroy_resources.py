@@ -160,12 +160,14 @@ class DevopsChain(object):
         except Exception as e:
             print(e.__str__())
 
-    def deregister_task_definition(self, task_definition_arn, keyname):
+    def deregister_task_definition(self, task_definition_name, keyname):
         try:
-            self.ecs.ecs_task_definition_deregister(task_definition_arn)
-            del self.resources['task_definition_arn'][keyname]
+            task_definitions_list=self.ecs.ecs_task_definition_list(task_definition_name)
+            for task_definition in task_definitions_list:
+                self.ecs.ecs_task_definition_deregister(task_definition)
+            del self.resources['ecs_task_definitions'][keyname]
             self.write_file()
-            print("%s ECS task definition %s has deleted." % (datetime.now(), task_definition_arn))
+            print("%s ECS task definition %s has deleted." % (datetime.now(), task_definition_name))
         except Exception as e:
             print(e.__str__())
 

@@ -106,9 +106,19 @@ class AWSECS(object):
         )
         print(response)
 
-    def ecs_task_definition_list(self):
+    def ecs_task_definitions_list(self):
         response = self.ecs_client.list_task_definitions(
             # familyPrefix='string',
+            # status='ACTIVE' | 'INACTIVE',
+            # sort='ASC' | 'DESC',
+            # nextToken='string',
+            # maxResults=123
+        )
+        return response['taskDefinitionArns']
+
+    def ecs_task_definition_list(self, task_definition_name):
+        response = self.ecs_client.list_task_definitions(
+            familyPrefix=task_definition_name,
             # status='ACTIVE' | 'INACTIVE',
             # sort='ASC' | 'DESC',
             # nextToken='string',
@@ -228,4 +238,4 @@ class AWSECS(object):
 if __name__ == '__main__':
     app = AWSECS()
     # app.ecs_container_instance_list('devops-chain-ecs')
-    app.ecs_container_instance_describe('devops-chain-ecs','arn:aws-cn:ecs:cn-northwest-1:952375741452:container-instance/7c2aee02-e6e9-4d18-8036-e75e42d80229')
+    app.ecs_task_definition_families_list('gitlab')

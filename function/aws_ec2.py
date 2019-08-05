@@ -1459,10 +1459,19 @@ class AWSEC2(object):
         elif instance_status == 'running':
             self.ec2_iam_instance_profile_associate_replace(iam_instance_profile_arn, association_id)
 
+    def ec2_password_data_get(self, instance_id, private_key):
+        response = self.ec2_client.get_password_data(
+            InstanceId=instance_id,
+            # DryRun=True | False
+        )
+        print(response)
+        return response
+
 
 if __name__ == '__main__':
     app = AWSEC2()
     # app.ec2_iam_instance_profile_associate('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog','i-0ef5e11df8ff12bb0')
     # app.ec2_iam_instance_profile_disassociate('iip-assoc-0f46408438940eba3')
     # app.ec2_deregister_image('ami-id')
-    app.ec2_iam_instance_profile_associate_customization('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog', 'i-05ccd5ae16e6cc2b5')
+    app.ec2_password_data_get('i-05ccd5ae16e6cc2b5', '../../devopschaindemo.pem')
+    # app.ec2_iam_instance_profile_associate_customization('arn:aws-cn:iam::952375741452:instance-profile/ecs-cloudwatchlog', 'i-05ccd5ae16e6cc2b5')
