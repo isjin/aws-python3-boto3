@@ -234,7 +234,7 @@ class GetResources(object):
         self.write_file()
 
     def get_ecs_task_definitions(self):
-        ecs_task_definitions_info = self.ecs.ecs_task_definition_list()
+        ecs_task_definitions_info = self.ecs.ecs_task_definitions_list()
         for i in range(len(ecs_task_definitions_info)):
             ecs_task_definition_keyname = 'task_definition_arn' + str(i + 1)
             ecs_task_definition_arn = ecs_task_definitions_info[i]
