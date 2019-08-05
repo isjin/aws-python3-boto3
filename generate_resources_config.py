@@ -5,7 +5,7 @@ import json
 # resource_path = 'config/devops_chain/resouces.txt'
 resource_path = 'resouces_list.txt'
 resource_config_path = 'resouces_config.ini'
-resource_log_path = 'resources.log'
+resource_log_path = 'resources.txt'
 
 
 class GenerateConfig(object):
