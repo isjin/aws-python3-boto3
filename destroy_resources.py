@@ -1,4 +1,4 @@
-#delete resource
+# delete resource
 from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
 import json
 import os
@@ -7,7 +7,7 @@ from datetime import datetime
 from configparser import ConfigParser
 
 destroy_resouces_conf_path = 'destroy_resource_config.ini'
-resource_path = 'resource.txt'
+resource_path = 'resources.txt'
 cf = ConfigParser()
 cf.read(destroy_resouces_conf_path)
 
@@ -93,7 +93,7 @@ class DevopsChain(object):
                 try:
                     self.cf.cloudformation_stack_describe(stack_name)
                     time.sleep(5)
-                except Exception:
+                finally:
                     print("%s Cloudformation stack %s has deleted." % (datetime.now(), stack_name))
                     break
             del self.resources['cloudformations'][keyname]
@@ -115,6 +115,7 @@ class DevopsChain(object):
             self.ec2.ec2_eip_release_public_ip(public_ip)
             del self.resources['eips'][keyname]
             print("%s Elastic IP %s has deleted." % (datetime.now(), public_ip))
+            self.write_file()
         except Exception as e:
             print(e.__str__())
 
@@ -124,6 +125,10 @@ class DevopsChain(object):
             if 'PublicIpAddress' in instance_info.keys():
                 public_ip = instance_info['PublicIpAddress']
                 self.ec2.ec2_eip_release_public_ip(public_ip)
+                for key in self.resources['eips']:
+                    if self.resources['eips'][key] == public_ip:
+                        del self.resources['eips'][key]
+                        self.write_file()
             volumes_info = instance_info['BlockDeviceMappings']
             self.ec2.ec2_instance_delete(instance_id)
             for volume_info in volumes_info:
@@ -209,9 +214,9 @@ class DevopsChain(object):
     def delete_sns_topic(self, topic_arn, keyname):
         try:
             self.sns.sns_topic_delete(topic_arn)
-            del self.resources['sns_subscriptions'][keyname]
+            del self.resources['sns_topics'][keyname]
             self.write_file()
-            print("%s SNS subscription %s has deleted." % (datetime.now(), topic_arn))
+            print("%s SNS topic %s has deleted." % (datetime.now(), topic_arn))
         except Exception as e:
             print(e.__str__())
 
@@ -270,8 +275,6 @@ class DevopsChain(object):
                 elif service == 'sns_subscriptions':
                     self.delete_sns_subscription(item, option)
             print("%s Delete %s are finished." % (datetime.now(), service))
-        # os.system("python get_resouces.py")
-        # os.system("python generate_resources_config.py")
 
 
 if __name__ == '__main__':
