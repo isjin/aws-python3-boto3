@@ -173,6 +173,7 @@ class DevopsChain(object):
         self.cloudformation.cloudformation_stack_create(cf_stack_info)
         self.resources['cloudformations'][cf_stack_keyname] = cf_stack_info['StackName']
         self.write_file()
+        time.sleep(60)
 
     def create_ec2_instance(self, ec2_instance_path, sg_keyname, subnet_keyname, ec2_instance_keyname, eip_value):
         instance_info = self.read_file(ec2_instance_path)
@@ -280,6 +281,7 @@ class DevopsChain(object):
         self.write_file()
 
     def get_ecs_instance_ids(self):
+
         ecs_cluster_options = cf.options('ecs_clusters')
         for i in range(len(ecs_cluster_options)):
             ecs_cluster_name = str(cf.get('ecs_clusters', ecs_cluster_options[i])).split(',')[1]
@@ -288,7 +290,7 @@ class DevopsChain(object):
                 ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
                 for k in range(len(ecs_instances_info)):
                     ecs_instance_id = ecs_instances_info[k]['ec2InstanceId']
-                    ecs_instance_key = 'instance_ecs_' + '%d%d' % (i, j+1)
+                    ecs_instance_key = 'instance_ecs_' + '%d%d' % (i, j + 1)
                     self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
         self.write_file()
 
