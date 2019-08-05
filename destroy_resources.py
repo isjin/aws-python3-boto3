@@ -1,3 +1,4 @@
+#delete resource
 from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
 import json
 import os
@@ -5,10 +6,10 @@ import time
 from datetime import datetime
 from configparser import ConfigParser
 
-resouces_conf_path = 'resouces_config.ini'
-resource_log_path = 'resources.log'
+destroy_resouces_conf_path = 'destroy_resource_config.ini'
+resource_path = 'resource.txt'
 cf = ConfigParser()
-cf.read(resouces_conf_path)
+cf.read(destroy_resouces_conf_path)
 
 
 class DevopsChain(object):
@@ -24,15 +25,15 @@ class DevopsChain(object):
         self.init_resources()
 
     def init_resources(self):
-        if os.path.exists(resource_log_path):
-            f = open(resource_log_path, 'r')
+        if os.path.exists(resource_path):
+            f = open(resource_path, 'r')
             data = f.read()
             f.close()
             if len(data) > 0:
                 self.resources = json.loads(data)
 
     def write_file(self):
-        f = open(resource_log_path, 'w')
+        f = open(resource_path, 'w')
         f.write(json.dumps(self.resources))
         f.close()
 

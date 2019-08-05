@@ -1,11 +1,13 @@
+#format resources json to config.ini
 from configparser import RawConfigParser,ConfigParser
 import json
 import os
 
+
 cf=ConfigParser()
 cf.read('build_resources_config.ini')
 resource_path = cf.get('resource','path')
-config_file_path = 'resource_j2c.ini'
+config_file_path = 'destroy_resource_config.ini'
 
 
 class JsonToConfig(object):
@@ -27,7 +29,7 @@ class JsonToConfig(object):
         self.cfw.set(service, option, item)
 
     def main(self):
-        print(self.resources)
+        # print(self.resources)
         for service in self.resources:
             self.cfw.add_section(service)
             keys=self.resources[service].keys()
