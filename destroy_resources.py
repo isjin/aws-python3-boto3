@@ -162,7 +162,7 @@ class DevopsChain(object):
 
     def deregister_task_definition(self, task_definition_name, keyname):
         try:
-            task_definitions_list=self.ecs.ecs_task_definition_list(task_definition_name)
+            task_definitions_list = self.ecs.ecs_task_definition_list(task_definition_name)
             for task_definition in task_definitions_list:
                 self.ecs.ecs_task_definition_deregister(task_definition)
             del self.resources['ecs_task_definitions'][keyname]
