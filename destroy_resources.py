@@ -223,8 +223,8 @@ class DevopsChain(object):
             print(e.__str__())
 
     def main(self):
-        os.system('python update_sns_subscriptions.py')
-        os.system('python format_resource.py')
+        # os.system('python update_sns_subscriptions.py')
+        # os.system('python format_resource.py')
         for service in cf.sections():
             print("%s Start to delete %s" % (datetime.now(), service))
             for option in cf.options(service):

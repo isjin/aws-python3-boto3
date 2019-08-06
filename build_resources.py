@@ -286,7 +286,7 @@ class DevopsChain(object):
             ecs_cluster_name = str(cf.get('ecs_clusters', ecs_cluster_options[i])).split(',')[1]
             while True:
                 container_instances_info = self.ecs.ecs_container_instance_list(ecs_cluster_name)
-                if len(container_instances_info) > 0:
+                if len(container_instances_info) > 1:
                     break
             for j in range(len(container_instances_info)):
                 ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
