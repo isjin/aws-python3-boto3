@@ -384,7 +384,7 @@ class DevopsChain(object):
                     break
                 time.sleep(5)
         print('%s Deploy ECS tasks is done.' % (datetime.now()))
-        print('%s All are finished..' % (datetime.now()))
+        print('%s All are finished.' % (datetime.now()))
 
 
 if __name__ == '__main__':

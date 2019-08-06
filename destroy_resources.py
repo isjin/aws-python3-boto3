@@ -223,9 +223,8 @@ class DevopsChain(object):
             print(e.__str__())
 
     def main(self):
-        # self.delete_ec2()
-        # self.delete_keypair()
-        # time.sleep(60)
+        os.system('python update_sns_subscriptions.py')
+        os.system('python format_resource.py')
         for service in cf.sections():
             print("%s Start to delete %s" % (datetime.now(), service))
             for option in cf.options(service):
@@ -277,6 +276,7 @@ class DevopsChain(object):
                 elif service == 'sns_subscriptions':
                     self.delete_sns_subscription(item, option)
             print("%s Delete %s are finished." % (datetime.now(), service))
+        os.system('python format_resource.py')
 
 
 if __name__ == '__main__':
