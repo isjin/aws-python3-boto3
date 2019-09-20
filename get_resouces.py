@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch
+from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache
 import json
 import os
 
@@ -10,8 +10,11 @@ owner_id = '952375741452'
 class GetResources(object):
     def __init__(self):
         self.ec2 = aws_ec2.AWSEC2()
+        self.rds = aws_rds.AWSRDS()
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
+        self.elb = aws_elb.AWSELB()
+        self.elasticache = aws_elasticache.AWSElastiCache()
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.sns = aws_sns.AWSSNS()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
@@ -38,6 +41,8 @@ class GetResources(object):
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
+            self.resources['rds'] = {}
+            self.resources['elasticaches'] = {}
             self.resources['igws'] = {}
             self.resources['ngws'] = {}
             self.resources['rtbs'] = {}
@@ -51,6 +56,7 @@ class GetResources(object):
             self.resources['snapshots'] = {}
             self.resources['images'] = {}
             self.resources['elbs'] = {}
+            self.resources['elb_target_groups'] = {}
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
@@ -185,7 +191,7 @@ class GetResources(object):
         self.write_file()
 
     def get_snapshots(self):
-        Filters = [
+        filter2 = [
             {
                 'Name': 'owner-alias',
                 'Values': [
@@ -193,7 +199,7 @@ class GetResources(object):
                 ]
             },
         ]
-        snapshots_info = self.ec2.ec2_snapshots_describe(Filters)
+        snapshots_info = self.ec2.ec2_snapshots_describe(filter2)
         for i in range(len(snapshots_info)):
             snapshot_keyname = 'snapshot' + str(i + 1)
             snapshot_id = snapshots_info[i]['SnapshotId']
@@ -202,7 +208,7 @@ class GetResources(object):
         self.write_file()
 
     def get_images(self):
-        Filters = [
+        filter2 = [
             {
                 'Name': 'owner-id',
                 'Values': [
@@ -210,7 +216,7 @@ class GetResources(object):
                 ]
             }
         ]
-        images_info = self.ec2.ec2_images_describe(Filters)
+        images_info = self.ec2.ec2_images_describe(filter2)
         for i in range(len(images_info)):
             image_keyname = 'image' + str(i + 1)
             image_id = images_info[i]['ImageId']
@@ -219,7 +225,34 @@ class GetResources(object):
         self.write_file()
 
     def get_elbs(self):
-        pass
+        elbs_info = self.elb.elbv2_load_balancers_describe()
+        for i in range(len(elbs_info)):
+            elb_info = elbs_info[i]
+            elb_keyname = 'elb' + str(i + 1)
+            elb_arn = elb_info['LoadBalancerArn']
+            elb_dns_name = elb_info['DNSName']
+            elb_name = elb_info['LoadBalancerName']
+            self.resources['elbs'][elb_keyname] = {}
+            self.resources['elbs'][elb_keyname]['LoadBalancerArn'] = elb_arn
+            self.resources['elbs'][elb_keyname]['DNSName'] = elb_dns_name
+            self.resources['elbs'][elb_keyname]['LoadBalancerName'] = elb_name
+        self.write_file()
+
+    def get_elb_target_groups(self):
+        target_groups_info = self.elb.elbv2_target_groups_describe()
+        for i in range(len(target_groups_info)):
+            target_group_info = target_groups_info[i]
+            # print(target_group_info)
+            tg_keyname = 'elb_tg' + str(i + 1)
+            tg_arn = target_group_info['TargetGroupArn']
+            tg_name = target_group_info['TargetGroupName']
+            self.resources['elb_target_groups'][tg_keyname] = {}
+            self.resources['elb_target_groups'][tg_keyname]['TargetGroupArn'] = tg_arn
+            self.resources['elb_target_groups'][tg_keyname]['TargetGroupName'] = tg_name
+            if len(target_group_info['LoadBalancerArns']) != 0:
+                tg_elb = target_group_info['LoadBalancerArns'][0]
+                self.resources['elb_target_groups'][tg_keyname]['LoadBalancerArns'] = tg_elb
+        self.write_file()
 
     def get_auto_scaling(self):
         pass
@@ -227,10 +260,11 @@ class GetResources(object):
     def get_ecs_clusters(self):
         ecs_clusters_info = self.ecs.ecs_clusters_list()
         for i in range(len(ecs_clusters_info)):
-            ecs_cluster_keyname = 'cluster_arn' + str(i + 1)
+            ecs_cluster_keyname = 'ecs_cluster' + str(i + 1)
             ecs_cluster_arn = ecs_clusters_info[i]
             self.resources['ecs_clusters'][ecs_cluster_keyname] = {}
             self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterArn'] = ecs_cluster_arn
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterName'] = str(ecs_cluster_arn).split('/')[1]
         self.write_file()
 
     def get_ecs_task_definitions(self):
@@ -308,6 +342,26 @@ class GetResources(object):
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['TopicArn'] = topic_info['TopicArn']
             self.write_file()
 
+    def get_rds(self):
+        rds_info = self.rds.rds_instances_describe()
+        for i in range(len(rds_info)):
+            db_info = rds_info[i]
+            rds_keyname = 'rds' + str(i + 1)
+            rds_name = db_info['DBInstanceIdentifier']
+            self.resources['rds'][rds_keyname] = {}
+            self.resources['rds'][rds_keyname]['DBInstanceIdentifier'] = rds_name
+        self.write_file()
+
+    def get_elasticaches(self):
+        elasticaches_info=self.elasticache.elasticache_cache_clusters_describe()
+        for i in range(len(elasticaches_info)):
+            elasticache_info=elasticaches_info[i]
+            elasticache_keyname= 'elasticache' + str(i + 1)
+            elasticache_cache_cluster_id=elasticache_info['CacheClusterId']
+            self.resources['elasticaches'][elasticache_keyname] = {}
+            self.resources['elasticaches'][elasticache_keyname]['CacheClusterId'] = elasticache_cache_cluster_id
+        self.write_file()
+
     def main(self):
         self.get_vpcs()
         self.get_subnets()
@@ -323,6 +377,7 @@ class GetResources(object):
         self.get_snapshots()
         self.get_images()
         self.get_elbs()
+        self.get_elb_target_groups()
         self.get_auto_scaling()
         self.get_ecs_clusters()
         self.get_ecs_task_definitions()
@@ -332,6 +387,8 @@ class GetResources(object):
         self.get_cloudwatch_alarms()
         self.get_sns_topics()
         self.get_sns_subscriptions()
+        self.get_rds()
+        self.get_elasticaches()
         os.system('python generate_resources_config.py')
 
 

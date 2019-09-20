@@ -44,7 +44,7 @@ class GenerateConfig(object):
                     elif service == 'subnets':
                         self.set_cf(service, option, 'SubnetId')
                     elif service == 'ecs_clusters':
-                        self.set_cf(service, option, 'clusterArn')
+                        self.set_cf(service, option, 'clusterName')
                     elif service == 'ecs_task_definitions':
                         self.set_cf(service, option, 'taskDefinitionArns')
                     elif service == 'ecr_repositories':
@@ -55,6 +55,14 @@ class GenerateConfig(object):
                         self.set_cf(service, option, 'VolumeId')
                     elif service == 'sns_subscriptions':
                         self.set_cf(service, option, 'SubscriptionArn')
+                    elif service == 'rds':
+                        self.set_cf(service, option, 'DBInstanceIdentifier')
+                    elif service == 'elbs':
+                        self.set_cf(service, option, 'LoadBalancerArn')
+                    elif service == 'elb_target_groups':
+                        self.set_cf(service, option, 'TargetGroupArn')
+                    elif service == 'elasticaches':
+                        self.set_cf(service, option, 'CacheClusterId')
                     else:
                         for key in self.resources[service][option].keys():
                             self.set_cf(service, option, key)

@@ -131,7 +131,8 @@ class AWSELB(object):
     def elbv2_load_balancers_describe(self):
         response = self.elbv2_client.describe_load_balancers(
         )
-        return response
+        # print(response)
+        return response['LoadBalancers']
 
     def elbv2_listener_create(self, listeners_info):
         # listeners_info = {
@@ -460,7 +461,8 @@ class AWSELB(object):
     def elbv2_target_groups_describe(self):
         response = self.elbv2_client.describe_target_groups(
         )
-        print(response)
+        # print(response)
+        return response['TargetGroups']
 
     def elbv2_target_healthy_describe(self,target_group_arn):
         response = self.elbv2_client.describe_target_health(
@@ -549,3 +551,4 @@ class AWSELB(object):
 if __name__ == '__main__':
     app = AWSELB()
     # app.elbv2_listeners_delete()
+    app.elbv2_load_balancers_describe()

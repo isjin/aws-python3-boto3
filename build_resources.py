@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb
 import json
 import os
 import re
@@ -18,6 +18,7 @@ class DevopsChain(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.sns = aws_sns.AWSSNS()
+        self.elb = aws_elb.AWSELB()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
         self.resources = {}
@@ -39,6 +40,8 @@ class DevopsChain(object):
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
+            self.resources['rds'] = {}
+            self.resources['elasticaches'] = {}
             self.resources['igws'] = {}
             self.resources['ngws'] = {}
             self.resources['rtbs'] = {}
@@ -52,6 +55,7 @@ class DevopsChain(object):
             self.resources['snapshots'] = {}
             self.resources['images'] = {}
             self.resources['elbs'] = {}
+            self.resources['elb_target_groups'] = {}
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
@@ -241,30 +245,51 @@ class DevopsChain(object):
 
     def create_cloudwatch_alarm(self, alarm_path, sns_keyname, service_type, instance_type, type_value, keyname):
         alarm_info = self.read_file(alarm_path)
+        alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
+        alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+        alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
         alarm_name = None
         alarm_dimension = None
         alarm_path_split = re.split(r'[_.]', str(alarm_path))
         metric = alarm_path_split[-2]
         if instance_type == 'instance':
-            alarm_name = metric + '_' + service_type + '_' + type_value
+            alarm_name = service_type + '_' + type_value + '_' + metric
             alarm_dimension = type_value
         else:
             if service_type == 'ec2':
-                alarm_name = metric + '_' + service_type + '_' + self.resources['ec2_instances'][type_value]
+                alarm_name = service_type + '_' + self.resources['ec2_instances'][type_value] + '_' + metric
                 alarm_dimension = self.resources['ec2_instances'][type_value]
             elif service_type == 'ecs':
-                alarm_name = metric + '_' + service_type + '_' + self.resources['ecs_clusters'][type_value]
+                alarm_name = service_type + '_' + self.resources['ecs_clusters'][type_value] + '_' + metric
                 alarm_dimension = self.resources['ecs_clusters'][type_value]
             elif service_type == 'rds':
-                pass
+                alarm_name = service_type + '_' + self.resources['rds'][type_value] + '_' + metric
+                alarm_dimension = self.resources['rds'][type_value]
+            elif service_type == 'elb':
+                alarm_name = service_type + '_' + str(self.resources['elbs'][type_value]).split('/')[-2] + '_' + metric
+                alarm_dimension = str(self.resources['elbs'][type_value]).split('loadbalancer/')[1]
+            elif service_type == 'elb_tg':
+                tg_arn = self.resources['elb_target_groups'][type_value]
+                alarm_dimension_tg=str(tg_arn).split(':')[-1]
+                tg_info = self.elb.elbv2_target_group_describe(tg_arn)
+                tg_name=tg_info['TargetGroupName']
+                elb_arn=tg_info['LoadBalancerArns'][0]
+                elb_name=str(elb_arn).split('/')[-2]
+                alarm_name=service_type + '_' + elb_name+'_'+tg_name + '_' + metric
+                alarm_dimension_elb=str(elb_arn).split('loadbalancer/')[1]
+                alarm_info['Dimensions'][0]['Value'] = alarm_dimension_tg
+                alarm_info['Dimensions'][1]['Value'] = alarm_dimension_elb
+            elif service_type == 'elasticache':
+                alarm_name = service_type + '_' + self.resources['elasticaches'][type_value] + '_' + metric
+                alarm_dimension = self.resources['elasticaches'][type_value]
         alarm_info['AlarmName'] = alarm_name
-        alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
-        alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
-        alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
         if type_value == 'all':
             alarm_info['Dimensions'] = []
         else:
-            alarm_info['Dimensions'][0]['Value'] = alarm_dimension
+            if service_type == 'elb_tg':
+                pass
+            else:
+                alarm_info['Dimensions'][0]['Value'] = alarm_dimension
         self.cloudwatch.cloudwatch_alarm_create(alarm_info)
         self.resources['cloudwatch_alarms'][keyname] = alarm_name
         self.write_file()
@@ -281,20 +306,21 @@ class DevopsChain(object):
         self.write_file()
 
     def get_ecs_instance_ids(self):
-        ecs_cluster_options = cf.options('ecs_clusters')
-        for i in range(len(ecs_cluster_options)):
-            ecs_cluster_name = str(cf.get('ecs_clusters', ecs_cluster_options[i])).split(',')[1]
-            while True:
-                container_instances_info = self.ecs.ecs_container_instance_list(ecs_cluster_name)
-                if len(container_instances_info) > 1:
-                    break
-            for j in range(len(container_instances_info)):
-                ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
-                for k in range(len(ecs_instances_info)):
-                    ecs_instance_id = ecs_instances_info[k]['ec2InstanceId']
-                    ecs_instance_key = 'instance_ecs_' + '%d%d' % (i, j + 1)
-                    self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
-        self.write_file()
+        if "ecs_clusters" in cf.sections():
+            ecs_cluster_options = cf.options('ecs_clusters')
+            for i in range(len(ecs_cluster_options)):
+                ecs_cluster_name = str(cf.get('ecs_clusters', ecs_cluster_options[i])).split(',')[1]
+                while True:
+                    container_instances_info = self.ecs.ecs_container_instance_list(ecs_cluster_name)
+                    if len(container_instances_info) > 1:
+                        break
+                for j in range(len(container_instances_info)):
+                    ecs_instances_info = self.ecs.ecs_container_instance_describe(ecs_cluster_name, container_instances_info[j])
+                    for k in range(len(ecs_instances_info)):
+                        ecs_instance_id = ecs_instances_info[k]['ec2InstanceId']
+                        ecs_instance_key = 'instance_ecs_' + '%d%d' % (i, j + 1)
+                        self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
+            self.write_file()
 
     def main(self):
         for service in cf.sections():
@@ -366,27 +392,28 @@ class DevopsChain(object):
                             self.create_cloudwatch_dashboard(info[1], info[0])
                         elif service == 'cloudwatch_alarms':
                             self.get_ecs_instance_ids()
+                            # print(info)
                             self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
                         else:
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))
         print("%s Infrastructure deployment is done." % (datetime.now()))
         # run ecs task
-        print('%s Start to deploy ECS tasks.' % (datetime.now()))
-        for item in cf.options('ecs_tasks'):
-            task_info = cf.get('ecs_tasks', item)
-            task_info = str(task_info).split(',')
-            ecs_cluster_name = task_info[0]
-            task_definition_name = task_info[1]
-            while True:
-                ecs_instance_count = self.ecs.ecs_cluster_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
-                if ecs_instance_count > 0:
-                    print("%s Deploy task %s" % (datetime.now(), task_definition_name))
-                    self.ecs.ecs_task_run(ecs_cluster_name, task_definition_name)
-                    break
-                time.sleep(5)
-        print('%s Deploy ECS tasks is done.' % (datetime.now()))
-        print('%s All are finished.' % (datetime.now()))
+        # print('%s Start to deploy ECS tasks.' % (datetime.now()))
+        # for item in cf.options('ecs_tasks'):
+        #     task_info = cf.get('ecs_tasks', item)
+        #     task_info = str(task_info).split(',')
+        #     ecs_cluster_name = task_info[0]
+        #     task_definition_name = task_info[1]
+        #     while True:
+        #         ecs_instance_count = self.ecs.ecs_cluster_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
+        #         if ecs_instance_count > 0:
+        #             print("%s Deploy task %s" % (datetime.now(), task_definition_name))
+        #             self.ecs.ecs_task_run(ecs_cluster_name, task_definition_name)
+        #             break
+        #         time.sleep(5)
+        # print('%s Deploy ECS tasks is done.' % (datetime.now()))
+        # print('%s All are finished.' % (datetime.now()))
 
 
 if __name__ == '__main__':

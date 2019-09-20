@@ -169,10 +169,28 @@ class AWSRDS(object):
         )
         return response
 
+    def rds_instances_describe(self):
+        response = self.rds_client.describe_db_instances(
+            # DBInstanceIdentifier=instance,
+            # Filters=[
+            #     {
+            #         'Name': 'string',
+            #         'Values': [
+            #             'string',
+            #         ]
+            #     },
+            # ],
+            # MaxRecords=123,
+            # Marker='string'
+        )
+        # print(response)
+        return response['DBInstances']
+
 
 if __name__ == '__main__':
     app = AWSRDS()
     # app.rds_instance_describe('dev-brand-apps-mysql')
+    app.rds_instances_describe()
     # app.rds_subnet_group_create()
     # app.rds_parameter_group_create()
     # app.rds_option_group_create()

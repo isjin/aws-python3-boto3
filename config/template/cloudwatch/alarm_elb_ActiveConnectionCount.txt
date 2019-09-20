@@ -1,0 +1,27 @@
+{
+  "AlarmName":"test",
+  "OKActions":[
+    
+  ],
+  "AlarmActions":[
+    "arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm"
+  ],
+  "InsufficientDataActions":[
+    
+  ],
+  "MetricName":"ActiveConnectionCount",
+  "Namespace":"AWS\/ApplicationELB",
+  "Statistic":"Average",
+  "Dimensions":[
+    {
+      "Name":"LoadBalancer",
+      "Value":"app\/dudu-nxprod-api-alb\/a39d5961edbce933"
+    }
+  ],
+  "Period":300,
+  "EvaluationPeriods":1,
+  "DatapointsToAlarm":1,
+  "Threshold":1,
+  "ComparisonOperator":"LessThanThreshold",
+  "TreatMissingData":"missing"
+}

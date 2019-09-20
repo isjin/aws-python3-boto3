@@ -1,0 +1,31 @@
+{
+  "AlarmName":"test",
+  "OKActions":[
+    
+  ],
+  "AlarmActions":[
+    "arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm"
+  ],
+  "InsufficientDataActions":[
+    
+  ],
+  "MetricName":"UnHealthyHostCount",
+  "Namespace":"AWS\/ApplicationELB",
+  "Statistic":"Average",
+  "Dimensions":[
+    {
+      "Name":"TargetGroup",
+      "Value":"targetgroup\/ehbn-backend\/7a60fdc3f229241e"
+    },
+    {
+      "Name":"LoadBalancer",
+      "Value":"app\/ehbn-backend\/5190e999d492b02d"
+    }
+  ],
+  "Period":300,
+  "EvaluationPeriods":1,
+  "DatapointsToAlarm":1,
+  "Threshold":0,
+  "ComparisonOperator":"GreaterThanThreshold",
+  "TreatMissingData":"missing"
+}

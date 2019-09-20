@@ -88,7 +88,18 @@ class AWSElastiCache(object):
         print(response)
         return response
 
+    def elasticache_cache_clusters_describe(self):
+        response = self.elasticache_client.describe_cache_clusters(
+            # CacheClusterId=cluster_id,
+            # MaxRecords=123,
+            # Marker='string',
+            # ShowCacheNodeInfo=True | False,
+            # ShowCacheClustersNotInReplicationGroups=True | False
+        )
+        # print(response)
+        return response['CacheClusters']
+
 
 if __name__ == '__main__':
     app = AWSElastiCache()
-    app.elasticache_cache_cluster_describe('brandapps-dev-cg')
+    app.elasticache_cache_clusters_describe()

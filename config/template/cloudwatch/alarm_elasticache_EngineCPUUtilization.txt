@@ -1,0 +1,27 @@
+{
+  "AlarmName":"test",
+  "OKActions":[
+    
+  ],
+  "AlarmActions":[
+    "arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm"
+  ],
+  "InsufficientDataActions":[
+    
+  ],
+  "MetricName":"EngineCPUUtilization",
+  "Namespace":"AWS\/ElastiCache",
+  "Statistic":"Average",
+  "Dimensions":[
+    {
+      "Name":"CacheClusterId",
+      "Value":"op-prd-redis-001"
+    }
+  ],
+  "Period":300,
+  "EvaluationPeriods":1,
+  "DatapointsToAlarm":1,
+  "Threshold":70,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
+  "TreatMissingData":"missing"
+}
