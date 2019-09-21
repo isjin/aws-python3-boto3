@@ -9,7 +9,7 @@
   "InsufficientDataActions":[
     
   ],
-  "MetricName":"UnHealthyHostCount",
+  "MetricName":"HTTPCode_Target_4XX_Count",
   "Namespace":"AWS\/ApplicationELB",
   "Statistic":"Average",
   "Dimensions":[
@@ -25,7 +25,7 @@
   "Period":300,
   "EvaluationPeriods":1,
   "DatapointsToAlarm":1,
-  "Threshold":1,
-  "ComparisonOperator":"GreaterThanThreshold",
+  "Threshold":10,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
   "TreatMissingData":"missing"
 }

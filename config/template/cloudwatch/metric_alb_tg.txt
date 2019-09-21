@@ -1,0 +1,18 @@
+{
+  "type":"metric",
+  "properties":{
+    "view":"timeSeries",
+    "stacked":false,
+    "metrics":[
+      [
+        "AWS\/ApplicationELB",
+        "HealthyHostCount",
+        "TargetGroup",
+        "targetgroup\/dudu-nxprod-api-tg\/63fb802d0ba4bfdf",
+        "LoadBalancer",
+        "app\/dudu-nxprod-api-alb\/a39d5961edbce933"
+      ]
+    ],
+    "region":"cn-northwest-1"
+  }
+}

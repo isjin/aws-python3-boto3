@@ -9,23 +9,19 @@
   "InsufficientDataActions":[
     
   ],
-  "MetricName":"UnHealthyHostCount",
+  "MetricName":"HTTPCode_ELB_4XX_Count",
   "Namespace":"AWS\/ApplicationELB",
   "Statistic":"Average",
   "Dimensions":[
     {
-      "Name":"TargetGroup",
-      "Value":"targetgroup\/ehbn-backend\/7a60fdc3f229241e"
-    },
-    {
       "Name":"LoadBalancer",
-      "Value":"app\/ehbn-backend\/5190e999d492b02d"
+      "Value":"app\/dudu-nxprod-api-alb\/a39d5961edbce933"
     }
   ],
   "Period":300,
   "EvaluationPeriods":1,
   "DatapointsToAlarm":1,
-  "Threshold":1,
-  "ComparisonOperator":"GreaterThanThreshold",
+  "Threshold":10,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
   "TreatMissingData":"missing"
 }

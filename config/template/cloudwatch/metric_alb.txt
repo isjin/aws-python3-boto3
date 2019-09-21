@@ -1,0 +1,16 @@
+{
+  "type":"metric",
+  "properties":{
+    "view":"timeSeries",
+    "stacked":false,
+    "metrics":[
+      [
+        "AWS\/ApplicationELB",
+        "ActiveConnectionCount",
+        "LoadBalancer",
+        "app\/dudu-nxprod-api-alb\/a39d5961edbce933"
+      ]
+    ],
+    "region":"cn-northwest-1"
+  }
+}

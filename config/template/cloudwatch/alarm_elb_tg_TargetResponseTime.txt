@@ -9,7 +9,7 @@
   "InsufficientDataActions":[
     
   ],
-  "MetricName":"UnHealthyHostCount",
+  "MetricName":"TargetResponseTime",
   "Namespace":"AWS\/ApplicationELB",
   "Statistic":"Average",
   "Dimensions":[

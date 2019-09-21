@@ -234,8 +234,32 @@ class AWSECS(object):
         )
         return response['containerInstanceArns']
 
+    def ecs_services_list(self,cluser_name):
+        response = self.ecs_client.list_services(
+            cluster=cluser_name,
+            # nextToken='string',
+            # maxResults=123,
+            # launchType='EC2' | 'FARGATE',
+            # schedulingStrategy='REPLICA' | 'DAEMON'
+        )
+        # print(response)
+        return response['serviceArns']
+
+    def ecs_service_describe(self,cluster_name,service_name):
+        response = self.ecs_client.describe_services(
+            cluster=cluster_name,
+            services=[
+                service_name,
+            ],
+            # include=[
+            #     'TAGS',
+            # ]
+        )
+        print(response)
+        return response
+
 
 if __name__ == '__main__':
     app = AWSECS()
     # app.ecs_container_instance_list('devops-chain-ecs')
-    app.ecs_task_definition_families_list('gitlab')
+    app.ecs_service_describe('dudu-website')

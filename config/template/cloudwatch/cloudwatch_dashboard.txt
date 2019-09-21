@@ -1,7 +1,8 @@
 {
-  "DashboardName":"Devops-chain",
+  "DashboardName":"test",
   "DashboardBody":{
     "widgets":[
+      
     ]
   }
 }

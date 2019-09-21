@@ -1,0 +1,18 @@
+{
+  "type":"metric",
+  "properties":{
+    "view":"timeSeries",
+    "stacked":false,
+    "metrics":[
+      [
+        "AWS\/ECS",
+        "CPUUtilization",
+        "ServiceName",
+        "cloud-watch-log-service",
+        "ClusterName",
+        "op-ecs-prod"
+      ]
+    ],
+    "region":"cn-northwest-1"
+  }
+}

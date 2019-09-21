@@ -1,0 +1,16 @@
+{
+  "type":"metric",
+  "properties":{
+    "view":"timeSeries",
+    "stacked":false,
+    "metrics":[
+      [
+        "AWS\/RDS",
+        "CPUUtilization",
+        "DBInstanceIdentifier",
+        "dudu-nxprod-sql"
+      ]
+    ],
+    "region":"cn-northwest-1"
+  }
+}

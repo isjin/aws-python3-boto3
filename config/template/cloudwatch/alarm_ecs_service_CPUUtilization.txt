@@ -9,23 +9,23 @@
   "InsufficientDataActions":[
     
   ],
-  "MetricName":"UnHealthyHostCount",
-  "Namespace":"AWS\/ApplicationELB",
+  "MetricName":"CPUUtilization",
+  "Namespace":"AWS\/ECS",
   "Statistic":"Average",
   "Dimensions":[
     {
-      "Name":"TargetGroup",
-      "Value":"targetgroup\/ehbn-backend\/7a60fdc3f229241e"
+      "Name":"ServiceName",
+      "Value":"ehbn-wechat"
     },
     {
-      "Name":"LoadBalancer",
-      "Value":"app\/ehbn-backend\/5190e999d492b02d"
+      "Name":"ClusterName",
+      "Value":"dudu-ecs-prod"
     }
   ],
   "Period":300,
   "EvaluationPeriods":1,
   "DatapointsToAlarm":1,
-  "Threshold":1,
-  "ComparisonOperator":"GreaterThanThreshold",
+  "Threshold":70,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
   "TreatMissingData":"missing"
 }

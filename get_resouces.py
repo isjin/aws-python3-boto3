@@ -262,9 +262,12 @@ class GetResources(object):
         for i in range(len(ecs_clusters_info)):
             ecs_cluster_keyname = 'ecs_cluster' + str(i + 1)
             ecs_cluster_arn = ecs_clusters_info[i]
+            ecs_cluster_name = str(ecs_cluster_arn).split('/')[1]
             self.resources['ecs_clusters'][ecs_cluster_keyname] = {}
             self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterArn'] = ecs_cluster_arn
-            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterName'] = str(ecs_cluster_arn).split('/')[1]
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterName'] = ecs_cluster_name
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['ecs_services'] = {}
+            self.get_ecs_services(ecs_cluster_keyname, ecs_cluster_name)
         self.write_file()
 
     def get_ecs_task_definitions(self):
@@ -275,6 +278,12 @@ class GetResources(object):
             self.resources['ecs_task_definitions'][ecs_task_definition_keyname] = {}
             self.resources['ecs_task_definitions'][ecs_task_definition_keyname]['taskDefinitionArns'] = ecs_task_definition_arn
         self.write_file()
+
+    def get_ecs_services(self, ecs_cluster_keyname, cluster_name):
+        ecs_services_info = self.ecs.ecs_services_list(cluster_name)
+        for i in range(len(ecs_services_info)):
+            ecs_service_keyname = 'ecs_service_arn' + str(i + 1)
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['ecs_services'][ecs_service_keyname] = ecs_services_info[i]
 
     def get_ecr_repositories(self):
         repositories_info = self.ecr.repositories_describe()
@@ -353,11 +362,11 @@ class GetResources(object):
         self.write_file()
 
     def get_elasticaches(self):
-        elasticaches_info=self.elasticache.elasticache_cache_clusters_describe()
+        elasticaches_info = self.elasticache.elasticache_cache_clusters_describe()
         for i in range(len(elasticaches_info)):
-            elasticache_info=elasticaches_info[i]
-            elasticache_keyname= 'elasticache' + str(i + 1)
-            elasticache_cache_cluster_id=elasticache_info['CacheClusterId']
+            elasticache_info = elasticaches_info[i]
+            elasticache_keyname = 'elasticache' + str(i + 1)
+            elasticache_cache_cluster_id = elasticache_info['CacheClusterId']
             self.resources['elasticaches'][elasticache_keyname] = {}
             self.resources['elasticaches'][elasticache_keyname]['CacheClusterId'] = elasticache_cache_cluster_id
         self.write_file()

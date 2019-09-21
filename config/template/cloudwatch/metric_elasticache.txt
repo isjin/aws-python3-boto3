@@ -1,0 +1,16 @@
+{
+  "type":"metric",
+  "properties":{
+    "view":"timeSeries",
+    "stacked":false,
+    "metrics":[
+      [
+        "AWS/ElastiCache",
+        "CPUUtilization",
+        "CacheClusterId",
+        "op-prd-redis-001"
+      ]
+    ],
+    "region":"cn-northwest-1"
+  }
+}

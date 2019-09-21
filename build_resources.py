@@ -237,62 +237,87 @@ class DevopsChain(object):
         self.write_file()
 
     def create_cloudwatch_dashboard(self, dashboard_path, keyname):
-        os.system('python generate_cloudwatch_metrics.py')
+        # os.system('python generate_cloudwatch_metrics.py')
         dashboard_info = self.read_file(dashboard_path)
         self.cloudwatch.cloudwatch_dashboard_create(dashboard_info)
         self.resources['cloudwatch_dashboards'][keyname] = dashboard_info['DashboardName']
         self.write_file()
 
     def create_cloudwatch_alarm(self, alarm_path, sns_keyname, service_type, instance_type, type_value, keyname):
-        alarm_info = self.read_file(alarm_path)
-        alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
-        alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
-        alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
-        alarm_name = None
-        alarm_dimension = None
-        alarm_path_split = re.split(r'[_.]', str(alarm_path))
-        metric = alarm_path_split[-2]
-        if instance_type == 'instance':
-            alarm_name = service_type + '_' + type_value + '_' + metric
-            alarm_dimension = type_value
+        if service_type == 'ecs_service':
+            ecs_cluster = self.resources['ecs_clusters'][type_value]
+            ecs_service_arns = self.ecs.ecs_services_list(ecs_cluster)
+            ecs_services = []
+            for ecs_service_arn in ecs_service_arns:
+                ecs_service = str(ecs_service_arn).split('/')[1]
+                ecs_services.append(ecs_service)
+            for i in range(len(ecs_services)):
+                ecs_service = ecs_services[i]
+                alarm_info = self.read_file(alarm_path)
+                alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
+                alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+                alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
+                alarm_path_split = re.split(r'[_.]', str(alarm_path))
+                metric = alarm_path_split[-2]
+                alarm_name = service_type + '_' + ecs_cluster + '_' + ecs_service + '_' + metric
+                alarm_info['AlarmName'] = alarm_name
+                alarm_info['Dimensions'][0]['Value'] = ecs_service
+                alarm_info['Dimensions'][1]['Value'] = ecs_cluster
+                self.cloudwatch.cloudwatch_alarm_create(alarm_info)
+                key_number = re.search(r'\d+', str(keyname)).group()
+                key_name = 'alarm' + str(int(key_number) + i)
+                self.resources['cloudwatch_alarms'][key_name] = alarm_name
+                self.write_file()
         else:
-            if service_type == 'ec2':
-                alarm_name = service_type + '_' + self.resources['ec2_instances'][type_value] + '_' + metric
-                alarm_dimension = self.resources['ec2_instances'][type_value]
-            elif service_type == 'ecs':
-                alarm_name = service_type + '_' + self.resources['ecs_clusters'][type_value] + '_' + metric
-                alarm_dimension = self.resources['ecs_clusters'][type_value]
-            elif service_type == 'rds':
-                alarm_name = service_type + '_' + self.resources['rds'][type_value] + '_' + metric
-                alarm_dimension = self.resources['rds'][type_value]
-            elif service_type == 'elb':
-                alarm_name = service_type + '_' + str(self.resources['elbs'][type_value]).split('/')[-2] + '_' + metric
-                alarm_dimension = str(self.resources['elbs'][type_value]).split('loadbalancer/')[1]
-            elif service_type == 'elb_tg':
-                tg_arn = self.resources['elb_target_groups'][type_value]
-                alarm_dimension_tg=str(tg_arn).split(':')[-1]
-                tg_info = self.elb.elbv2_target_group_describe(tg_arn)
-                tg_name=tg_info['TargetGroupName']
-                elb_arn=tg_info['LoadBalancerArns'][0]
-                elb_name=str(elb_arn).split('/')[-2]
-                alarm_name=service_type + '_' + elb_name+'_'+tg_name + '_' + metric
-                alarm_dimension_elb=str(elb_arn).split('loadbalancer/')[1]
-                alarm_info['Dimensions'][0]['Value'] = alarm_dimension_tg
-                alarm_info['Dimensions'][1]['Value'] = alarm_dimension_elb
-            elif service_type == 'elasticache':
-                alarm_name = service_type + '_' + self.resources['elasticaches'][type_value] + '_' + metric
-                alarm_dimension = self.resources['elasticaches'][type_value]
-        alarm_info['AlarmName'] = alarm_name
-        if type_value == 'all':
-            alarm_info['Dimensions'] = []
-        else:
-            if service_type == 'elb_tg':
-                pass
+            alarm_info = self.read_file(alarm_path)
+            alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
+            alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+            alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
+            alarm_name = None
+            alarm_dimension = None
+            alarm_path_split = re.split(r'[_.]', str(alarm_path))
+            metric = alarm_path_split[-2]
+            if instance_type == 'instance':
+                alarm_name = service_type + '_' + type_value + '_' + metric
+                alarm_dimension = type_value
             else:
-                alarm_info['Dimensions'][0]['Value'] = alarm_dimension
-        self.cloudwatch.cloudwatch_alarm_create(alarm_info)
-        self.resources['cloudwatch_alarms'][keyname] = alarm_name
-        self.write_file()
+                if service_type == 'ec2':
+                    alarm_name = service_type + '_' + self.resources['ec2_instances'][type_value] + '_' + metric
+                    alarm_dimension = self.resources['ec2_instances'][type_value]
+                elif service_type == 'ecs':
+                    alarm_name = service_type + '_' + self.resources['ecs_clusters'][type_value] + '_' + metric
+                    alarm_dimension = self.resources['ecs_clusters'][type_value]
+                elif service_type == 'rds':
+                    alarm_name = service_type + '_' + self.resources['rds'][type_value] + '_' + metric
+                    alarm_dimension = self.resources['rds'][type_value]
+                elif service_type == 'elb':
+                    alarm_name = service_type + '_' + str(self.resources['elbs'][type_value]).split('/')[-2] + '_' + metric
+                    alarm_dimension = str(self.resources['elbs'][type_value]).split('loadbalancer/')[1]
+                elif service_type == 'elb_tg':
+                    tg_arn = self.resources['elb_target_groups'][type_value]
+                    alarm_dimension_tg = str(tg_arn).split(':')[-1]
+                    tg_info = self.elb.elbv2_target_group_describe(tg_arn)
+                    tg_name = tg_info['TargetGroupName']
+                    elb_arn = tg_info['LoadBalancerArns'][0]
+                    elb_name = str(elb_arn).split('/')[-2]
+                    alarm_name = service_type + '_' + elb_name + '_' + tg_name + '_' + metric
+                    alarm_dimension_elb = str(elb_arn).split('loadbalancer/')[1]
+                    alarm_info['Dimensions'][0]['Value'] = alarm_dimension_tg
+                    alarm_info['Dimensions'][1]['Value'] = alarm_dimension_elb
+                elif service_type == 'elasticache':
+                    alarm_name = service_type + '_' + self.resources['elasticaches'][type_value] + '_' + metric
+                    alarm_dimension = self.resources['elasticaches'][type_value]
+            alarm_info['AlarmName'] = alarm_name
+            if type_value == 'all':
+                alarm_info['Dimensions'] = []
+            else:
+                if service_type == 'elb_tg':
+                    pass
+                else:
+                    alarm_info['Dimensions'][0]['Value'] = alarm_dimension
+            self.cloudwatch.cloudwatch_alarm_create(alarm_info)
+            self.resources['cloudwatch_alarms'][keyname] = alarm_name
+            self.write_file()
 
     def create_sns_topic(self, topic_name, keyname):
         topic_arn = self.sns.sns_topic_create(topic_name)
@@ -388,10 +413,10 @@ class DevopsChain(object):
                         elif service == 'sns_subscriptions':
                             self.create_sns_subscription(info[1], info[2], info[3], info[0])
                         elif service == 'cloudwatch_dashboards':
-                            self.get_ecs_instance_ids()
+                            # self.get_ecs_instance_ids()
                             self.create_cloudwatch_dashboard(info[1], info[0])
                         elif service == 'cloudwatch_alarms':
-                            self.get_ecs_instance_ids()
+                            # self.get_ecs_instance_ids()
                             # print(info)
                             self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
                         else:
