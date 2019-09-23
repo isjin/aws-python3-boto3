@@ -77,14 +77,15 @@ class AWSLambda(object):
 if __name__ == '__main__':
     app = AWSLambda()
     # app.lambda_function_get('AMP_snapshot_create')
-    with open('lambda_function_snapshot_Brandgoods.zip', 'rb') as f:
-        zipped_code = f.read()
-    function_info={
-        'FunctionName':'Brandgoods_snapshot_create',
-        'Runtime':'python3.6',
-        'Role':'arn:aws-cn:iam::1111111111:role/service-role/ec2_snapshot-role-ed4u0in8',
-        'Handler':'lambda_function_snapshot.lambda_handler',
-        'ZipFile':{'ZipFile':zipped_code},
-    }
-    app.lambda_function_create(function_info)
+    # with open('lambda_function_snapshot_Brandgoods.zip', 'rb') as f:
+    #     zipped_code = f.read()
+    # function_info={
+    #     'FunctionName':'Brandgoods_snapshot_create',
+    #     'Runtime':'python3.6',
+    #     'Role':'arn:aws-cn:iam::1111111111:role/service-role/ec2_snapshot-role-ed4u0in8',
+    #     'Handler':'lambda_function_snapshot.lambda_handler',
+    #     'ZipFile':{'ZipFile':zipped_code},
+    # }
+    # app.lambda_function_create(function_info)
     # app.lambda_function_delete('test')
+    app.lambda_function_get('reset_cloudwatch_status')

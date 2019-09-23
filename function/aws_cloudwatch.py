@@ -71,13 +71,13 @@ class AWSCloudWatch(object):
         )
         print(response)
 
-
     def cloudwatch_alarms_describe(self):
-        alarms=[]
-        response=self.cloudwatch_client.describe_alarms()
+        alarms = []
+        response = self.cloudwatch_client.describe_alarms()
+        alarms += response['MetricAlarms']
         while 'NextToken' in response:
             response = self.cloudwatch_client.describe_alarms(NextToken=response['NextToken'])
-            alarms+=response['MetricAlarms']
+            alarms += response['MetricAlarms']
         return alarms
 
     def cloudwatch_alarm_describe(self, alarm_name):
@@ -233,12 +233,30 @@ class AWSCloudWatch(object):
         )
         print(response)
 
+    def cloudwatch_alarm_action(self, alarm_name):
+        response = self.cloudwatch_client.enable_alarm_actions(
+            AlarmNames=[
+                alarm_name,
+            ]
+        )
+        print(response)
+
+    def cloudwatch_alarm_state_set(self, alarm_name, state_value, state_reason):
+        response = self.cloudwatch_client.set_alarm_state(
+            AlarmName=alarm_name,
+            # StateValue='OK' | 'ALARM' | 'INSUFFICIENT_DATA',
+            StateValue=state_value,
+            StateReason=state_reason,
+            # StateReasonData='string'
+        )
+        print(response)
+
 
 if __name__ == '__main__':
     app = AWSCloudWatch()
     # app.cloudwatch_metric_data_put()
     # app.cloudwatch_alarms_for_metric_describe()
     # app.cloudwatch_alarm_describe('test')
-    # app.cloudwatch_alarms_describe()
-    # app.cloudwatch_dashboard_get('test')
     app.cloudwatch_alarms_describe()
+    # app.cloudwatch_dashboard_get('test')
+    app.cloudwatch_alarm_state_set('rds_dudu-nxprod-sql_FreeableMemory', 'OK', 'resend')

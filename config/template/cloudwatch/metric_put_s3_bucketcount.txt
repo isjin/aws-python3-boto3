@@ -1,0 +1,16 @@
+{
+  "Namespace":"Custom",
+  "MetricData":[
+    {
+      "MetricName":"BucketCount",
+      "Dimensions":[
+        {
+          "Name":"Count",
+          "Value":"Bucket"
+        }
+      ],
+      "Value":8,
+      "Unit":"Count"
+    }
+  ]
+}

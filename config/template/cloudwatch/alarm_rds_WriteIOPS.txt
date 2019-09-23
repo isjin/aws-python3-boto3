@@ -18,7 +18,7 @@
       "Value":"dudu-nxprod-sql"
     }
   ],
-  "Period":60,
+  "Period":300,
   "EvaluationPeriods":1,
   "DatapointsToAlarm":1,
   "Threshold":200,

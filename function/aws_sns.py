@@ -34,6 +34,13 @@ class AWSSNS(object):
         )
         print(response)
 
+    def sns_subscriptions_list(self):
+        response = self.sns_client.list_subscriptions(
+            # NextToken='string'
+        )
+        # print(response)
+        return response['Subscriptions']
+
     def sns_subscriptions_by_topic_list(self, topic_arn):
         response = self.sns_client.list_subscriptions_by_topic(
             TopicArn=topic_arn,
@@ -74,6 +81,7 @@ class AWSSNS(object):
 
 if __name__ == '__main__':
     app = AWSSNS()
-    # topic_arn = app.sns_topic_create('test')
-    topic_arn = app.sns_subscription_create('arn:aws-cn:sns:cn-northwest-1:952375741452:email-alarm', 'email', 'isjin1@163.com')
+    # topic_arn = app.sns_subscriptions_by_topic_list('arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm')
+    # topic_arn = app.sns_subscription_create('arn:aws-cn:sns:cn-northwest-1:952375741452:email-alarm', 'email', 'isjin1@163.com')
     # app.sns_subscription_delete('arn:aws-cn:sns:cn-northwest-1:952375741452:test:c368a503-2d9f-419d-8ceb-d4d3a1bae436')
+    app.sns_subscription_create('arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm','email','daai.jin@capgemini.com')

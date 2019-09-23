@@ -1,10 +1,12 @@
 {
   "AlarmName":"test3",
+  "OKActions": [],
   "AlarmActions":[
-    "arn:aws-cn:sns:cn-northwest-1:952375741452:test"
+    "arn:aws-cn:sns:cn-northwest-1:952375741452:alarm_email"
   ],
-  "MetricName":"DiskWriteBytes",
-  "Namespace":"AWS\/EC2",
+  "InsufficientDataActions": [],
+  "MetricName":"MemoryUtilization",
+  "Namespace":"System/Linux",
   "Statistic":"Average",
   "Dimensions":[
     {
@@ -15,5 +17,5 @@
   "Period":300,
   "EvaluationPeriods":1,
   "ComparisonOperator":"GreaterThanOrEqualToThreshold",
-  "Threshold":80000000
+  "Threshold":80
 }
