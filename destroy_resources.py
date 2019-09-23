@@ -6,8 +6,9 @@ import time
 from datetime import datetime
 from configparser import ConfigParser
 
-destroy_resouces_conf_path = 'resouces_config.ini'
-resource_path = r'config/sanofi/resources.txt'
+# destroy_resouces_conf_path = 'resouces_config.ini'
+destroy_resouces_conf_path = 'destroy_resource_config.ini'
+resource_path = 'config/sanofi/resources.txt'
 cf = ConfigParser()
 cf.read(destroy_resouces_conf_path)
 

@@ -6,6 +6,7 @@ ecs_client = boto3.client('ecs')
 metric_data_template = 'metric/metric_template.txt'
 metric_count_template = 'metric/metric_put_count.txt'
 metric_data = []
+metric_data_put = None
 
 
 def lambda_handler(event, context):
@@ -36,16 +37,16 @@ def lambda_handler(event, context):
     cloudwatch_metric_data_put(metric_data_put)
 
 
-def set_metric_data(file_path, MetricName, dimension_value, value_value):
+def set_metric_data(file_path, metricname, dimension_value, value_value):
     metric_data1 = read_file(file_path)
-    metric_data1['MetricName'] = MetricName
+    metric_data1['MetricName'] = metricname
     metric_data1['Dimensions'][0]['Value'] = dimension_value
     metric_data1['Value'] = value_value
     metric_data.append(metric_data1)
 
 
 def cloudwatch_metric_data_put(metric_data_info):
-    response = cloudwatch_client.put_metric_data(
+    cloudwatch_client.put_metric_data(
         Namespace=metric_data_info['Namespace'],
         MetricData=metric_data_info['MetricData']
     )
@@ -85,4 +86,4 @@ def read_file(path):
     return data
 
 
-lambda_handler(1, 1)
+# lambda_handler(1, 1)

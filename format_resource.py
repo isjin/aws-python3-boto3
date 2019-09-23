@@ -4,7 +4,7 @@ import json
 import os
 
 cf = ConfigParser()
-cf.read('build_resources_config.ini')
+cf.read('build_resources_config_sanofi.ini')
 resource_path = cf.get('resource', 'path')
 config_file_path = 'destroy_resource_config.ini'
 
