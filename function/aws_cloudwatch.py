@@ -71,19 +71,14 @@ class AWSCloudWatch(object):
         )
         print(response)
 
+
     def cloudwatch_alarms_describe(self):
-        response = self.cloudwatch_client.describe_alarms(
-            # AlarmNames=[
-            #     'string',
-            # ],
-            # AlarmNamePrefix='string',
-            # StateValue='OK' | 'ALARM' | 'INSUFFICIENT_DATA',
-            # ActionPrefix='string',
-            # MaxRecords=123,
-            # NextToken='string'
-        )
-        # print(response)
-        return response['MetricAlarms']
+        alarms=[]
+        response=self.cloudwatch_client.describe_alarms()
+        while 'NextToken' in response:
+            response = self.cloudwatch_client.describe_alarms(NextToken=response['NextToken'])
+            alarms+=response['MetricAlarms']
+        return alarms
 
     def cloudwatch_alarm_describe(self, alarm_name):
         response = self.cloudwatch_client.describe_alarms(
@@ -187,11 +182,63 @@ class AWSCloudWatch(object):
         )
         print(response)
 
+    def cloudwatch_metric_data_put(self, metric_data_info):
+        # metric_data_info={
+        #     'Namespace':'Custom/S3',
+        #     'MetricData':[
+        #         {
+        #             'MetricName':'BucketCount',
+        #             'Dimensions': [
+        #                 {
+        #                     'Name': 'Count',
+        #                     'Value': 'Bucket'
+        #                 },
+        #             ],
+        #             'Value': 8,
+        #             'Unit': 'Count',
+        #         }
+        #     ]
+        # }
+        response = self.cloudwatch_client.put_metric_data(
+            Namespace=metric_data_info['Namespace'],
+            MetricData=metric_data_info['MetricData']
+            # MetricData=[
+            #     {
+            #         'MetricName': 'string',
+            #         'Dimensions': [
+            #             {
+            #                 'Name': 'string',
+            #                 'Value': 'string'
+            #             },
+            #         ],
+            #         # 'Timestamp': datetime(2015, 1, 1),
+            #         'Value': 123.0,
+            #         # 'StatisticValues': {
+            #         #     'SampleCount': 123.0,
+            #         #     'Sum': 123.0,
+            #         #     'Minimum': 123.0,
+            #         #     'Maximum': 123.0
+            #         # },
+            #         # 'Values': [
+            #         #     123.0,
+            #         # ],
+            #         # 'Counts': [
+            #         #     123.0,
+            #         # ],
+            #         # 'Unit': 'Seconds' | 'Microseconds' | 'Milliseconds' | 'Bytes' | 'Kilobytes' | 'Megabytes' | 'Gigabytes' | 'Terabytes' | 'Bits' | 'Kilobits' | 'Megabits' | 'Gigabits' | 'Terabits' | 'Percent' | 'Count' | 'Bytes/Second' | 'Kilobytes/Second' | 'Megabytes/Second' | 'Gigabytes/Second' | 'Terabytes/Second' | 'Bits/Second' | 'Kilobits/Second' | 'Megabits/Second' | 'Gigabits/Second' | 'Terabits/Second' | 'Count/Second' | 'None',
+            #         'Unit': 'Seconds' | 'Microseconds' | 'Milliseconds' | 'Bytes' | 'Kilobytes' | 'Megabytes' | 'Gigabytes' | 'Terabytes' | 'Bits' | 'Kilobits' | 'Megabits' | 'Gigabits' | 'Terabits' | 'Percent' | 'Count' | 'Bytes/Second' | 'Kilobytes/Second' | 'Megabytes/Second' | 'Gigabytes/Second' | 'Terabytes/Second' | 'Bits/Second' | 'Kilobits/Second' | 'Megabits/Second' | 'Gigabits/Second' | 'Terabits/Second' | 'Count/Second' | 'None',
+            #         # 'StorageResolution': 123
+            #     },
+            # ]
+        )
+        print(response)
+
 
 if __name__ == '__main__':
     app = AWSCloudWatch()
-    # app.cloudwatch_alarm_create()
+    # app.cloudwatch_metric_data_put()
     # app.cloudwatch_alarms_for_metric_describe()
     # app.cloudwatch_alarm_describe('test')
     # app.cloudwatch_alarms_describe()
     # app.cloudwatch_dashboard_get('test')
+    app.cloudwatch_alarms_describe()

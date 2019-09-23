@@ -234,7 +234,7 @@ class AWSECS(object):
         )
         return response['containerInstanceArns']
 
-    def ecs_services_list(self,cluser_name):
+    def ecs_services_list(self, cluser_name):
         response = self.ecs_client.list_services(
             cluster=cluser_name,
             # nextToken='string',
@@ -245,7 +245,7 @@ class AWSECS(object):
         # print(response)
         return response['serviceArns']
 
-    def ecs_service_describe(self,cluster_name,service_name):
+    def ecs_service_describe(self, cluster_name, service_name):
         response = self.ecs_client.describe_services(
             cluster=cluster_name,
             services=[
@@ -262,4 +262,4 @@ class AWSECS(object):
 if __name__ == '__main__':
     app = AWSECS()
     # app.ecs_container_instance_list('devops-chain-ecs')
-    app.ecs_service_describe('dudu-website')
+    app.ecs_service_describe('dudu-ecs-prod','dudu-website')

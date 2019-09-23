@@ -404,3 +404,4 @@ class GetResources(object):
 if __name__ == '__main__':
     app = GetResources()
     app.main()
+    # app.get_cloudwatch_alarms()

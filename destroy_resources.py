@@ -6,11 +6,10 @@ import time
 from datetime import datetime
 from configparser import ConfigParser
 
-destroy_resouces_conf_path = 'destroy_resource_config.ini'
-resource_path = 'resources.txt'
+destroy_resouces_conf_path = 'resouces_config.ini'
+resource_path = r'config/sanofi/resources.txt'
 cf = ConfigParser()
 cf.read(destroy_resouces_conf_path)
-
 
 class DevopsChain(object):
     def __init__(self):
@@ -214,6 +213,7 @@ class DevopsChain(object):
             print(e.__str__())
 
     def delete_sns_topic(self, topic_arn, keyname):
+        print(keyname)
         try:
             self.sns.sns_topic_delete(topic_arn)
             del self.resources['sns_topics'][keyname]
@@ -276,7 +276,7 @@ class DevopsChain(object):
                 elif service == 'sns_subscriptions':
                     self.delete_sns_subscription(item, option)
             print("%s Delete %s are finished." % (datetime.now(), service))
-        os.system('python format_resource.py')
+        # os.system('python format_resource.py')
 
 
 if __name__ == '__main__':
