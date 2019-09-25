@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache
+from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache, aws_lambda
 import json
 import os
 
@@ -14,6 +14,7 @@ class GetResources(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.elb = aws_elb.AWSELB()
+        self.lambda_function = aws_lambda.AWSLambda()
         self.elasticache = aws_elasticache.AWSElastiCache()
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.sns = aws_sns.AWSSNS()
@@ -38,9 +39,11 @@ class GetResources(object):
             self.resources['cloudwatch_alarms'] = {}
             self.resources['sns_subscriptions'] = {}
             self.resources['sns_topics'] = {}
+            self.resources['ec2_instances'] = {}
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
+            self.resources['lambda_functions'] = {}
             self.resources['rds'] = {}
             self.resources['elasticaches'] = {}
             self.resources['igws'] = {}
@@ -50,7 +53,6 @@ class GetResources(object):
             self.resources['roles'] = {}
             self.resources['keypairs'] = {}
             self.resources['auto_scaling'] = {}
-            self.resources['ec2_instances'] = {}
             self.resources['eips'] = {}
             self.resources['volumes'] = {}
             self.resources['snapshots'] = {}
@@ -371,6 +373,18 @@ class GetResources(object):
             self.resources['elasticaches'][elasticache_keyname]['CacheClusterId'] = elasticache_cache_cluster_id
         self.write_file()
 
+    def get_lambda_functions(self):
+        lambda_functions_info = self.lambda_function.lambda_functions_list()
+        for i in range(len(lambda_functions_info)):
+            lambda_function_info = lambda_functions_info[i]
+            lambda_function_keyname = 'function' + str(i + 1)
+            lambda_function_name = lambda_function_info['FunctionName']
+            lambda_function_arn = lambda_function_info['FunctionArn']
+            self.resources['lambda_functions'][lambda_function_keyname] = {}
+            self.resources['lambda_functions'][lambda_function_keyname]['FunctionName'] = lambda_function_name
+            self.resources['lambda_functions'][lambda_function_keyname]['FunctionArn'] = lambda_function_arn
+        self.write_file()
+
     def main(self):
         self.get_vpcs()
         self.get_subnets()
@@ -398,6 +412,7 @@ class GetResources(object):
         self.get_sns_subscriptions()
         self.get_rds()
         self.get_elasticaches()
+        self.get_lambda_functions()
         os.system('python generate_resources_config.py')
 
 

@@ -1,4 +1,4 @@
-from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb
+from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb, aws_lambda
 import json
 import os
 import re
@@ -19,6 +19,7 @@ class DevopsChain(object):
         self.ecr = aws_ecr.AWSECR()
         self.sns = aws_sns.AWSSNS()
         self.elb = aws_elb.AWSELB()
+        self.lambda_function = aws_lambda.AWSLambda()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
         self.resources = {}
@@ -40,6 +41,7 @@ class DevopsChain(object):
             self.resources['ecs_clusters'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
+            self.resources['lambda_functions'] = {}
             self.resources['rds'] = {}
             self.resources['elasticaches'] = {}
             self.resources['igws'] = {}
@@ -352,6 +354,20 @@ class DevopsChain(object):
                         self.resources['ec2_instances'][ecs_instance_key] = ecs_instance_id
             self.write_file()
 
+    def create_lambda_function(self, zip_file_path, function_name, role, keyname):
+        with open(zip_file_path, 'rb') as f:
+            zipped_code = f.read()
+        function_info = {
+            'FunctionName': function_name,
+            'Runtime': 'python3.6',
+            'Role': role,
+            'Handler': '%s.lambda_handler' % function_name,
+            'ZipFile': {'ZipFile': zipped_code},
+        }
+        function_name = self.lambda_function.lambda_function_create(function_info)
+        self.resources['lambda_functions'][keyname] = function_name
+        self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
@@ -380,6 +396,8 @@ class DevopsChain(object):
                             self.create_ecr_repository(info[1], info[0])
                         elif service == 'ecs_clusters':
                             self.create_ecs_cluster(info[1], info[0])
+                        elif service == 'lambda_functions':
+                            self.create_lambda_function(info[1], info[2], info[3], info[0])
                         elif service == 'cloudformations':
                             cf_stack_info = self.read_file(info[1])
                             cf_parameters = str(info[3]).split(';')

@@ -63,6 +63,8 @@ class GenerateConfig(object):
                         self.set_cf(service, option, 'TargetGroupArn')
                     elif service == 'elasticaches':
                         self.set_cf(service, option, 'CacheClusterId')
+                    elif service == 'lambda_functions':
+                        self.set_cf(service, option, 'FunctionName')
                     else:
                         for key in self.resources[service][option].keys():
                             self.set_cf(service, option, key)

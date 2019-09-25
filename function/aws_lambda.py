@@ -59,6 +59,7 @@ class AWSLambda(object):
             # ]
         )
         print(response)
+        return response['FunctionName']
 
     def lambda_function_delete(self, function_name):
         response = self.lambda_client.delete_function(
@@ -72,6 +73,37 @@ class AWSLambda(object):
             # Qualifier='string'
         )
         print(response)
+
+    def lambda_functions_list(self):
+        response = self.lambda_client.list_functions(
+            # MasterRegion='string',
+            # FunctionVersion='ALL',
+            # Marker='string',
+            # MaxItems=123
+        )
+        # print(response)
+        return response['Functions']
+
+    # def lambda_permission_add(self):
+    #     permission_info={
+    #         'FunctionName':'test',
+    #         'StatementId':'test-Trigger-Event',
+    #         'Principal':'events.cn-northwest-1.amazonaws.com.cn',
+    #         # 'Principal':'events.cn-north-1.amazonaws.com.cn',
+    #         'SourceArn':'arn:aws-cn:events:cn-northwest-1:646976741397:rule/test',
+    #     }
+    #     response = self.lambda_client.add_permission(
+    #         FunctionName=permission_info['FunctionName'],
+    #         StatementId=permission_info['StatementId'],
+    #         Action='lambda:InvokeFunction',
+    #         Principal=permission_info['Principal'],
+    #         SourceArn=permission_info['SourceArn'],
+    #         # SourceAccount='string',
+    #         # EventSourceToken='string',
+    #         # Qualifier='string',
+    #         # RevisionId='string'
+    #     )
+    #     print(response)
 
 
 if __name__ == '__main__':
@@ -87,5 +119,5 @@ if __name__ == '__main__':
     #     'ZipFile':{'ZipFile':zipped_code},
     # }
     # app.lambda_function_create(function_info)
-    # app.lambda_function_delete('test')
-    app.lambda_function_get('reset_cloudwatch_status')
+    # app.lambda_function_get('confirm_subscriptions')
+    app.lambda_permission_add()
