@@ -1,0 +1,11 @@
+{
+  "MetricName":"Object",
+  "Dimensions":[
+    {
+      "Name":"Item",
+      "Value":"bucketname"
+    }
+  ],
+  "Value":8,
+  "Unit":"Bytes"
+}

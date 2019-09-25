@@ -257,6 +257,8 @@ if __name__ == '__main__':
     # app.cloudwatch_metric_data_put()
     # app.cloudwatch_alarms_for_metric_describe()
     # app.cloudwatch_alarm_describe('test')
-    # app.cloudwatch_alarms_describe()
-    app.cloudwatch_dashboard_get('Sanofi_Infra_Overview')
+    infos=app.cloudwatch_alarms_describe()
+    for info in infos:
+        print(info['AlarmName'])
+    # app.cloudwatch_dashboard_get('Sanofi_Infra_Overview')
     # app.cloudwatch_alarm_state_set('rds_dudu-nxprod-sql_FreeableMemory', 'OK', 'resend')

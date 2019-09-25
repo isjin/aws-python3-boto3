@@ -274,12 +274,12 @@ class DevopsChain(object):
             alarm_dimension = None
             alarm_path_split = re.split(r'[_.]', str(alarm_path))
             metric = alarm_path_split[-2]
-            alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
             alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
             # print(metric)
-            if metric in ['HTTPCode-ELB-4XX-Count','HTTPCode-Target-4XX-Count','ProcessedBytes','TargetResponseTime']:
+            if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime']:
                 pass
             else:
+                alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
                 alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
             if instance_type == 'instance':
                 alarm_name = service_type + '_' + type_value + '_' + metric
@@ -319,7 +319,7 @@ class DevopsChain(object):
                     pass
                 else:
                     alarm_info['Dimensions'][0]['Value'] = alarm_dimension
-            print(alarm_info)
+            # print(alarm_info)
             self.cloudwatch.cloudwatch_alarm_create(alarm_info)
             self.resources['cloudwatch_alarms'][keyname] = alarm_name
             self.write_file()

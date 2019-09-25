@@ -1,32 +1,34 @@
 import boto3
 
-cloudwatch_client = boto3.client('cloudwatch')
-sns_client = boto3.client('sns')
-
 
 def lambda_handler(event, context):
-    alarms = cloudwatch_alarms_describe()
-    for alarm in alarms:
-        alarm_name = alarm['AlarmName']
-        cloudwatch_alarm_state_set(alarm_name)
+    app = ResetCloudState()
+    app.main()
 
 
-def cloudwatch_alarms_describe():
-    alarms = []
-    response = cloudwatch_client.describe_alarms(StateValue='ALARM')
-    alarms += response['MetricAlarms']
-    while 'NextToken' in response:
-        response = cloudwatch_client.describe_alarms(NextToken=response['NextToken'])
+class ResetCloudState(object):
+    def __init__(self):
+        self.cloudwatch_client = boto3.client('cloudwatch')
+        self.sns_client = boto3.client('sns')
+
+    def cloudwatch_alarms_describe(self):
+        alarms = []
+        response = self.cloudwatch_client.describe_alarms(StateValue='ALARM')
         alarms += response['MetricAlarms']
-    return alarms
+        while 'NextToken' in response:
+            response = self.cloudwatch_client.describe_alarms(NextToken=response['NextToken'])
+            alarms += response['MetricAlarms']
+        return alarms
 
+    def cloudwatch_alarm_state_set(self, alarmname):
+        self.cloudwatch_client.set_alarm_state(
+            AlarmName=alarmname,
+            StateValue='INSUFFICIENT_DATA',
+            StateReason='Reset alarm status'
+        )
 
-def cloudwatch_alarm_state_set(alarmname):
-    cloudwatch_client.set_alarm_state(
-        AlarmName=alarmname,
-        StateValue='INSUFFICIENT_DATA',
-        StateReason='Reset alarm status'
-    )
-
-
-# lambda_handler(1, 1)
+    def main(self):
+        alarms = self.cloudwatch_alarms_describe()
+        for alarm in alarms:
+            alarm_name = alarm['AlarmName']
+            self.cloudwatch_alarm_state_set(alarm_name)

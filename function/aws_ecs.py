@@ -258,8 +258,38 @@ class AWSECS(object):
         print(response)
         return response
 
+    def ecs_task_describe(self, clustername, task_name):
+        response = self.ecs_client.describe_tasks(
+            cluster=clustername,
+            tasks=[
+                task_name,
+            ],
+            # include=[
+            #     'TAGS',
+            # ]
+        )
+        print(response)
+        return response['tasks']
+
+    def ecs_tasks_list(self, clustername):
+        response = self.ecs_client.list_tasks(
+            cluster=clustername,
+            # containerInstance='string',
+            # family='string',
+            # nextToken='string',
+            # maxResults=123,
+            # startedBy='string',
+            # serviceName='string',
+            # desiredStatus='RUNNING' | 'PENDING' | 'STOPPED',
+            # launchType='EC2' | 'FARGATE'
+        )
+        print(response)
+        return response['taskArns']
+
 
 if __name__ == '__main__':
     app = AWSECS()
     # app.ecs_container_instance_list('devops-chain-ecs')
-    app.ecs_service_describe('dudu-ecs-prod','dudu-website')
+    # app.ecs_service_describe('dudu-ecs-prod','dudu-website')
+    app.ecs_tasks_list('op-ecs-prod')
+    app.ecs_task_describe('op-ecs-prod', 'arn:aws-cn:ecs:cn-northwest-1:646976741397:task/0b552903-2c37-448b-bc13-0c2f0f4a2002')
