@@ -137,5 +137,6 @@ class AWSCloudWatchLogs(object):
 if __name__ == '__main__':
     app = AWSCloudWatchLogs()
     # app.logs_metric_filters_describe()
-    app.logs_log_stream_delete('test', 'nginx')
+    # app.logs_log_stream_delete('test', 'nginx')
+    app.logs_log_streams_describe('/ecs/dudu-api')
     # app.logs_metric_filter_delete('test','EventCount')

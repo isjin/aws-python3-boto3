@@ -95,7 +95,7 @@ class AWSECS(object):
             # }
         )
         print(response)
-        return response['taskDefinition']
+        return response['taskDefinition']['taskDefinitionArn']
 
     def ecs_task_definition_describe(self, task_definition):
         response = self.ecs_client.describe_task_definition(

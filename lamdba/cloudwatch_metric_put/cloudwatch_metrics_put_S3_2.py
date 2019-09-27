@@ -34,24 +34,31 @@ class MetricS3(object):
         response = self.s3_client.list_buckets()
         return response['Buckets']
 
-    def s3_objects_items(self, bucket_name):
-        objects_count = 0
-        objects_size = 0
-        resp = self.s3_client.list_objects_v2(Bucket=bucket_name)
-        if 'Contents' in resp.keys():
-            bucket_objects = resp['Contents']
-            objects_count += len(bucket_objects)
-            for bucket_object in bucket_objects:
-                object_size = bucket_object['Size']
-                objects_size += object_size
-            while 'NextContinuationToken' in resp:
-                resp = self.s3_client.list_objects_v2(Bucket=bucket_name, ContinuationToken=resp['NextContinuationToken'])
-                bucket_objects = resp['Contents']
-                objects_count += len(bucket_objects)
-                for bucket_object in bucket_objects:
-                    object_size = bucket_object['Size']
-                    objects_size += object_size
-        return objects_count, objects_size
+    # def s3_objects_items(self, bucket_name):
+    #     objects_count = 0
+    #     objects_size = 0
+    #     resp = self.s3_client.list_objects_v2(Bucket=bucket_name)
+    #     if 'Contents' in resp.keys():
+    #         bucket_objects = resp['Contents']
+    #         objects_count += len(bucket_objects)
+    #         for bucket_object in bucket_objects:
+    #             object_size = bucket_object['Size']
+    #             objects_size += object_size
+    #         while 'NextContinuationToken' in resp:
+    #             resp = self.s3_client.list_objects_v2(Bucket=bucket_name, ContinuationToken=resp['NextContinuationToken'])
+    #             bucket_objects = resp['Contents']
+    #             objects_count += len(bucket_objects)
+    #             for bucket_object in bucket_objects:
+    #                 object_size = bucket_object['Size']
+    #                 objects_size += object_size
+    #     return objects_count, objects_size
+
+    @staticmethod
+    def get_bucket_info(bucketname, s3_info):
+        object_count = s3_info[bucketname]['count']
+        object_size = s3_info[bucketname]['size']
+        # print(object_count,object_size)
+        return object_count, object_size
 
     @staticmethod
     def read_file(path):
@@ -69,9 +76,16 @@ class MetricS3(object):
         s3_buckets_count = len(s3_buckets_info)
         s3_object_total_count = 0
         s3_object_total_size = 0
+        s3_file = 's3_info.txt'
+        # local_file = 's3_info.txt'
+        local_file = '/tmp/s3_info.txt'
+        s3_info_backet = 'cloudwatchlog'
+        s3 = boto3.resource('s3')
+        s3.meta.client.download_file(s3_info_backet, s3_file, local_file)
+        s3_info = self.read_file(local_file)
         for s3_bucket_info in s3_buckets_info[:]:
             s3_bucket_name = s3_bucket_info['Name']
-            s3_bucket_object_count, s3_bucket_object_size = self.s3_objects_items(s3_bucket_name)
+            s3_bucket_object_count, s3_bucket_object_size = self.get_bucket_info(s3_bucket_name, s3_info)
             # print(count)
             s3_object_total_count += s3_bucket_object_count
             s3_object_total_size += s3_bucket_object_size
@@ -89,3 +103,6 @@ class MetricS3(object):
 
 
 # lambda_handler(1, 1)
+if __name__ == '__main__':
+    app = MetricS3()
+    app.main()
