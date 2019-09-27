@@ -41,6 +41,7 @@ class GetResources(object):
             self.resources['sns_topics'] = {}
             self.resources['ec2_instances'] = {}
             self.resources['ecs_clusters'] = {}
+            self.resources['ecs_services'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
             self.resources['lambda_functions'] = {}
@@ -286,11 +287,13 @@ class GetResources(object):
         for i in range(len(ecs_services_info)):
             ecs_service_keyname = 'ecs_service_arn' + str(i + 1)
             self.resources['ecs_clusters'][ecs_cluster_keyname]['ecs_services'][ecs_service_keyname] = ecs_services_info[i]
+            self.resources['ecs_services'][ecs_service_keyname]={}
+            self.resources['ecs_services'][ecs_service_keyname]['serviceArn'] = ecs_services_info[i]
 
     def get_ecr_repositories(self):
         repositories_info = self.ecr.repositories_describe()
         for i in range(len(repositories_info)):
-            repository_keyname = 'repository_arn' + str(i + 1)
+            repository_keyname = 'ecr' + str(i + 1)
             repository_arn = repositories_info[i]['repositoryArn']
             repository_uri = repositories_info[i]['repositoryUri']
             repository_name = repositories_info[i]['repositoryName']
