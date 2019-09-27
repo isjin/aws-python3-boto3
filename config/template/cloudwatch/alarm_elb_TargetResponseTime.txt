@@ -19,8 +19,8 @@
     }
   ],
   "Period":300,
-  "EvaluationPeriods":1,
-  "DatapointsToAlarm":1,
+  "EvaluationPeriods":3,
+  "DatapointsToAlarm":3,
   "Threshold":5,
   "ComparisonOperator":"GreaterThanOrEqualToThreshold",
   "TreatMissingData":"missing"
