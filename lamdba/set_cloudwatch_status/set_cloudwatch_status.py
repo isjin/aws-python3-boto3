@@ -23,7 +23,7 @@ class ResetCloudState(object):
     def cloudwatch_alarm_state_set(self, alarmname):
         self.cloudwatch_client.set_alarm_state(
             AlarmName=alarmname,
-            StateValue='INSUFFICIENT_DATA',
+            StateValue='OK',
             StateReason='Reset alarm status'
         )
 

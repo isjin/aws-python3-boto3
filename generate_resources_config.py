@@ -48,7 +48,7 @@ class GenerateConfig(object):
                     elif service == 'ecs_task_definitions':
                         self.set_cf(service, option, 'taskDefinitionArns')
                     elif service == 'ecr_repositories':
-                        self.set_cf(service, option, 'repositoryName')
+                        self.set_cf(service, option, 'repositoryArn')
                     elif service == 'eips':
                         self.set_cf(service, option, 'PublicIp')
                     elif service == 'volumes':

@@ -1,8 +1,0 @@
-{
-  "tags":[
-    {
-      "Key":"Name",
-      "Value":"devops-chain_igw"
-    }
-  ]
-}
