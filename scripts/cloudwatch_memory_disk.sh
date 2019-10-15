@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #reference url https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/mon-scripts.html
-monitor_path=~/monitor
+monitor_path=/monitor
 mkdir -p $monitor_path
 cd $monitor_path
 sudo yum install -y perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https perl-Digest-SHA.x86_64 unzip
