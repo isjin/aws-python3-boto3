@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #reference url https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/mon-scripts.html
 monitor_path=/monitor
-mkdir -p $monitor_path
+sudo rm -rf $monitor_path
+sudo mkdir -p $monitor_path
 cd $monitor_path
 sudo yum install -y perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https perl-Digest-SHA.x86_64 unzip
-curl https://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.2.zip -O
-unzip CloudWatchMonitoringScripts-1.2.2.zip && \rm CloudWatchMonitoringScripts-1.2.2.zip
+sudo curl https://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.2.zip -O
+sudo unzip CloudWatchMonitoringScripts-1.2.2.zip && \sudo rm -rf CloudWatchMonitoringScripts-1.2.2.zip
 cd aws-scripts-mon
-cp awscreds.template awscreds.conf
+sudo cp awscreds.template awscreds.conf
+cd ~
 echo "*/5 * * * * $monitor_path/aws-scripts-mon/mon-put-instance-data.pl --mem-used-incl-cache-buff --mem-util --disk-space-util --disk-path=/ --from-cron" > aws_cloudwatch
 sudo crontab aws_cloudwatch
-
-
