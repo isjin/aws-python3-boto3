@@ -39,6 +39,7 @@ class DevopsChain(object):
             self.resources['sns_subscriptions'] = {}
             self.resources['sns_topics'] = {}
             self.resources['ecs_clusters'] = {}
+            self.resources['ecs_services'] = {}
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
             self.resources['lambda_functions'] = {}
@@ -234,8 +235,8 @@ class DevopsChain(object):
     def register_task_definition(self, ecs_task_definition_path, ecs_task_definition_keyname):
         print(ecs_task_definition_path, ecs_task_definition_keyname)
         task_definition_info = self.read_file(ecs_task_definition_path)
-        self.ecs.ecs_task_definition_register(task_definition_info)
-        self.resources['ecs_task_definitions'][ecs_task_definition_keyname] = task_definition_info['family']
+        task_definition_arn = self.ecs.ecs_task_definition_register(task_definition_info)
+        self.resources['ecs_task_definitions'][ecs_task_definition_keyname] = task_definition_arn
         self.write_file()
 
     def create_cloudwatch_dashboard(self, dashboard_path, keyname):
@@ -311,6 +312,8 @@ class DevopsChain(object):
                     alarm_info['Dimensions'][0]['Value'] = alarm_dimension_tg
                     alarm_info['Dimensions'][1]['Value'] = alarm_dimension_elb
                 elif service_type == 'elasticache':
+                    # if service_type == 'elasticache':
+                    #     service_type = 'redis'
                     alarm_name = service_type + '_' + self.resources['elasticaches'][type_value] + '_' + metric
                     alarm_dimension = self.resources['elasticaches'][type_value]
             alarm_info['AlarmName'] = alarm_name
@@ -320,7 +323,10 @@ class DevopsChain(object):
                 if service_type == 'elb_tg':
                     pass
                 else:
-                    alarm_info['Dimensions'][0]['Value'] = alarm_dimension
+                    if metric == 'DiskSpaceUtilization':
+                        alarm_info['Dimensions'][1]['Value'] = alarm_dimension
+                    else:
+                        alarm_info['Dimensions'][0]['Value'] = alarm_dimension
             # print(alarm_info)
             self.cloudwatch.cloudwatch_alarm_create(alarm_info)
             self.resources['cloudwatch_alarms'][keyname] = alarm_name
