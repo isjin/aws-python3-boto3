@@ -1,0 +1,27 @@
+{
+  "AlarmName":"test3",
+  "OKActions":[],
+  "AlarmActions":["arn:aws-cn:sns:cn-northwest-1:952375741452:alarm_email"],
+  "InsufficientDataActions":[],
+  "MetricName":"DiskSpaceUtilization",
+  "Namespace":"System/Linux",
+  "Statistic":"Average",
+  "Dimensions":[
+    {
+      "Name":"MountPath",
+      "Value":"\/"
+    },
+    {
+      "Name":"InstanceId",
+      "Value":"i-0c182a727a0713689"
+    },
+    {
+      "Name":"Filesystem",
+      "Value":"\/dev\/nvme0n1p1"
+    }
+  ],
+  "Period":300,
+  "EvaluationPeriods":1,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
+  "Threshold":80
+}
