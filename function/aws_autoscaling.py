@@ -24,7 +24,8 @@ class AWSAutoScaling(object):
             # NextToken='string',
             # MaxRecords=123
         )
-        print(response)
+        # print(response)
+        return response['AutoScalingGroups']
 
     def autoscaling_auto_scaling_instances_describe(self):
         response = self.autoscaling_client.describe_auto_scaling_instances(
@@ -54,6 +55,18 @@ class AWSAutoScaling(object):
         )
         print(response)
 
+    def autoscaling_auto_scaling_launch_configurations_describe(self):
+        response = self.autoscaling_client.describe_launch_configurations(
+            # LaunchConfigurationNames=[
+            #     'string',
+            # ],
+            # NextToken='string',
+            # MaxRecords=123
+        )
+        # print(response)
+        return response['LaunchConfigurations']
+
 if __name__ == '__main__':
     app=AWSAutoScaling()
-    app.autoscaling_auto_scaling_groups_describe()
+    # app.autoscaling_auto_scaling_groups_describe()
+    app.autoscaling_auto_scaling_launch_configurations_describe()

@@ -73,9 +73,9 @@ echo "[/logdata/op/identityBiz]" | sudo tee -a awslogs.conf
 echo "datetime_format = %b %d %H:%M:%S" | sudo tee -a awslogs.conf
 echo "file = /logdata/op/identity/OpIdentityApiBizLog*.txt" | sudo tee -a awslogs.conf
 echo "buffer_duration = 5000" | sudo tee -a awslogs.conf
-echo "log_stream_name = OpIdentityApiLog" | sudo tee -a awslogs.conf
+echo "log_stream_name = OpIdentityApiBizLog" | sudo tee -a awslogs.conf
 echo "initial_position = start_of_file" | sudo tee -a awslogs.conf
-echo "log_group_name = OpIdentityApi" | sudo tee -a awslogs.conf
+echo "log_group_name = OpIdentityApiBiz" | sudo tee -a awslogs.conf
 echo "" | sudo tee -a awslogs.conf
 
 sudo service awslogs restart

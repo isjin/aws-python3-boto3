@@ -1,4 +1,5 @@
 from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache, aws_lambda
+from function import aws_autoscaling
 import json
 import os
 
@@ -14,6 +15,7 @@ class GetResources(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.elb = aws_elb.AWSELB()
+        self.autoscaling = aws_autoscaling.AWSAutoScaling()
         self.lambda_function = aws_lambda.AWSLambda()
         self.elasticache = aws_elasticache.AWSElastiCache()
         self.cf = aws_cloudformation.AWSCloudFormation()
@@ -53,7 +55,8 @@ class GetResources(object):
             self.resources['nacls'] = {}
             self.resources['roles'] = {}
             self.resources['keypairs'] = {}
-            self.resources['auto_scaling'] = {}
+            self.resources['autoscaling_groups'] = {}
+            self.resources['autoscaling_launch_configurations'] = {}
             self.resources['eips'] = {}
             self.resources['volumes'] = {}
             self.resources['snapshots'] = {}
@@ -257,8 +260,33 @@ class GetResources(object):
                 self.resources['elb_target_groups'][tg_keyname]['LoadBalancerArns'] = tg_elb
         self.write_file()
 
-    def get_auto_scaling(self):
-        pass
+    def get_auto_scaling_group(self):
+        autoscaling_groups_info=self.autoscaling.autoscaling_auto_scaling_groups_describe()
+        for i in range(len(autoscaling_groups_info)):
+            autoscaling_group_keyname = 'autoscaling_group'+str(i+1)
+            autoscaling_group_info = autoscaling_groups_info[i]
+            # print(autoscaling_group_info)
+            autoscaling_group_name = autoscaling_group_info['AutoScalingGroupName']
+            autoscaling_group_arn = autoscaling_group_info['AutoScalingGroupARN']
+            launch_configuration_name = autoscaling_group_info['LaunchConfigurationName']
+            self.resources['autoscaling_groups'][autoscaling_group_keyname] = {}
+            self.resources['autoscaling_groups'][autoscaling_group_keyname]['AutoScalingGroupName'] = autoscaling_group_name
+            self.resources['autoscaling_groups'][autoscaling_group_keyname]['AutoScalingGroupARN'] = autoscaling_group_arn
+            self.resources['autoscaling_groups'][autoscaling_group_keyname]['LaunchConfigurationName'] = launch_configuration_name
+        self.write_file()
+
+    def get_auto_scaling_launch_configurations(self):
+        autoscaling_launch_configurations_info=self.autoscaling.autoscaling_auto_scaling_launch_configurations_describe()
+        for i in range(len(autoscaling_launch_configurations_info)):
+            autoscaling_launch_configuration_keyname = 'autoscaling_launch_configuration'+str(i+1)
+            autoscaling_launch_configuration_info = autoscaling_launch_configurations_info[i]
+            # print(autoscaling_launch_configuration_info)
+            autoscaling_launch_configuration_name = autoscaling_launch_configuration_info['LaunchConfigurationName']
+            autoscaling_launch_configuration_arn = autoscaling_launch_configuration_info['LaunchConfigurationARN']
+            self.resources['autoscaling_launch_configurations'][autoscaling_launch_configuration_keyname] = {}
+            self.resources['autoscaling_launch_configurations'][autoscaling_launch_configuration_keyname]['LaunchConfigurationName'] = autoscaling_launch_configuration_name
+            self.resources['autoscaling_launch_configurations'][autoscaling_launch_configuration_keyname]['LaunchConfigurationARN'] = autoscaling_launch_configuration_arn
+        self.write_file()
 
     def get_ecs_clusters(self):
         ecs_clusters_info = self.ecs.ecs_clusters_list()
@@ -404,7 +432,8 @@ class GetResources(object):
         self.get_images()
         self.get_elbs()
         self.get_elb_target_groups()
-        self.get_auto_scaling()
+        self.get_auto_scaling_group()
+        self.get_auto_scaling_launch_configurations()
         self.get_ecs_clusters()
         self.get_ecs_task_definitions()
         self.get_ecr_repositories()
