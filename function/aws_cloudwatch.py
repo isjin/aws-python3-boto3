@@ -40,6 +40,7 @@ class AWSCloudWatch(object):
             DashboardName=dashboard_name
         )
         print(response)
+        return response
 
     def cloudwatch_dashboards_list(self):
         response = self.cloudwatch_client.list_dashboards(
@@ -256,9 +257,10 @@ if __name__ == '__main__':
     app = AWSCloudWatch()
     # app.cloudwatch_metric_data_put()
     # app.cloudwatch_alarms_for_metric_describe()
-    app.cloudwatch_alarm_describe('test')
-    # infos=app.cloudwatch_alarms_describe()
-    # for info in infos:
-    #     print(info['AlarmName'],info['MetricName'],info['ComparisonOperator'],info['Threshold'])
-    # app.cloudwatch_dashboard_get('Sanofi_Infra_S3')
+    # app.cloudwatch_alarm_describe('test')
+    infos=app.cloudwatch_alarms_describe()
+    for info in infos:
+        print(info['AlarmName'],info['MetricName'],info['ComparisonOperator'],info['Threshold'])
+    # info=app.cloudwatch_dashboard_get('Sanofi_Infra_Overview')
+    # print(info['DashboardBody'])
     # app.cloudwatch_alarm_state_set('rds_dudu-nxprod-sql_FreeableMemory', 'OK', 'resend')

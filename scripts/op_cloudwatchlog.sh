@@ -16,7 +16,9 @@ fi
 
 cd $awslogpath
 #wxapi
-echo "[/logdata/op/wxapi]" |sudo tee awslogs.conf
+echo "[general]" | sudo tee awslogs.conf
+echo "state_file = /var/lib/awslogs/agent-state" | sudo tee -a awslogs.conf
+echo "[/logdata/op/wxapi]" |sudo tee -a awslogs.conf
 echo "datetime_format = %b %d %H:%M:%S" | sudo tee -a sudo tee -a awslogs.conf
 echo "file = /logdata/op/wxapi/*.txt" | sudo tee -a awslogs.conf
 echo "buffer_duration = 5000" | sudo tee -a awslogs.conf
@@ -45,5 +47,4 @@ echo "initial_position = start_of_file" | sudo tee -a awslogs.conf
 echo "log_group_name = OpIdentityApi" | sudo tee -a awslogs.conf
 echo "" | sudo tee -a awslogs.conf
 
-
-
+sudo service awslogs restart

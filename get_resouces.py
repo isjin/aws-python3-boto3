@@ -287,7 +287,7 @@ class GetResources(object):
         for i in range(len(ecs_services_info)):
             ecs_service_keyname = 'ecs_service_arn' + str(i + 1)
             self.resources['ecs_clusters'][ecs_cluster_keyname]['ecs_services'][ecs_service_keyname] = ecs_services_info[i]
-            self.resources['ecs_services'][ecs_service_keyname]={}
+            self.resources['ecs_services'][ecs_service_keyname] = {}
             self.resources['ecs_services'][ecs_service_keyname]['serviceArn'] = ecs_services_info[i]
 
     def get_ecr_repositories(self):
