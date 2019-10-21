@@ -1,5 +1,6 @@
 from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb, aws_lambda
 from function import aws_autoscaling
+from function import aws_cloudwatchlogs
 import json
 import os
 import re
@@ -9,7 +10,7 @@ from datetime import datetime
 from configparser import ConfigParser
 
 cf = ConfigParser()
-cf.read('build_resources_config_sanofi.ini')
+cf.read('build_resources_config.ini')
 resource_path = cf.get('resource', 'path')
 
 
@@ -21,6 +22,7 @@ class DevopsChain(object):
         self.ecr = aws_ecr.AWSECR()
         self.sns = aws_sns.AWSSNS()
         self.elb = aws_elb.AWSELB()
+        self.logs = aws_cloudwatchlogs.AWSCloudWatchLogs()
         self.autoscaling = aws_autoscaling.AWSAutoScaling()
         self.lambda_function = aws_lambda.AWSLambda()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
@@ -37,6 +39,7 @@ class DevopsChain(object):
                 self.resources = json.loads(data)
         else:
             self.resources['cloudformations'] = {}
+            self.resources['cloudwatch_metric_filters'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
             self.resources['sns_subscriptions'] = {}
@@ -252,6 +255,13 @@ class DevopsChain(object):
         self.resources['ecs_task_definitions'][ecs_task_definition_keyname] = task_definition_arn
         self.write_file()
 
+    def create_cloudwatch_metric_filter(self, metric_filter_file, keyname):
+        metric_filter_info = self.read_file(metric_filter_file)
+        metric_filter_file_name = metric_filter_file.split('/')[-1]
+        self.logs.logs_metric_filter_put(metric_filter_info)
+        self.resources['cloudwatch_metric_filters'][keyname] = metric_filter_file_name
+        self.write_file()
+
     def create_cloudwatch_dashboard(self, dashboard_path, keyname):
         # os.system('python generate_cloudwatch_metrics.py')
         dashboard_info = self.read_file(dashboard_path)
@@ -393,7 +403,8 @@ class DevopsChain(object):
             f = open(userdata_file, 'r')
             data = f.read()
             f.close()
-            userdata = self.base64_encrypt(data)
+            # userdata = self.base64_encrypt(data)
+            userdata = data
             autoscaling_launch_configuration_info['UserData'] = userdata
         if sg_keyname != 'none':
             sg_name = self.resources['security_groups'][sg_keyname]
@@ -475,6 +486,8 @@ class DevopsChain(object):
                             self.create_sns_topic(info[1], info[0])
                         elif service == 'sns_subscriptions':
                             self.create_sns_subscription(info[1], info[2], info[3], info[0])
+                        elif service == 'cloudwatch_metric_filters':
+                            self.create_cloudwatch_metric_filter(info[1], info[0])
                         elif service == 'cloudwatch_dashboards':
                             # self.get_ecs_instance_ids()
                             self.create_cloudwatch_dashboard(info[1], info[0])
