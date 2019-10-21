@@ -1,13 +1,15 @@
 from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb, aws_lambda
+from function import aws_autoscaling
 import json
 import os
 import re
 import time
+import base64
 from datetime import datetime
 from configparser import ConfigParser
 
 cf = ConfigParser()
-cf.read('build_resources_config_sanofi.ini')
+cf.read('build_resources_config.ini')
 resource_path = cf.get('resource', 'path')
 
 
@@ -19,6 +21,7 @@ class DevopsChain(object):
         self.ecr = aws_ecr.AWSECR()
         self.sns = aws_sns.AWSSNS()
         self.elb = aws_elb.AWSELB()
+        self.autoscaling = aws_autoscaling.AWSAutoScaling()
         self.lambda_function = aws_lambda.AWSLambda()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
         self.cloudformation = aws_cloudformation.AWSCloudFormation()
@@ -51,8 +54,9 @@ class DevopsChain(object):
             self.resources['roles'] = {}
             self.resources['nacls'] = {}
             self.resources['keypairs'] = {}
-            self.resources['auto_scaling'] = {}
             self.resources['ec2_instances'] = {}
+            self.resources['autoscaling_launch_configurations'] = {}
+            self.resources['autoscaling_groups'] = {}
             self.resources['eips'] = {}
             self.resources['volumes'] = {}
             self.resources['snapshots'] = {}
@@ -81,6 +85,11 @@ class DevopsChain(object):
                 break
             except Exception as e:
                 print(e.__str__())
+
+    def base64_encrypt(self, data):
+        base64_data = base64.b64encode(str(data).encode('utf-8'))
+        # print(base64_data)
+        return base64_data.decode()
 
     def create_vpc(self, vpc_info_path, vpc_key_name):
         vpc_info = self.read_file(vpc_info_path)
@@ -279,7 +288,7 @@ class DevopsChain(object):
             metric = alarm_path_split[-2]
             alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
             # print(metric)
-            if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime']:
+            if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime', 'ActiveConnectionCount']:
                 pass
             else:
                 alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
@@ -374,6 +383,23 @@ class DevopsChain(object):
         self.resources['lambda_functions'][keyname] = function_name
         self.write_file()
 
+    def create_auto_scaling_launch_configuration(self, autoscaling_launch_configuration_file, userdata_file, sg_keyname, keyname):
+        autoscaling_launch_configuration_info = self.read_file(autoscaling_launch_configuration_file)
+        if userdata_file != 'none':
+            f = open(userdata_file, 'r')
+            data = f.read()
+            f.close()
+            userdata = self.base64_encrypt(data)
+            autoscaling_launch_configuration_info['UserData'] = userdata
+        if sg_keyname != 'none':
+            sg_name = self.resources['security_groups'][sg_keyname]
+            autoscaling_launch_configuration_info['SecurityGroups'] = [sg_name]
+        # print(autoscaling_launch_configuration_info)
+        launcah_configuration_name = autoscaling_launch_configuration_info['LaunchConfigurationName']
+        self.autoscaling.autoscaling_launch_configuration_create(autoscaling_launch_configuration_info)
+        self.resources['autoscaling_launch_configurations'][keyname] = launcah_configuration_name
+        self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
@@ -437,6 +463,10 @@ class DevopsChain(object):
                             self.register_task_definition(info[1], info[0])
                         elif service == 'ec2_instances':
                             self.create_ec2_instance(info[1], info[2], info[3], info[0], info[4])
+                        elif service == 'autoscaling_launch_configurations':
+                            self.create_auto_scaling_launch_configuration(info[1], info[2], info[3], info[0])
+                        elif service == 'autoscaling_groups':
+                            pass
                         elif service == 'sns_topics':
                             self.create_sns_topic(info[1], info[0])
                         elif service == 'sns_subscriptions':
@@ -452,22 +482,6 @@ class DevopsChain(object):
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))
         print("%s Infrastructure deployment is done." % (datetime.now()))
-        # run ecs task
-        # print('%s Start to deploy ECS tasks.' % (datetime.now()))
-        # for item in cf.options('ecs_tasks'):
-        #     task_info = cf.get('ecs_tasks', item)
-        #     task_info = str(task_info).split(',')
-        #     ecs_cluster_name = task_info[0]
-        #     task_definition_name = task_info[1]
-        #     while True:
-        #         ecs_instance_count = self.ecs.ecs_cluster_describe(ecs_cluster_name)['clusters'][0]['registeredContainerInstancesCount']
-        #         if ecs_instance_count > 0:
-        #             print("%s Deploy task %s" % (datetime.now(), task_definition_name))
-        #             self.ecs.ecs_task_run(ecs_cluster_name, task_definition_name)
-        #             break
-        #         time.sleep(5)
-        # print('%s Deploy ECS tasks is done.' % (datetime.now()))
-        # print('%s All are finished.' % (datetime.now()))
 
 
 if __name__ == '__main__':
