@@ -1,0 +1,31 @@
+{
+  "AutoScalingGroupName":"test",
+  "LaunchConfigurationName":"duduecs-ECSLaunchConfiguration-v2",
+  "MinSize":0,
+  "MaxSize":0,
+  "DesiredCapacity":0,
+  "AvailabilityZones":[
+    "cn-northwest-1b",
+    "cn-northwest-1a"
+  ],
+  "LoadBalancerNames":[
+    
+  ],
+  "TargetGroupARNs":[
+    
+  ],
+  "HealthCheckType":"EC2",
+  "HealthCheckGracePeriod":900,
+  "VPCZoneIdentifier":"subnet-02c381dfd8ac365ce,
+    subnet-0dd642e5edfba9083",
+  "Tags":[
+    {
+      "ResourceId":"test",
+      "ResourceType":"auto-scaling-group",
+      "Key":"Name",
+      "Value":"test",
+      "PropagateAtLaunch":True
+    }
+  ],
+  "ServiceLinkedRoleARN":"arn:aws-cn:iam::646976741397:role\/aws-service-role\/autoscaling.amazonaws.com\/AWSServiceRoleForAutoScaling"
+}

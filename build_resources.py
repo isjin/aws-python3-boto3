@@ -9,7 +9,7 @@ from datetime import datetime
 from configparser import ConfigParser
 
 cf = ConfigParser()
-cf.read('build_resources_config.ini')
+cf.read('build_resources_config_sanofi.ini')
 resource_path = cf.get('resource', 'path')
 
 
@@ -86,7 +86,8 @@ class DevopsChain(object):
             except Exception as e:
                 print(e.__str__())
 
-    def base64_encrypt(self, data):
+    @staticmethod
+    def base64_encrypt(data):
         base64_data = base64.b64encode(str(data).encode('utf-8'))
         # print(base64_data)
         return base64_data.decode()
@@ -99,7 +100,8 @@ class DevopsChain(object):
 
     def create_subnet(self, subnet_info_path, subnet_key_name, vpc_key_name):
         subnet_info = self.read_file(subnet_info_path)
-        subnet_info['vpc'] = self.resources['vpcs'][vpc_key_name]
+        if vpc_key_name != 'none':
+            subnet_info['vpc'] = self.resources['vpcs'][vpc_key_name]
         subnet_id = self.ec2.ec2_subnet_create(subnet_info)
         self.resources['subnets'][subnet_key_name] = subnet_id
         self.write_file()
@@ -193,8 +195,10 @@ class DevopsChain(object):
 
     def create_ec2_instance(self, ec2_instance_path, sg_keyname, subnet_keyname, ec2_instance_keyname, eip_value):
         instance_info = self.read_file(ec2_instance_path)
-        instance_info['SecurityGroupIds'] = [self.resources['security_groups'][sg_keyname]]
-        instance_info['SubnetId'] = self.resources['subnets'][subnet_keyname]
+        if sg_keyname != 'none':
+            instance_info['SecurityGroupIds'] = [self.resources['security_groups'][sg_keyname]]
+        if subnet_keyname != 'none':
+            instance_info['SubnetId'] = self.resources['subnets'][subnet_keyname]
         instance_id = self.ec2.ec2_instance_create(instance_info)[0]
         self.resources['ec2_instances'][ec2_instance_keyname] = instance_id
         self.write_file()
