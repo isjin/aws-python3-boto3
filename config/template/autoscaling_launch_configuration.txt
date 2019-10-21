@@ -1,0 +1,33 @@
+{
+  "LaunchConfigurationName":"test",
+  "ImageId":"ami-0b14657cdc08ba6a2",
+  "KeyName":"dudu-ecs-key",
+  "SecurityGroups":[
+    "sg-0bc02e80466875096"
+  ],
+  "UserData":"",
+  "InstanceType":"m5.2xlarge",
+  "BlockDeviceMappings":[
+    {
+      "DeviceName":"\/dev\/xvdcz",
+      "Ebs":{
+        "VolumeSize":22,
+        "VolumeType":"gp2",
+        "DeleteOnTermination":true,
+        "Encrypted":false
+      }
+    },
+    {
+      "DeviceName":"\/dev\/xvda",
+      "Ebs":{
+        "VolumeSize":8,
+        "VolumeType":"gp2",
+        "DeleteOnTermination":true
+      }
+    }
+  ],
+  "InstanceMonitoring":{
+    "Enabled":true
+  },
+  "IamInstanceProfile":"duduecs-ECSInstanceProfile-XO58MTXI7QDZ"
+}

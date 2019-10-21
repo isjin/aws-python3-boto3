@@ -1,0 +1,22 @@
+#!/bin/bash
+yum install -y amazon-ssm-agent
+yum install -y https://s3.cn-northwest-1.amazonaws.com.cn/alexssmagentmp/amazon-cloudwatch-agent.rpm
+yum install -y aws-cfn-bootstrap hibagent 
+/opt/aws/bin/cfn-init -v --region cn-northwest-1 --stack duduecs --resource ECSLaunchConfiguration
+/opt/aws/bin/cfn-signal -e $? --region cn-northwest-1 --stack duduecs --resource ECSAutoScalingGroup
+/sbin/start amazon-ssm-agent
+/usr/bin/enable-ec2-spot-hibernation
+
+# monitor disk memory usage
+monitor_path=/monitor
+rm -rf $monitor_path
+mkdir -p $monitor_path
+cd $monitor_path
+yum install -y perl-Switch perl-DateTime perl-Sys-Syslog perl-LWP-Protocol-https perl-Digest-SHA.x86_64 unzip
+curl https://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.2.zip -O
+unzip CloudWatchMonitoringScripts-1.2.2.zip && \sudo rm -rf CloudWatchMonitoringScripts-1.2.2.zip
+cd aws-scripts-mon
+cp awscreds.template awscreds.conf
+cd $monitor_path
+echo "*/5 * * * * $monitor_path/aws-scripts-mon/mon-put-instance-data.pl --mem-used-incl-cache-buff --mem-util --disk-space-util --disk-path=/ --from-cron" |sudo tee aws_cloudwatch
+crontab aws_cloudwatch
