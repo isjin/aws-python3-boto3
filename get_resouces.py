@@ -261,9 +261,9 @@ class GetResources(object):
         self.write_file()
 
     def get_auto_scaling_group(self):
-        autoscaling_groups_info=self.autoscaling.autoscaling_auto_scaling_groups_describe()
+        autoscaling_groups_info = self.autoscaling.autoscaling_auto_scaling_groups_describe()
         for i in range(len(autoscaling_groups_info)):
-            autoscaling_group_keyname = 'autoscaling_group'+str(i+1)
+            autoscaling_group_keyname = 'autoscaling_group' + str(i + 1)
             autoscaling_group_info = autoscaling_groups_info[i]
             # print(autoscaling_group_info)
             autoscaling_group_name = autoscaling_group_info['AutoScalingGroupName']
@@ -276,9 +276,9 @@ class GetResources(object):
         self.write_file()
 
     def get_auto_scaling_launch_configurations(self):
-        autoscaling_launch_configurations_info=self.autoscaling.autoscaling_launch_configurations_describe()
+        autoscaling_launch_configurations_info = self.autoscaling.autoscaling_launch_configurations_describe()
         for i in range(len(autoscaling_launch_configurations_info)):
-            autoscaling_launch_configuration_keyname = 'autoscaling_launch_configuration'+str(i+1)
+            autoscaling_launch_configuration_keyname = 'autoscaling_launch_configuration' + str(i + 1)
             autoscaling_launch_configuration_info = autoscaling_launch_configurations_info[i]
             # print(autoscaling_launch_configuration_info)
             autoscaling_launch_configuration_name = autoscaling_launch_configuration_info['LaunchConfigurationName']
