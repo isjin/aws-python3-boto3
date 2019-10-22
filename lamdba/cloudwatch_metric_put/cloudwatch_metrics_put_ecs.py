@@ -46,6 +46,7 @@ class MetricECS(object):
                 service_name,
             ]
         )
+        # print(response)
         return response['services'][0]
 
     @staticmethod
@@ -60,6 +61,7 @@ class MetricECS(object):
         response = self.ecs_client.list_tasks(
             cluster=clustername,
         )
+        # print(response)
         return response['taskArns']
 
     def main(self):
@@ -84,7 +86,12 @@ class MetricECS(object):
                 ecs_service_info = self.ecs_service_describe(ecs_cluster_name, ecs_service_name)
                 ecs_service_status = ecs_service_info['status']
                 if ecs_service_status == 'ACTIVE':
-                    ecs_service_active_count += 1
+                    running_count = ecs_service_info['runningCount']
+                    desired_count = ecs_service_info['desiredCount']
+                    if running_count == 0 and desired_count !=0:
+                        ecs_service_inactive_count += 1
+                    else:
+                        ecs_service_active_count += 1
                 else:
                     ecs_service_inactive_count += 1
         self.set_metric_data(self.metric_count_template, 'ECSTaskCount', 'ECSTask', ecs_tasks_total_count)
@@ -95,3 +102,7 @@ class MetricECS(object):
         for metric_data in self.metric_data:
             metric_data_put['MetricData'] = [metric_data]
             self.cloudwatch_metric_data_put(metric_data_put)
+
+# if __name__ == '__main__':
+#     app = MetricECS()
+#     app.main()

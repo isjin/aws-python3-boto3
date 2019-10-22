@@ -26,6 +26,12 @@ class CreateCloudwatch(object):
                     'OP',
                 ]
             },
+            {
+                'Name': 'instance-state-code',
+                'Values': [
+                    'running','pending'
+                ]
+            },
         ]
 
     @staticmethod
@@ -40,6 +46,7 @@ class CreateCloudwatch(object):
         response = self.ec2.describe_instances(
             Filters=self.filter,
         )
+        print(response)
         return response['Reservations']
 
     def get_instanceids(self):

@@ -26,6 +26,12 @@ class CreateCloudwatch(object):
                     'dudu',
                 ]
             },
+            {
+                'Name': 'instance-state-code',
+                'Values': [
+                    'running', 'pending'
+                ]
+            },
         ]
 
     @staticmethod

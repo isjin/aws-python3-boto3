@@ -13,7 +13,14 @@ class CreateCloudwatch(object):
         self.dashboard_file = 'cloudwatch_dashboard.txt'
         self.ec2_metric_file = 'metric_ec2.txt'
         self.ec2 = boto3.client('ec2')
-        self.filter = []
+        self.filter = [
+            {
+                'Name': 'instance-state-code',
+                'Values': [
+                    'running','pending'
+                ]
+            },
+        ]
 
     @staticmethod
     def read_file(path):
