@@ -27,7 +27,7 @@ class CreateCloudwatch(object):
                 ]
             },
             {
-                'Name': 'instance-state-code',
+                'Name': 'instance-state-name',
                 'Values': [
                     'running','pending'
                 ]
@@ -128,6 +128,7 @@ class CreateCloudwatch(object):
                 for metric_file in metric_files:
                     file_path = os.path.join('template', metric_file)
                     self.create_cloudwatch_alarm(file_path, instanceid)
+
 
 # if __name__ == '__main__':
 #     app = CreateCloudwatch()

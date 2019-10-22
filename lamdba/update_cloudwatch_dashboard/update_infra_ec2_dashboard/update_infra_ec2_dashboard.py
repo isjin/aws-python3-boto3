@@ -15,7 +15,7 @@ class CreateCloudwatch(object):
         self.ec2 = boto3.client('ec2')
         self.filter = [
             {
-                'Name': 'instance-state-code',
+                'Name': 'instance-state-name',
                 'Values': [
                     'running','pending'
                 ]

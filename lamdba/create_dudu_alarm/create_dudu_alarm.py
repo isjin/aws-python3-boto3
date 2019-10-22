@@ -27,9 +27,9 @@ class CreateCloudwatch(object):
                 ]
             },
             {
-                'Name': 'instance-state-code',
+                'Name': 'instance-state-name',
                 'Values': [
-                    'running', 'pending'
+                    'running','pending'
                 ]
             },
         ]
