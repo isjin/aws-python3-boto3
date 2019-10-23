@@ -10,7 +10,7 @@ from datetime import datetime
 from configparser import ConfigParser
 
 cf = ConfigParser()
-cf.read('build_resources_config_sanofi.ini')
+cf.read('build_resources_config.ini')
 resource_path = cf.get('resource', 'path')
 
 
