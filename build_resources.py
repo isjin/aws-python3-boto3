@@ -10,7 +10,7 @@ from datetime import datetime
 from configparser import ConfigParser
 
 cf = ConfigParser()
-cf.read('build_resources_config.ini')
+cf.read('build_resources_config_sanofi.ini')
 resource_path = cf.get('resource', 'path')
 
 
@@ -73,10 +73,10 @@ class DevopsChain(object):
 
     @staticmethod
     def read_file(path):
-        f = open(path, 'r')
+        f = open(path, 'r', encoding='utf-8')
         data = f.read()
         f.close()
-        data = json.loads(data)
+        data = json.loads(data.encode(encoding='utf-8'))
         return data
 
     def write_file(self):
@@ -257,6 +257,7 @@ class DevopsChain(object):
 
     def create_cloudwatch_metric_filter(self, metric_filter_file, keyname):
         metric_filter_info = self.read_file(metric_filter_file)
+        # print(metric_filter_info)
         metric_filter_file_name = metric_filter_file.split('/')[-1]
         self.logs.logs_metric_filter_put(metric_filter_info)
         self.resources['cloudwatch_metric_filters'][keyname] = metric_filter_file_name
@@ -280,9 +281,10 @@ class DevopsChain(object):
             for i in range(len(ecs_services)):
                 ecs_service = ecs_services[i]
                 alarm_info = self.read_file(alarm_path)
-                alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
-                alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
-                alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
+                if sns_keyname !='none':
+                    alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
+                    alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+                    alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
                 alarm_path_split = re.split(r'[_.]', str(alarm_path))
                 metric = alarm_path_split[-2]
                 alarm_name = service_type + '_' + ecs_cluster + '_' + ecs_service + '_' + metric
@@ -300,13 +302,13 @@ class DevopsChain(object):
             alarm_dimension = None
             alarm_path_split = re.split(r'[_.]', str(alarm_path))
             metric = alarm_path_split[-2]
-            alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
-            # print(metric)
-            if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime', 'ActiveConnectionCount']:
-                pass
-            else:
-                alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
-                alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
+            if sns_keyname !='none':
+                alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
+                if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime', 'ActiveConnectionCount']:
+                    pass
+                else:
+                    alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
+                    alarm_info['InsufficientDataActions'] = [self.resources['sns_topics'][sns_keyname]]
             if instance_type == 'instance':
                 alarm_name = service_type + '_' + type_value + '_' + metric
                 alarm_dimension = type_value
@@ -339,12 +341,16 @@ class DevopsChain(object):
                     #     service_type = 'redis'
                     alarm_name = service_type + '_' + self.resources['elasticaches'][type_value] + '_' + metric
                     alarm_dimension = self.resources['elasticaches'][type_value]
+                elif service_type == "cloudwatchlog":
+                    alarm_name = alarm_path_split[2] + '_' + alarm_path_split[3]
             alarm_info['AlarmName'] = alarm_name
             if type_value == 'all':
                 alarm_info['Dimensions'] = []
             else:
                 if service_type == 'elb_tg':
                     pass
+                elif service_type == 'cloudwatchlog':
+                    alarm_info['Dimensions'] = []
                 else:
                     if metric == 'DiskSpaceUtilization':
                         alarm_info['Dimensions'][1]['Value'] = alarm_dimension
