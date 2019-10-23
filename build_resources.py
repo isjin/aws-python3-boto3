@@ -343,6 +343,8 @@ class DevopsChain(object):
                     alarm_dimension = self.resources['elasticaches'][type_value]
                 elif service_type == "cloudwatchlog":
                     alarm_name = alarm_path_split[2] + '_' + alarm_path_split[3]
+                    alarm_info['InsufficientDataActions']=[]
+                    alarm_info['OKActions']=[]
             alarm_info['AlarmName'] = alarm_name
             if type_value == 'all':
                 alarm_info['Dimensions'] = []
