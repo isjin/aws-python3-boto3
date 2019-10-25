@@ -304,7 +304,8 @@ class DevopsChain(object):
             metric = alarm_path_split[-2]
             if sns_keyname != 'none':
                 alarm_info['AlarmActions'] = [self.resources['sns_topics'][sns_keyname]]
-                if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime', 'ActiveConnectionCount']:
+                # if metric in ['HTTPCode-ELB-4XX-Count', 'HTTPCode-Target-4XX-Count', 'ProcessedBytes', 'TargetResponseTime', 'ActiveConnectionCount']:
+                if service_type in ['elb', 'elb_tg']:
                     pass
                 else:
                     alarm_info['OKActions'] = [self.resources['sns_topics'][sns_keyname]]
@@ -344,7 +345,7 @@ class DevopsChain(object):
                 elif service_type == "cloudwatchlog":
                     alarm_name = alarm_path_split[2] + '_' + alarm_path_split[3]
                     alarm_info['InsufficientDataActions'] = []
-                    alarm_info['OKActions'] = []
+                    # alarm_info['OKActions'] = []
             alarm_info['AlarmName'] = alarm_name
             if type_value == 'all':
                 alarm_info['Dimensions'] = []
@@ -495,6 +496,7 @@ class DevopsChain(object):
                         elif service == 'sns_subscriptions':
                             self.create_sns_subscription(info[1], info[2], info[3], info[0])
                         elif service == 'cloudwatch_metric_filters':
+                            print(info)
                             self.create_cloudwatch_metric_filter(info[1], info[0])
                         elif service == 'cloudwatch_dashboards':
                             # self.get_ecs_instance_ids()
