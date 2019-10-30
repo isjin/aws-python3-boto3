@@ -47,30 +47,30 @@ class CloudWatchMetrics(object):
         widgets = []
         for service_metric in service_metrics:
             metrics_list = []
-            serivce_metric = None
+            service_metric2 = None
             service_content = None
             widget_title = service_metric + '-' + service_type
             if service_type == 'ECS_Cluster':
                 service_content = self.read_file(cf.get('template', 'ecs_cluster_template'))
-                serivce_metric = ['AWS/ECS', 'CPUUtilization', 'ClusterName', 'ecs-cluster']
+                service_metric2 = ['AWS/ECS', 'CPUUtilization', 'ClusterName', 'ecs-cluster']
             elif service_type == 'ECS_Service':
                 service_content = self.read_file(cf.get('template', 'ecs_service_template'))
-                serivce_metric = ['AWS/ECS', 'CPUUtilization', 'ServiceName', 'cloud-watch-log-service', 'ClusterName', 'ecs-cluster']
+                service_metric2 = ['AWS/ECS', 'CPUUtilization', 'ServiceName', 'cloud-watch-log-service', 'ClusterName', 'ecs-cluster']
             elif service_type == "EC2":
                 service_content = self.read_file(cf.get('template', 'ec2_template'))
-                serivce_metric = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
+                service_metric2 = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
             elif service_type == "RDS":
                 service_content = self.read_file(cf.get('template', 'rds_template'))
-                serivce_metric = ['AWS/RDS', 'CPUUtilization', 'DBInstanceIdentifier', 'dudu-nxprod-sql']
+                service_metric2 = ['AWS/RDS', 'CPUUtilization', 'DBInstanceIdentifier', 'dudu-nxprod-sql']
             elif service_type == "ElastiCache":
                 service_content = self.read_file(cf.get('template', 'elasticache_template'))
-                serivce_metric = ['AWS/ElastiCache', 'CPUUtilization', 'CacheClusterId', 'op-prd-redis-001']
+                service_metric2 = ['AWS/ElastiCache', 'CPUUtilization', 'CacheClusterId', 'op-prd-redis-001']
             elif service_type == "ALB":
                 service_content = self.read_file(cf.get('template', 'alb_template'))
-                serivce_metric = ['AWS/ApplicationELB', 'ActiveConnectionCount', 'LoadBalancer', 'app/dudu-nxprod-api-alb/a39d5961edbce933']
+                service_metric2 = ['AWS/ApplicationELB', 'ActiveConnectionCount', 'LoadBalancer', 'app/dudu-nxprod-api-alb/a39d5961edbce933']
             elif service_type == "ALB_TG":
                 service_content = self.read_file(cf.get('template', 'alb_template'))
-                serivce_metric = ['AWS/ApplicationELB', 'HealthyHostCount', 'TargetGroup', 'targetgroup/dudu-nxprod-api-tg/63fb802d0ba4bfdf', 'LoadBalancer',
+                service_metric2 = ['AWS/ApplicationELB', 'HealthyHostCount', 'TargetGroup', 'targetgroup/dudu-nxprod-api-tg/63fb802d0ba4bfdf', 'LoadBalancer',
                                   'app/dudu-nxprod-api-alb/a39d5961edbce933']
             for instance in instances_list:
                 if service_type == 'ECS_Service':
@@ -80,13 +80,13 @@ class CloudWatchMetrics(object):
                         ecs_service_name = str(ecs_service_arn).split('/')[1]
                         ecs_services.append(ecs_service_name)
                     for ecs_service in ecs_services:
-                        metric = serivce_metric.copy()
+                        metric = service_metric2.copy()
                         metric[1] = service_metric
                         metric[3] = ecs_service
                         metric[5] = instance
                         metrics_list.append(metric)
                 else:
-                    metric = serivce_metric.copy()
+                    metric = service_metric2.copy()
                     if service_type == "ALB_TG":
                         alb_tg_info = self.elb.elbv2_target_group_describe(instance)
                         alb_arn = alb_tg_info['LoadBalancerArns'][0]

@@ -56,9 +56,11 @@ class CreateCloudwatch(object):
             metrics_list = []
             widget_title = service_metric + '-' + 'EC2'
             service_content = self.read_file(self.ec2_metric_file)
-            serivce_metric = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
+            service_metric2 = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
+            if service_metric =='MemoryUtilization':
+                service_metric2 = ['System/Linux', 'MemoryUtilization', 'InstanceId', 'i-1234567']
             for instanceid in instanceids:
-                metric = serivce_metric.copy()
+                metric = service_metric2.copy()
                 metric[1] = service_metric
                 metric[3] = instanceid
                 metrics_list.append(metric)
@@ -73,7 +75,7 @@ class CreateCloudwatch(object):
         dashboard_info = self.read_file(self.dashboard_file)
         # print(dashboard_info)
         widgets = []
-        metrics = ['CPUUtilization', 'DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'NetworkPacketsIn', 'NetworkPacketsOut', 'StatusCheckFailed',
+        metrics = ['CPUUtilization', 'MemoryUtilization','DiskReadBytes', 'DiskReadOps', 'DiskWriteBytes', 'DiskWriteOps', 'NetworkIn', 'NetworkOut', 'NetworkPacketsIn', 'NetworkPacketsOut', 'StatusCheckFailed',
                    'StatusCheckFailed_Instance', 'StatusCheckFailed_System']
         ec2_widgets = self.genarate_service_metrics(metrics, 'timeSeries', instanceids)
         widgets = widgets + ec2_widgets
