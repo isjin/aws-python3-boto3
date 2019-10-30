@@ -1,0 +1,13 @@
+{
+  "logGroupName":"OpWeiXinApi",
+  "filterName":"InformationLevelError",
+  "filterPattern":"\"Level: Error\"",
+  "metricTransformations":[
+    {
+      "metricName":"OpWeiXinApiInformationLevelError",
+      "metricNamespace":"LogMetrics",
+      "metricValue":"1",
+      "defaultValue":0
+    }
+  ]
+}

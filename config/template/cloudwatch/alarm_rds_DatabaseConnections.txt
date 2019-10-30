@@ -1,0 +1,27 @@
+{
+  "AlarmName":"test",
+  "OKActions":[
+    
+  ],
+  "AlarmActions":[
+    "arn:aws-cn:sns:cn-northwest-1:646976741397:cloudwatch-email-alarm"
+  ],
+  "InsufficientDataActions":[
+    
+  ],
+  "MetricName":"DatabaseConnections",
+  "Namespace":"AWS\/RDS",
+  "Statistic":"Average",
+  "Dimensions":[
+    {
+      "Name":"DBInstanceIdentifier",
+      "Value":"dudu-nxprod-sql"
+    }
+  ],
+  "Period":60,
+  "EvaluationPeriods":1,
+  "DatapointsToAlarm":1,
+  "Threshold":200,
+  "ComparisonOperator":"GreaterThanOrEqualToThreshold",
+  "TreatMissingData":"missing"
+}
