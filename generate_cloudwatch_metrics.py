@@ -58,7 +58,10 @@ class CloudWatchMetrics(object):
                 service_metric2 = ['AWS/ECS', 'CPUUtilization', 'ServiceName', 'cloud-watch-log-service', 'ClusterName', 'ecs-cluster']
             elif service_type == "EC2":
                 service_content = self.read_file(cf.get('template', 'ec2_template'))
-                service_metric2 = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
+                if service_metric == 'MemoryUtilization':
+                    service_metric2 = ['System/Linux', 'MemoryUtilization', 'InstanceId', 'i-1234567']
+                else:
+                    service_metric2 = ['AWS/EC2', 'CPUUtilization', 'InstanceId', 'i-1234567']
             elif service_type == "RDS":
                 service_content = self.read_file(cf.get('template', 'rds_template'))
                 service_metric2 = ['AWS/RDS', 'CPUUtilization', 'DBInstanceIdentifier', 'dudu-nxprod-sql']
