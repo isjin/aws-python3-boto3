@@ -39,32 +39,12 @@ class GenerateConfig(object):
             if service != 'resource':
                 self.cfw.add_section(service)
                 for option in self.resources[service]:
-                    if service == 'vpcs':
-                        self.set_cf(service, option, 'VpcId')
-                    elif service == 'subnets':
-                        self.set_cf(service, option, 'SubnetId')
-                    elif service == 'ecs_clusters':
-                        self.set_cf(service, option, 'clusterName')
-                    elif service == 'ecs_task_definitions':
+                    if service == 'ecs_task_definitions':
                         self.set_cf(service, option, 'taskDefinitionArns')
-                    elif service == 'ecr_repositories':
-                        self.set_cf(service, option, 'repositoryArn')
                     elif service == 'eips':
                         self.set_cf(service, option, 'PublicIp')
                     elif service == 'volumes':
                         self.set_cf(service, option, 'VolumeId')
-                    elif service == 'sns_subscriptions':
-                        self.set_cf(service, option, 'SubscriptionArn')
-                    elif service == 'rds':
-                        self.set_cf(service, option, 'DBInstanceIdentifier')
-                    elif service == 'elbs':
-                        self.set_cf(service, option, 'LoadBalancerArn')
-                    elif service == 'elb_target_groups':
-                        self.set_cf(service, option, 'TargetGroupArn')
-                    elif service == 'elasticaches':
-                        self.set_cf(service, option, 'CacheClusterId')
-                    elif service == 'lambda_functions':
-                        self.set_cf(service, option, 'FunctionName')
                     else:
                         for key in self.resources[service][option].keys():
                             self.set_cf(service, option, key)

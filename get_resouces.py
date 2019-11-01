@@ -1,5 +1,6 @@
 from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache, aws_lambda
 from function import aws_autoscaling
+from function import aws_cloudwatchevents
 import json
 import os
 
@@ -21,6 +22,7 @@ class GetResources(object):
         self.cf = aws_cloudformation.AWSCloudFormation()
         self.sns = aws_sns.AWSSNS()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
+        self.cloudwatchevent = aws_cloudwatchevents.AWSEvent()
         self.resources = {}
         self.init_resources()
 
@@ -39,6 +41,7 @@ class GetResources(object):
             self.resources['cloudformations'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
+            self.resources['cloudwatchevents_rules'] = {}
             self.resources['sns_subscriptions'] = {}
             self.resources['sns_topics'] = {}
             self.resources['ec2_instances'] = {}
@@ -93,8 +96,8 @@ class GetResources(object):
             vpc_id = vpcs_info[i]['VpcId']
             vpc_cidr = vpcs_info[i]['CidrBlock']
             self.resources['vpcs'][vpc_keyname] = {}
-            self.resources['vpcs'][vpc_keyname]['VpcId'] = vpc_id
             self.resources['vpcs'][vpc_keyname]['CidrBlock'] = vpc_cidr
+            self.resources['vpcs'][vpc_keyname]['VpcId'] = vpc_id
         self.write_file()
 
     def get_subnets(self):
@@ -106,10 +109,10 @@ class GetResources(object):
             subnet_az = subnets_info[i]['AvailabilityZone']
             subnet_arn = subnets_info[i]['SubnetArn']
             self.resources['subnets'][subnet_keyname] = {}
-            self.resources['subnets'][subnet_keyname]['SubnetId'] = subnet_id
             self.resources['subnets'][subnet_keyname]['CidrBlock'] = subnet_cidr
             self.resources['subnets'][subnet_keyname]['AvailabilityZone'] = subnet_az
             self.resources['subnets'][subnet_keyname]['SubnetArn'] = subnet_arn
+            self.resources['subnets'][subnet_keyname]['SubnetId'] = subnet_id
         self.write_file()
 
     def get_igws(self):
@@ -239,9 +242,9 @@ class GetResources(object):
             elb_dns_name = elb_info['DNSName']
             elb_name = elb_info['LoadBalancerName']
             self.resources['elbs'][elb_keyname] = {}
-            self.resources['elbs'][elb_keyname]['LoadBalancerArn'] = elb_arn
             self.resources['elbs'][elb_keyname]['DNSName'] = elb_dns_name
             self.resources['elbs'][elb_keyname]['LoadBalancerName'] = elb_name
+            self.resources['elbs'][elb_keyname]['LoadBalancerArn'] = elb_arn
         self.write_file()
 
     def get_elb_target_groups(self):
@@ -253,11 +256,11 @@ class GetResources(object):
             tg_arn = target_group_info['TargetGroupArn']
             tg_name = target_group_info['TargetGroupName']
             self.resources['elb_target_groups'][tg_keyname] = {}
-            self.resources['elb_target_groups'][tg_keyname]['TargetGroupArn'] = tg_arn
             self.resources['elb_target_groups'][tg_keyname]['TargetGroupName'] = tg_name
             if len(target_group_info['LoadBalancerArns']) != 0:
                 tg_elb = target_group_info['LoadBalancerArns'][0]
                 self.resources['elb_target_groups'][tg_keyname]['LoadBalancerArns'] = tg_elb
+            self.resources['elb_target_groups'][tg_keyname]['TargetGroupArn'] = tg_arn
         self.write_file()
 
     def get_auto_scaling_group(self):
@@ -296,9 +299,9 @@ class GetResources(object):
             ecs_cluster_name = str(ecs_cluster_arn).split('/')[1]
             self.resources['ecs_clusters'][ecs_cluster_keyname] = {}
             self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterArn'] = ecs_cluster_arn
-            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterName'] = ecs_cluster_name
             self.resources['ecs_clusters'][ecs_cluster_keyname]['ecs_services'] = {}
             self.get_ecs_services(ecs_cluster_keyname, ecs_cluster_name)
+            self.resources['ecs_clusters'][ecs_cluster_keyname]['clusterName'] = ecs_cluster_name
         self.write_file()
 
     def get_ecs_task_definitions(self):
@@ -326,9 +329,9 @@ class GetResources(object):
             repository_uri = repositories_info[i]['repositoryUri']
             repository_name = repositories_info[i]['repositoryName']
             self.resources['ecr_repositories'][repository_keyname] = {}
-            self.resources['ecr_repositories'][repository_keyname]['repositoryArn'] = repository_arn
             self.resources['ecr_repositories'][repository_keyname]['repositoryUri'] = repository_uri
             self.resources['ecr_repositories'][repository_keyname]['repositoryName'] = repository_name
+            self.resources['ecr_repositories'][repository_keyname]['repositoryArn'] = repository_arn
         self.write_file()
 
     def get_cloudformations(self):
@@ -378,10 +381,10 @@ class GetResources(object):
                 sns_subscription_protocol = sns_subscriptions_info[i]['Protocol']
                 sns_subscription_endpoint = sns_subscriptions_info[i]['Endpoint']
                 self.resources['sns_subscriptions'][sns_subscription_keyname] = {}
-                self.resources['sns_subscriptions'][sns_subscription_keyname]['SubscriptionArn'] = sns_subscription_arn
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['Protocol'] = sns_subscription_protocol
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['Endpoint'] = sns_subscription_endpoint
                 self.resources['sns_subscriptions'][sns_subscription_keyname]['TopicArn'] = topic_info['TopicArn']
+                self.resources['sns_subscriptions'][sns_subscription_keyname]['SubscriptionArn'] = sns_subscription_arn
             self.write_file()
 
     def get_rds(self):
@@ -416,35 +419,50 @@ class GetResources(object):
             self.resources['lambda_functions'][lambda_function_keyname]['FunctionArn'] = lambda_function_arn
         self.write_file()
 
+    def get_cloudwatchevents_rules(self):
+        event_rules_info = self.cloudwatchevent.event_rules_list()
+        for i in range(len(event_rules_info)):
+            event_rule_info = event_rules_info[i]
+            event_rule_keyname = 'event_rule' + str(i + 1)
+            event_rule_name = event_rule_info['Name']
+            event_rule_arn = event_rule_info['Arn']
+            event_rule_schedule_expression = event_rule_info['ScheduleExpression']
+            self.resources['cloudwatchevents_rules'][event_rule_keyname] = {}
+            self.resources['cloudwatchevents_rules'][event_rule_keyname]['Name'] = event_rule_name
+            self.resources['cloudwatchevents_rules'][event_rule_keyname]['ScheduleExpression'] = event_rule_schedule_expression
+            self.resources['cloudwatchevents_rules'][event_rule_keyname]['Arn'] = event_rule_arn
+        self.write_file()
+
     def main(self):
-        self.get_vpcs()
-        self.get_subnets()
-        self.get_igws()
-        self.get_ngw()
-        self.get_route_tables()
-        self.get_network_acls()
-        self.get_keypairs()
-        self.get_security_groups()
-        self.get_ec2_instances()
-        self.get_eips()
-        self.get_volumes()
-        self.get_snapshots()
-        self.get_images()
-        self.get_elbs()
-        self.get_elb_target_groups()
-        self.get_auto_scaling_group()
-        self.get_auto_scaling_launch_configurations()
-        self.get_ecs_clusters()
-        self.get_ecs_task_definitions()
-        self.get_ecr_repositories()
-        self.get_cloudformations()
-        self.get_cloudwatch_dashboards()
-        self.get_cloudwatch_alarms()
-        self.get_sns_topics()
-        self.get_sns_subscriptions()
-        self.get_rds()
-        self.get_elasticaches()
-        self.get_lambda_functions()
+        # self.get_vpcs()
+        # self.get_subnets()
+        # self.get_igws()
+        # self.get_ngw()
+        # self.get_route_tables()
+        # self.get_network_acls()
+        # self.get_keypairs()
+        # self.get_security_groups()
+        # self.get_ec2_instances()
+        # self.get_eips()
+        # self.get_volumes()
+        # self.get_snapshots()
+        # self.get_images()
+        # self.get_elbs()
+        # self.get_elb_target_groups()
+        # self.get_auto_scaling_group()
+        # self.get_auto_scaling_launch_configurations()
+        # self.get_ecs_clusters()
+        # self.get_ecs_task_definitions()
+        # self.get_ecr_repositories()
+        # self.get_cloudformations()
+        # self.get_cloudwatch_dashboards()
+        # self.get_cloudwatch_alarms()
+        self.get_cloudwatchevents_rules()
+        # self.get_sns_topics()
+        # self.get_sns_subscriptions()
+        # self.get_rds()
+        # self.get_elasticaches()
+        # self.get_lambda_functions()
         os.system('python generate_resources_config.py')
 
 

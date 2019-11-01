@@ -58,8 +58,8 @@ class AWSLambda(object):
             #     'string',
             # ]
         )
-        print(response)
-        return response['FunctionName']
+        # print(response)
+        return response
 
     def lambda_function_delete(self, function_name):
         response = self.lambda_client.delete_function(
@@ -84,26 +84,28 @@ class AWSLambda(object):
         # print(response)
         return response['Functions']
 
-    # def lambda_permission_add(self):
-    #     permission_info={
-    #         'FunctionName':'test',
-    #         'StatementId':'test-Trigger-Event',
-    #         'Principal':'events.cn-northwest-1.amazonaws.com.cn',
-    #         # 'Principal':'events.cn-north-1.amazonaws.com.cn',
-    #         'SourceArn':'arn:aws-cn:events:cn-northwest-1:646976741397:rule/test',
-    #     }
-    #     response = self.lambda_client.add_permission(
-    #         FunctionName=permission_info['FunctionName'],
-    #         StatementId=permission_info['StatementId'],
-    #         Action='lambda:InvokeFunction',
-    #         Principal=permission_info['Principal'],
-    #         SourceArn=permission_info['SourceArn'],
-    #         # SourceAccount='string',
-    #         # EventSourceToken='string',
-    #         # Qualifier='string',
-    #         # RevisionId='string'
-    #     )
-    #     print(response)
+    def lambda_permission_add(self,permission_info):
+        # permission_info={
+        #     'FunctionName':'clean_cloudwatch_log_groups',
+        #     'StatementId':'test-Trigger-Event',
+        #     'Principal':'events.amazonaws.com.cn',
+        #     # 'Principal':'events.cn-northwest-1.amazonaws.com.cn',
+        #     # 'Principal':'events.cn-north-1.amazonaws.com.cn',
+        #     'SourceArn':'arn:aws-cn:events:cn-northwest-1:646976741397:rule/test',
+        # }
+        response = self.lambda_client.add_permission(
+            FunctionName=permission_info['FunctionName'],
+            StatementId=permission_info['StatementId'],
+            Action='lambda:InvokeFunction',
+            Principal=permission_info['Principal'],
+            SourceArn=permission_info['SourceArn'],
+            # SourceAccount='string',
+            # EventSourceToken='string',
+            # Qualifier='string',
+            # RevisionId='string'
+        )
+        print(response)
+
 
 
 if __name__ == '__main__':

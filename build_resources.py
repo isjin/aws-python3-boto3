@@ -402,8 +402,9 @@ class DevopsChain(object):
             'Handler': '%s.lambda_handler' % function_name,
             'ZipFile': {'ZipFile': zipped_code},
         }
-        function_name = self.lambda_function.lambda_function_create(function_info)
-        self.resources['lambda_functions'][keyname] = function_name
+        lambda_info = self.lambda_function.lambda_function_create(function_info)
+        function_arn = lambda_info['FunctionArn']
+        self.resources['lambda_functions'][keyname] = function_arn
         self.write_file()
 
     def create_auto_scaling_launch_configuration(self, autoscaling_launch_configuration_file, userdata_file, sg_keyname, keyname):

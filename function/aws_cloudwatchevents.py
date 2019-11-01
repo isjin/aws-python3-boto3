@@ -32,6 +32,16 @@ class AWSEvent(object):
         )
         print(response)
 
+    def event_rules_list(self):
+        response = self.event_client.list_rules(
+            # NamePrefix='string',
+            # EventBusName='string',
+            # NextToken='string',
+            # Limit=123
+        )
+        # print(response)
+        return response['Rules']
+
     def event_targets_by_rule_list(self, rule_name):
         response = self.event_client.list_targets_by_rule(
             Rule=rule_name,
@@ -41,77 +51,88 @@ class AWSEvent(object):
         )
         print(response)
 
-    # def event_target_put(self, rule_name, function_arn):
-    #     response = self.event_client.put_targets(
-    #         Rule=rule_name,
-    #         # EventBusName='string',
-    #         Targets=[
-    #             {
-    #                 'Id': 'cec5d3e6-8fad-4926-a1c6-613c33ae2905',
-    #                 'Arn': function_arn,
-    #                 # 'Arn': 'string',
-    #                 # 'RoleArn': 'string',
-    #                 # 'Input': 'string',
-    #                 # 'InputPath': 'string',
-    #                 # 'InputTransformer': {
-    #                 #     'InputPathsMap': {
-    #                 #         'string': 'string'
-    #                 #     },
-    #                 #     'InputTemplate': 'string'
-    #                 # },
-    #                 # 'KinesisParameters': {
-    #                 #     'PartitionKeyPath': 'string'
-    #                 # },
-    #                 # 'RunCommandParameters': {
-    #                 #     'RunCommandTargets': [
-    #                 #         {
-    #                 #             'Key': 'string',
-    #                 #             'Values': [
-    #                 #                 'string',
-    #                 #             ]
-    #                 #         },
-    #                 #     ]
-    #                 # },
-    #                 # 'EcsParameters': {
-    #                 #     'TaskDefinitionArn': 'string',
-    #                 #     'TaskCount': 123,
-    #                 #     'LaunchType': 'EC2' | 'FARGATE',
-    #                 #     'NetworkConfiguration': {
-    #                 #         'awsvpcConfiguration': {
-    #                 #             'Subnets': [
-    #                 #                 'string',
-    #                 #             ],
-    #                 #             'SecurityGroups': [
-    #                 #                 'string',
-    #                 #             ],
-    #                 #             'AssignPublicIp': 'ENABLED' | 'DISABLED'
-    #                 #         }
-    #                 #     },
-    #                 #     'PlatformVersion': 'string',
-    #                 #     'Group': 'string'
-    #                 # },
-    #                 # 'BatchParameters': {
-    #                 #     'JobDefinition': 'string',
-    #                 #     'JobName': 'string',
-    #                 #     'ArrayProperties': {
-    #                 #         'Size': 123
-    #                 #     },
-    #                 #     'RetryStrategy': {
-    #                 #         'Attempts': 123
-    #                 #     }
-    #                 # },
-    #                 # 'SqsParameters': {
-    #                 #     'MessageGroupId': 'string'
-    #                 # }
-    #             },
-    #         ]
-    #     )
-    #     print(response)
+    def event_target_put(self, target_info):
+        # target_info={
+        #     'Rule':'test',
+        #     'Targets':[
+        #         {
+        #             'Id': 'test',
+        #             'Arn': 'arn:aws-cn:lambda:cn-northwest-1:646976741397:function:clean_cloudwatch_log_groups',
+        #         },
+        #     ]
+        # }
+        response = self.event_client.put_targets(
+            Rule=target_info['Rule'],
+            # EventBusName='string',
+            Targets=target_info['Targets'],
+            # Targets=[
+            #     {
+            #         'Id': '555555312',
+            #         'Arn': function_arn,
+            #         # 'Arn': 'string',
+            #         # 'RoleArn': 'string',
+            #         # 'Input': 'string',
+            #         # 'InputPath': 'string',
+            #         # 'InputTransformer': {
+            #         #     'InputPathsMap': {
+            #         #         'string': 'string'
+            #         #     },
+            #         #     'InputTemplate': 'string'
+            #         # },
+            #         # 'KinesisParameters': {
+            #         #     'PartitionKeyPath': 'string'
+            #         # },
+            #         # 'RunCommandParameters': {
+            #         #     'RunCommandTargets': [
+            #         #         {
+            #         #             'Key': 'string',
+            #         #             'Values': [
+            #         #                 'string',
+            #         #             ]
+            #         #         },
+            #         #     ]
+            #         # },
+            #         # 'EcsParameters': {
+            #         #     'TaskDefinitionArn': 'string',
+            #         #     'TaskCount': 123,
+            #         #     'LaunchType': 'EC2' | 'FARGATE',
+            #         #     'NetworkConfiguration': {
+            #         #         'awsvpcConfiguration': {
+            #         #             'Subnets': [
+            #         #                 'string',
+            #         #             ],
+            #         #             'SecurityGroups': [
+            #         #                 'string',
+            #         #             ],
+            #         #             'AssignPublicIp': 'ENABLED' | 'DISABLED'
+            #         #         }
+            #         #     },
+            #         #     'PlatformVersion': 'string',
+            #         #     'Group': 'string'
+            #         # },
+            #         # 'BatchParameters': {
+            #         #     'JobDefinition': 'string',
+            #         #     'JobName': 'string',
+            #         #     'ArrayProperties': {
+            #         #         'Size': 123
+            #         #     },
+            #         #     'RetryStrategy': {
+            #         #         'Attempts': 123
+            #         #     }
+            #         # },
+            #         # 'SqsParameters': {
+            #         #     'MessageGroupId': 'string'
+            #         # }
+            #     },
+            # ]
+        )
+        print(response)
 
 
 if __name__ == '__main__':
     app = AWSEvent()
-    app.event_rule_put('test', 'rate(5 minutes)')
+    # app.event_rule_put('test', 'rate(24 hours)')
     # app.event_rule_describe('set_cloudwatch_status')
-    # app.event_targets_by_rule_list('cloudwatch_metrics_put_ec2')
-    # app.event_target_put('test','arn:aws-cn:lambda:cn-northwest-1:646976741397:function:test')
+    # app.event_targets_by_rule_list('test')
+    # app.event_target_put('target_info')
+    app.event_rules_list()
