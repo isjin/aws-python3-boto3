@@ -49,7 +49,8 @@ class AWSEvent(object):
             # NextToken='string',
             # Limit=123
         )
-        print(response)
+        # print(response)
+        return response['Targets']
 
     def event_target_put(self, target_info):
         # target_info={

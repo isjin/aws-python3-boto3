@@ -433,45 +433,56 @@ class GetResources(object):
             self.resources['cloudwatchevents_rules'][event_rule_keyname]['Name'] = event_rule_name
             self.resources['cloudwatchevents_rules'][event_rule_keyname]['ScheduleExpression'] = event_rule_schedule_expression
             self.resources['cloudwatchevents_rules'][event_rule_keyname]['Arn'] = event_rule_arn
+            self.get_cloudwatchevents_rule_targets(event_rule_name)
         self.write_file()
 
-    def get_cloudwatchevents_rule_targets(self):
-        pass
+    def get_cloudwatchevents_rule_targets(self, event_rule_name):
+        rule_targets_info = self.cloudwatchevent.event_targets_by_rule_list(event_rule_name)
+        dict_lenth = len(self.resources['cloudwatchevents_rule_targets'].keys())
+        for i in range(len(rule_targets_info)):
+            rule_target_info = rule_targets_info[i]
+            # print(rule_target_info)
+            rule_target_keyname = 'event_rule_target' + str(i + 1 + dict_lenth)
+            self.resources['cloudwatchevents_rule_targets'][rule_target_keyname] = {}
+            rule_target_arn = rule_target_info['Arn']
+            rule_target_id = rule_target_info['Id']
+            self.resources['cloudwatchevents_rule_targets'][rule_target_keyname]['Id'] = rule_target_id
+            self.resources['cloudwatchevents_rule_targets'][rule_target_keyname]['Arn'] = rule_target_arn
+        self.write_file()
 
     def get_lambda_triggers(self):
         pass
 
     def main(self):
-        self.get_vpcs()
-        self.get_subnets()
-        self.get_igws()
-        self.get_ngw()
-        self.get_route_tables()
-        self.get_network_acls()
-        self.get_keypairs()
-        self.get_security_groups()
-        self.get_ec2_instances()
-        self.get_eips()
-        self.get_volumes()
-        self.get_snapshots()
-        self.get_images()
-        self.get_elbs()
-        self.get_elb_target_groups()
-        self.get_auto_scaling_group()
-        self.get_auto_scaling_launch_configurations()
-        self.get_ecs_clusters()
-        self.get_ecs_task_definitions()
-        self.get_ecr_repositories()
-        self.get_cloudformations()
-        self.get_cloudwatch_dashboards()
-        self.get_cloudwatch_alarms()
-        self.get_cloudwatchevents_rules()
-        self.get_cloudwatchevents_rule_targets()
-        self.get_sns_topics()
-        self.get_sns_subscriptions()
-        self.get_rds()
-        self.get_elasticaches()
-        self.get_lambda_functions()
+        # self.get_vpcs()
+        # self.get_subnets()
+        # self.get_igws()
+        # self.get_ngw()
+        # self.get_route_tables()
+        # self.get_network_acls()
+        # self.get_keypairs()
+        # self.get_security_groups()
+        # self.get_ec2_instances()
+        # self.get_eips()
+        # self.get_volumes()
+        # self.get_snapshots()
+        # self.get_images()
+        # self.get_elbs()
+        # self.get_elb_target_groups()
+        # self.get_auto_scaling_group()
+        # self.get_auto_scaling_launch_configurations()
+        # self.get_ecs_clusters()
+        # self.get_ecs_task_definitions()
+        # self.get_ecr_repositories()
+        # self.get_cloudformations()
+        # self.get_cloudwatch_dashboards()
+        # self.get_cloudwatch_alarms()
+        # self.get_cloudwatchevents_rules()
+        # self.get_sns_topics()
+        # self.get_sns_subscriptions()
+        # self.get_rds()
+        # self.get_elasticaches()
+        # self.get_lambda_functions()
         self.get_lambda_triggers()
         os.system('python generate_resources_config.py')
 
