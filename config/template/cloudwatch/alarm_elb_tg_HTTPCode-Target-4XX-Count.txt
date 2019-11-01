@@ -11,7 +11,7 @@
   ],
   "MetricName":"HTTPCode_Target_4XX_Count",
   "Namespace":"AWS\/ApplicationELB",
-  "Statistic":"Average",
+  "Statistic":"Sum",
   "Dimensions":[
     {
       "Name":"TargetGroup",

@@ -11,7 +11,7 @@
   ],
   "MetricName":"HTTPCode_ELB_4XX_Count",
   "Namespace":"AWS\/ApplicationELB",
-  "Statistic":"Average",
+  "Statistic":"Sum",
   "Dimensions":[
     {
       "Name":"LoadBalancer",
