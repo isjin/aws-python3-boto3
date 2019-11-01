@@ -9,9 +9,9 @@
   "InsufficientDataActions":[
     
   ],
-  "MetricName":"NewConnectionCount",
+  "MetricName":"RequestCount",
   "Namespace":"AWS\/ApplicationELB",
-  "Statistic":"Average",
+  "Statistic":"Sum",
   "Dimensions":[
     {
       "Name":"LoadBalancer",
