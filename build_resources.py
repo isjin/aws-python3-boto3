@@ -1,6 +1,7 @@
 from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws_cloudwatch, aws_sns, aws_elb, aws_lambda
 from function import aws_autoscaling
 from function import aws_cloudwatchlogs
+from function import aws_cloudwatchevents
 import json
 import os
 import re
@@ -23,6 +24,7 @@ class DevopsChain(object):
         self.sns = aws_sns.AWSSNS()
         self.elb = aws_elb.AWSELB()
         self.logs = aws_cloudwatchlogs.AWSCloudWatchLogs()
+        self.event = aws_cloudwatchevents.AWSEvent()
         self.autoscaling = aws_autoscaling.AWSAutoScaling()
         self.lambda_function = aws_lambda.AWSLambda()
         self.cloudwatch = aws_cloudwatch.AWSCloudWatch()
@@ -42,6 +44,8 @@ class DevopsChain(object):
             self.resources['cloudwatch_metric_filters'] = {}
             self.resources['cloudwatch_dashboards'] = {}
             self.resources['cloudwatch_alarms'] = {}
+            self.resources['cloudwatchevents_rules'] = {}
+            self.resources['cloudwatchevents_rule_targets'] = {}
             self.resources['sns_subscriptions'] = {}
             self.resources['sns_topics'] = {}
             self.resources['ecs_clusters'] = {}
@@ -49,6 +53,7 @@ class DevopsChain(object):
             self.resources['ecs_task_definitions'] = {}
             self.resources['ecr_repositories'] = {}
             self.resources['lambda_functions'] = {}
+            self.resources['lambda_triggers'] = {}
             self.resources['rds'] = {}
             self.resources['elasticaches'] = {}
             self.resources['igws'] = {}
@@ -425,11 +430,36 @@ class DevopsChain(object):
         self.resources['autoscaling_launch_configurations'][keyname] = launcah_configuration_name
         self.write_file()
 
+    def create_cloudwatchevent_rule(self, rule_name, schedule_rule, keyname):
+        rule_arn = self.event.event_rule_put(rule_name, schedule_rule)
+        self.resources['cloudwatchevents_rules'][keyname] = rule_arn
+        self.write_file()
+
+    def put_cloudwatchevent_rule_target(self, rule_target_file, rule_name, target_id, service_type, target_keyname, keyname):
+        target_info = self.read_file(rule_target_file)
+        target_info['Rule'] = rule_name
+        target_info['Targets'][0]['Id'] = target_id
+        if target_keyname != 'none':
+            target_arn = self.resources[service_type][target_keyname]
+            target_info['Targets'][0]['Arn'] = target_arn
+        self.event.event_target_put(target_info)
+        self.resources['cloudwatchevents_rule_targets'][keyname] = target_id
+        self.write_file()
+
+    def add_lambda_trigger(self, trigger_file, trigger_type, source_arn_keyname, keyname):
+        trigger_info = self.read_file(trigger_file)
+        if source_arn_keyname != 'none':
+            source_arn = self.resources[trigger_type][source_arn_keyname]
+            trigger_info['SourceArn'] = source_arn
+        self.lambda_function.lambda_permission_add(trigger_info)
+        self.resources['lambda_triggers'][keyname]=trigger_info['StatementId']
+        self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
             if service not in ['resource', 'ecs_tasks']:
-                print("%s Start create %s." % (datetime.now(), service))
+                print("%s Start to create %s." % (datetime.now(), service))
                 for item in cf.options(service):
                     info = str(cf.get(service, item))
                     info = info.split(',')
@@ -455,6 +485,8 @@ class DevopsChain(object):
                             self.create_ecs_cluster(info[1], info[0])
                         elif service == 'lambda_functions':
                             self.create_lambda_function(info[1], info[2], info[3], info[0])
+                        elif service == 'lambda_triggers':
+                            self.add_lambda_trigger(info[1], info[2], info[3], info[0])
                         elif service == 'cloudformations':
                             cf_stack_info = self.read_file(info[1])
                             cf_parameters = str(info[3]).split(';')
@@ -506,6 +538,10 @@ class DevopsChain(object):
                             # self.get_ecs_instance_ids()
                             # print(info)
                             self.create_cloudwatch_alarm(info[1], info[2], info[3], info[4], info[5], info[0])
+                        elif service == 'cloudwatchevents_rules':
+                            self.create_cloudwatchevent_rule(info[1], info[2], info[0])
+                        elif service == 'cloudwatchevents_rule_targets':
+                            self.put_cloudwatchevent_rule_target(info[1], info[2], info[3], info[4], info[5], info[0])
                         else:
                             print("%s Service %s %s does not create because it is not in scope!" % (datetime.now(), service, item))
                 print("%s Service %s creation is done." % (datetime.now(), service))

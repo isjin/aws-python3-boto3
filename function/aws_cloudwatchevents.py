@@ -127,6 +127,7 @@ class AWSEvent(object):
             # ]
         )
         print(response)
+        return response
 
 
 if __name__ == '__main__':

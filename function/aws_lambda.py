@@ -89,8 +89,6 @@ class AWSLambda(object):
         #     'FunctionName':'clean_cloudwatch_log_groups',
         #     'StatementId':'test-Trigger-Event',
         #     'Principal':'events.amazonaws.com.cn',
-        #     # 'Principal':'events.cn-northwest-1.amazonaws.com.cn',
-        #     # 'Principal':'events.cn-north-1.amazonaws.com.cn',
         #     'SourceArn':'arn:aws-cn:events:cn-northwest-1:646976741397:rule/test',
         # }
         response = self.lambda_client.add_permission(
@@ -105,6 +103,7 @@ class AWSLambda(object):
             # RevisionId='string'
         )
         print(response)
+        return response
 
 
 

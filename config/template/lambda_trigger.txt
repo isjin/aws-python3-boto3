@@ -1,0 +1,6 @@
+{
+  "FunctionName":"test",
+  "StatementId":"test-Trigger-Event",
+  "Principal":"events.amazonaws.com.cn",
+  "SourceArn":"arn:aws-cn:events:cn-northwest-1:646976741397:rule\/test"
+}

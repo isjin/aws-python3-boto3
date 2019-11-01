@@ -1,0 +1,9 @@
+{
+  "Rule":"test",
+  "Targets":[
+    {
+      "Id":"test",
+      "Arn":"arn:aws-cn:lambda:cn-northwest-1:646976741397:function:clean_cloudwatch_log_groups"
+    }
+  ]
+}
