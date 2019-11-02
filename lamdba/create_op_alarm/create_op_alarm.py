@@ -29,7 +29,7 @@ class CreateCloudwatch(object):
             {
                 'Name': 'instance-state-name',
                 'Values': [
-                    'running','pending'
+                    'running', 'pending'
                 ]
             },
         ]
@@ -98,8 +98,23 @@ class CreateCloudwatch(object):
         )
         print(response)
 
+    def ec2_instance_describe(self, instanceid):
+        response = self.ec2.describe_instances(
+            InstanceIds=[
+                instanceid,
+            ],
+        )
+        return response['Reservations']
+
     def main(self):
         instanceids = self.get_instanceids()
+        ec2_instances_other = ['i-03e49820693fec5dc', 'i-0a21499fb0912a33e']
+        for instanceid in ec2_instances_other:
+            try:
+                self.ec2_instance_describe(instanceid)
+                instanceids.append(instanceid)
+            except Exception as e:
+                print(e.__str__())
         metric_files = os.listdir('template')
         # compare instanceid and delete old alarm
         self.s3.meta.client.download_file(self.s3_bucket, self.s3_file_path, self.file_path)
@@ -128,7 +143,6 @@ class CreateCloudwatch(object):
                 for metric_file in metric_files:
                     file_path = os.path.join('template', metric_file)
                     self.create_cloudwatch_alarm(file_path, instanceid)
-
 
 # if __name__ == '__main__':
 #     app = CreateCloudwatch()
