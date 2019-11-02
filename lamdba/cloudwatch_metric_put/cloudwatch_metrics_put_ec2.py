@@ -78,6 +78,6 @@ class MetricEC2(object):
             self.cloudwatch_metric_data_put(metric_data_put)
 
 
-if __name__ == '__main__':
-    app = MetricEC2()
-    app.main()
+# if __name__ == '__main__':
+#     app = MetricEC2()
+#     app.main()
