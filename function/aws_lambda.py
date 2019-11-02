@@ -120,5 +120,5 @@ if __name__ == '__main__':
     #     'ZipFile':{'ZipFile':zipped_code},
     # }
     # app.lambda_function_create(function_info)
-    # app.lambda_function_get('confirm_subscriptions')
-    app.lambda_permission_add()
+    app.lambda_function_get('update_infra_overview_dashboard')
+    # app.lambda_permission_add()

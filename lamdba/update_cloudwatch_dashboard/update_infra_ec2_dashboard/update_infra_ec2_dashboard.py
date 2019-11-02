@@ -70,8 +70,23 @@ class CreateCloudwatch(object):
             widgets.append(service_content)
         return widgets
 
+    def ec2_instance_describe(self, instanceid):
+        response = self.ec2.describe_instances(
+            InstanceIds=[
+                instanceid,
+            ],
+        )
+        return response['Reservations']
+
     def main(self):
         instanceids = self.get_instanceids()
+        instanceids_other = ['i-03e49820693fec5dc','i-0a21499fb0912a33e']
+        for instanceid in instanceids_other:
+            try:
+                self.ec2_instance_describe(instanceid)
+                instanceids.append(instanceid)
+            except Exception as e:
+                print(e.__str__())
         dashboard_info = self.read_file(self.dashboard_file)
         # print(dashboard_info)
         widgets = []

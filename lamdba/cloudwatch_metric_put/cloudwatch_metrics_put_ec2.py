@@ -33,6 +33,14 @@ class MetricEC2(object):
         )
         return response['Reservations']
 
+    def ec2_instance_describe(self, instanceid):
+        response = self.ec2_client.describe_instances(
+            InstanceIds=[
+                instanceid,
+            ],
+        )
+        return response['Reservations']
+
     @staticmethod
     def read_file(path):
         f = open(path, 'r')
@@ -45,9 +53,17 @@ class MetricEC2(object):
         metric_data_put = self.read_file(self.metric_data_template)
         metric_data_put['Namespace'] = 'EC2'
         ec2_instances_info = self.ec2_instances_describe()
+        ec2_instances_other = ['i-03e49820693fec5dc', 'i-0a21499fb0912a33e']
+        for instanceid in ec2_instances_other:
+            try:
+                instance_info = self.ec2_instance_describe(instanceid)
+                ec2_instances_info = ec2_instances_info+instance_info
+            except Exception as e:
+                print(e.__str__())
         ec2_instance_count = len(ec2_instances_info)
         ec2_instance_running_count = 0
         ec2_instance_stopped_count = 0
+
         for ec2_instance_info in ec2_instances_info:
             status = ec2_instance_info['Instances'][0]['State']['Name']
             if status == "running":
@@ -60,3 +76,8 @@ class MetricEC2(object):
         for metric_data in self.metric_data:
             metric_data_put['MetricData'] = [metric_data]
             self.cloudwatch_metric_data_put(metric_data_put)
+
+
+if __name__ == '__main__':
+    app = MetricEC2()
+    app.main()
