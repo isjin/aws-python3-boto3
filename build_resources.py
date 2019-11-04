@@ -2,6 +2,7 @@ from function import aws_ec2, aws_iam, aws_cloudformation, aws_ecs, aws_ecr, aws
 from function import aws_autoscaling
 from function import aws_cloudwatchlogs
 from function import aws_cloudwatchevents
+from function import aws_s3
 import json
 import os
 import re
@@ -23,6 +24,7 @@ class DevopsChain(object):
         self.ecr = aws_ecr.AWSECR()
         self.sns = aws_sns.AWSSNS()
         self.elb = aws_elb.AWSELB()
+        self.s3 = aws_s3.AWSS3()
         self.logs = aws_cloudwatchlogs.AWSCloudWatchLogs()
         self.event = aws_cloudwatchevents.AWSEvent()
         self.autoscaling = aws_autoscaling.AWSAutoScaling()
@@ -74,6 +76,7 @@ class DevopsChain(object):
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
+            self.resources['s3_buckets'] = {}
             self.write_file()
 
     @staticmethod
@@ -455,6 +458,13 @@ class DevopsChain(object):
         self.resources['lambda_triggers'][keyname] = trigger_info['StatementId']
         self.write_file()
 
+    def create_s3_bucket(self, bucket_file, keyname):
+        bucket_info = self.read_file(bucket_file)
+        bucket_name = bucket_info['Bucket']
+        self.s3.s3_bucket_create(bucket_info)
+        self.resources['s3_buckets'][keyname] = bucket_name
+        self.write_file()
+
     def main(self):
         for service in cf.sections():
             service = str(service)
@@ -469,6 +479,8 @@ class DevopsChain(object):
                     elif info[0] not in self.resources[service].keys():
                         if service == 'vpcs':
                             self.create_vpc(info[1], info[0])
+                        if service == "s3_buckets":
+                            self.create_s3_bucket(info[1], info[0])
                         elif service == 'subnets':
                             self.create_subnet(info[1], info[0], info[2])
                         elif service == 'igws':

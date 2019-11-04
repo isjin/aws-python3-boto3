@@ -1,0 +1,5 @@
+{
+  "ACL":"private",
+  "Bucket":"sanofitest",
+  "LocationConstraint":"cn-northwest-1"
+}

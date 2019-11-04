@@ -1,6 +1,7 @@
 from function import aws_ec2, aws_ecs, aws_ecr, aws_cloudformation, aws_sns, aws_cloudwatch, aws_rds, aws_elb, aws_elasticache, aws_lambda
 from function import aws_autoscaling
 from function import aws_cloudwatchevents
+from function import aws_s3
 import json
 import os
 
@@ -16,6 +17,7 @@ class GetResources(object):
         self.ecs = aws_ecs.AWSECS()
         self.ecr = aws_ecr.AWSECR()
         self.elb = aws_elb.AWSELB()
+        self.s3 = aws_s3.AWSS3()
         self.autoscaling = aws_autoscaling.AWSAutoScaling()
         self.lambda_function = aws_lambda.AWSLambda()
         self.elasticache = aws_elasticache.AWSElastiCache()
@@ -71,6 +73,7 @@ class GetResources(object):
             self.resources['security_groups'] = {}
             self.resources['subnets'] = {}
             self.resources['vpcs'] = {}
+            self.resources['s3_buckets'] = {}
             self.write_file()
 
     @staticmethod
@@ -469,6 +472,16 @@ class GetResources(object):
             self.resources['lambda_triggers'][trigger_keyname]['Sid'] = trigger_id
         self.write_file()
 
+    def get_s3_buckets(self):
+        s3_buckets_info = self.s3.s3_buckets_list()
+        for i in range(len(s3_buckets_info)):
+            s3_bucket_info = s3_buckets_info[i]
+            s3_bucket_keyname = 'bucket' + str(i + 1)
+            s3_bucket_name = s3_bucket_info['Name']
+            self.resources['s3_buckets'][s3_bucket_keyname] = {}
+            self.resources['s3_buckets'][s3_bucket_keyname]['Name'] = s3_bucket_name
+        self.write_file()
+
     def main(self):
         self.get_vpcs()
         self.get_subnets()
@@ -500,6 +513,7 @@ class GetResources(object):
         self.get_elasticaches()
         self.get_lambda_functions()
         self.get_lambda_triggers()
+        self.get_s3_buckets()
         os.system('python generate_resources_config.py')
 
 

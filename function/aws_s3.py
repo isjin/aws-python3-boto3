@@ -5,12 +5,12 @@ class AWSS3(object):
     def __init__(self):
         self.s3_client = boto3.client('s3')
 
-    def s3_bucket_create(self):
-        bucket_info = {
-            'ACL': 'private',
-            'Bucket': 'jlrtest',
-            'LocationConstraint': 'cn-north-1',
-        }
+    def s3_bucket_create(self,bucket_info):
+        # bucket_info = {
+        #     'ACL': 'private',
+        #     'Bucket': 'jlrtest',
+        #     'LocationConstraint': 'cn-north-1',
+        # }
         response = self.s3_client.create_bucket(
             # ACL='private' | 'public-read' | 'public-read-write' | 'authenticated-read',
             ACL=bucket_info['ACL'],
@@ -38,7 +38,7 @@ class AWSS3(object):
         # print(response)
         return response['Buckets']
 
-    def s3_objects_list(self,bucket_name):
+    def s3_objects_list(self, bucket_name):
         response = self.s3_client.list_objects(
             Bucket=bucket_name,
             # Delimiter='string',
