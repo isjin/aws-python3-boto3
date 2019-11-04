@@ -74,7 +74,7 @@ class AWSLambda(object):
         )
         print(response)
 
-    def lambda_funciton_configuration_get(self,fuction_name):
+    def lambda_funciton_configuration_get(self, fuction_name):
         response = self.lambda_client.get_function_configuration(
             FunctionName=fuction_name,
             # Qualifier='string'
@@ -92,7 +92,7 @@ class AWSLambda(object):
         # print(response)
         return response['Functions']
 
-    def lambda_permission_add(self,permission_info):
+    def lambda_permission_add(self, permission_info):
         # permission_info={
         #     'FunctionName':'clean_cloudwatch_log_groups',
         #     'StatementId':'test-Trigger-Event',
@@ -113,14 +113,13 @@ class AWSLambda(object):
         print(response)
         return response
 
-    def lambda_policy_get(self,function_name):
+    def lambda_policy_get(self, function_name):
         response = self.lambda_client.get_policy(
             FunctionName=function_name,
             # Qualifier='string'
         )
         # print(response)
         return response['Policy']
-
 
 
 if __name__ == '__main__':

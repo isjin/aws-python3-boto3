@@ -452,7 +452,7 @@ class DevopsChain(object):
             source_arn = self.resources[trigger_type][source_arn_keyname]
             trigger_info['SourceArn'] = source_arn
         self.lambda_function.lambda_permission_add(trigger_info)
-        self.resources['lambda_triggers'][keyname]=trigger_info['StatementId']
+        self.resources['lambda_triggers'][keyname] = trigger_info['StatementId']
         self.write_file()
 
     def main(self):
