@@ -5,7 +5,7 @@ class AWSS3(object):
     def __init__(self):
         self.s3_client = boto3.client('s3')
 
-    def s3_bucket_create(self,bucket_info):
+    def s3_bucket_create(self, bucket_info):
         # bucket_info = {
         #     'ACL': 'private',
         #     'Bucket': 'jlrtest',
