@@ -74,6 +74,14 @@ class AWSLambda(object):
         )
         print(response)
 
+    def lambda_funciton_configuration_get(self,fuction_name):
+        response = self.lambda_client.get_function_configuration(
+            FunctionName=fuction_name,
+            # Qualifier='string'
+        )
+        print(response)
+        return response
+
     def lambda_functions_list(self):
         response = self.lambda_client.list_functions(
             # MasterRegion='string',
@@ -105,6 +113,14 @@ class AWSLambda(object):
         print(response)
         return response
 
+    def lambda_policy_get(self,function_name):
+        response = self.lambda_client.get_policy(
+            FunctionName=function_name,
+            # Qualifier='string'
+        )
+        # print(response)
+        return response['Policy']
+
 
 
 if __name__ == '__main__':
@@ -120,5 +136,7 @@ if __name__ == '__main__':
     #     'ZipFile':{'ZipFile':zipped_code},
     # }
     # app.lambda_function_create(function_info)
-    app.lambda_function_get('update_infra_overview_dashboard')
+    # app.lambda_function_get('update_infra_overview_dashboard')
+    # app.lambda_funciton_configuration_get('update_infra_overview_dashboard')
+    app.lambda_policy_get('cloudwatch_metrics_put_rds')
     # app.lambda_permission_add()

@@ -451,38 +451,54 @@ class GetResources(object):
         self.write_file()
 
     def get_lambda_triggers(self):
-        pass
+        triggers_info = []
+        lambda_functions_list = self.lambda_function.lambda_functions_list()
+        for lambda_function in lambda_functions_list:
+            lambda_function_name = lambda_function['FunctionName']
+            trigger_info = self.lambda_function.lambda_policy_get(lambda_function_name)
+            trigger_info = json.loads(trigger_info)
+            statement = trigger_info['Statement']
+            triggers_info = triggers_info + statement
+        for i in range(len(triggers_info)):
+            trigger_info = triggers_info[i]
+            trigger_keyname = 'trigger' + str(i + 1)
+            self.resources['lambda_triggers'][trigger_keyname] = {}
+            trigger_id = trigger_info['Sid']
+            trigger_service = trigger_info['Principal']['Service']
+            self.resources['lambda_triggers'][trigger_keyname]['Service'] = trigger_service
+            self.resources['lambda_triggers'][trigger_keyname]['Sid'] = trigger_id
+        self.write_file()
 
     def main(self):
-        # self.get_vpcs()
-        # self.get_subnets()
-        # self.get_igws()
-        # self.get_ngw()
-        # self.get_route_tables()
-        # self.get_network_acls()
-        # self.get_keypairs()
-        # self.get_security_groups()
-        # self.get_ec2_instances()
-        # self.get_eips()
-        # self.get_volumes()
-        # self.get_snapshots()
-        # self.get_images()
-        # self.get_elbs()
-        # self.get_elb_target_groups()
-        # self.get_auto_scaling_group()
-        # self.get_auto_scaling_launch_configurations()
-        # self.get_ecs_clusters()
-        # self.get_ecs_task_definitions()
-        # self.get_ecr_repositories()
-        # self.get_cloudformations()
-        # self.get_cloudwatch_dashboards()
-        # self.get_cloudwatch_alarms()
-        # self.get_cloudwatchevents_rules()
-        # self.get_sns_topics()
-        # self.get_sns_subscriptions()
-        # self.get_rds()
-        # self.get_elasticaches()
-        # self.get_lambda_functions()
+        self.get_vpcs()
+        self.get_subnets()
+        self.get_igws()
+        self.get_ngw()
+        self.get_route_tables()
+        self.get_network_acls()
+        self.get_keypairs()
+        self.get_security_groups()
+        self.get_ec2_instances()
+        self.get_eips()
+        self.get_volumes()
+        self.get_snapshots()
+        self.get_images()
+        self.get_elbs()
+        self.get_elb_target_groups()
+        self.get_auto_scaling_group()
+        self.get_auto_scaling_launch_configurations()
+        self.get_ecs_clusters()
+        self.get_ecs_task_definitions()
+        self.get_ecr_repositories()
+        self.get_cloudformations()
+        self.get_cloudwatch_dashboards()
+        self.get_cloudwatch_alarms()
+        self.get_cloudwatchevents_rules()
+        self.get_sns_topics()
+        self.get_sns_subscriptions()
+        self.get_rds()
+        self.get_elasticaches()
+        self.get_lambda_functions()
         self.get_lambda_triggers()
         os.system('python generate_resources_config.py')
 
