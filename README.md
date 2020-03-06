@@ -1,4 +1,4 @@
-# Python 3.6
+# Python 3.8
 # Install AWS cli tool.
 pip install awscli
 # Install boto3 module, the version is 1.9.130.
