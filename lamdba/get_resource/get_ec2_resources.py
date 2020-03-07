@@ -116,7 +116,7 @@ class GetResources(object):
             # ec2_ena_support = ec2_instance_info['EnaSupport']
             # ec2_hypervisor = ec2_instance_info['Hypervisor']
             # ec2_virtualizationtype = ec2_instance_info['VirtualizationType']
-            ec2_instance_name = ''
+            ec2_instance_name = None
             for tag in ec2_instance_info['Tags']:
                 if tag['Key'] == 'Name':
                     ec2_instance_name = tag['Value']
@@ -186,6 +186,6 @@ class GetResources(object):
         self.s3.meta.client.upload_file(self.file_path, self.s3_bucket, self.s3_file_path)
 
 
-# if __name__ == '__main__':
-#     app = GetResources()
-#     app.main()
+if __name__ == '__main__':
+    app = GetResources()
+    app.main()

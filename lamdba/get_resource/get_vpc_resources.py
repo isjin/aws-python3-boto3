@@ -26,7 +26,7 @@ class GetResources(object):
 
     @staticmethod
     def write_file(path, data):
-        data = json.dumps(data, sort_keys=True, indent=4)
+        data = json.dumps(data, sort_keys=False, indent=4)
         f = open(path, 'w', encoding='utf-8')
         f.write(data)
         f.close()
@@ -45,7 +45,7 @@ class GetResources(object):
         return response['Subnets']
 
     def get_subnets_info(self, vpcid):
-        filter = [
+        filters = [
             {
                 'Name': 'vpc-id',
                 'Values': [
@@ -53,26 +53,26 @@ class GetResources(object):
                 ]
             },
         ]
-        subnets_info = self.ec2_subnets_describe(filter)
-        total_subnets_info = []
+        subnets_info = self.ec2_subnets_describe(filters)
+        new_subnets_info = []
         for subnet_info in subnets_info:
             ec2_subnet_id = subnet_info['SubnetId']
-            ec2_subnet_CidrBlock = subnet_info['CidrBlock']
-            ec2_subnet_availability_zone = subnet_info['AvailabilityZone']
-            ec2_subnet_name = ""
+            ec2_subnet_cidrblock = subnet_info['CidrBlock']
+            # ec2_subnet_availability_zone = subnet_info['AvailabilityZone']
+            ec2_subnet_name = None
             if "Tags" in subnet_info.keys():
                 for tag in subnet_info['Tags']:
                     if tag['Key'] == 'Name':
                         ec2_subnet_name = tag['Value']
-            total_subnets_info.append(
+            new_subnets_info.append(
                 {
                     'SubnetId': ec2_subnet_id,
-                    'CidrBlock': ec2_subnet_CidrBlock,
-                    'AvailabilityZone': ec2_subnet_availability_zone,
-                    'Name': ec2_subnet_name,
+                    'SubnetName': ec2_subnet_name,
+                    'CidrBlock': ec2_subnet_cidrblock,
+                    # 'AvailabilityZone': ec2_subnet_availability_zone,
                 }
             )
-        return total_subnets_info
+        return new_subnets_info
 
     def get_nat_gateways_info(self):
         pass
@@ -80,8 +80,38 @@ class GetResources(object):
     def get_internet_gateways_info(self):
         pass
 
-    def get_route_tables_info(self):
-        pass
+    def ec2_route_tables_describe(self, filters):
+        response = self.ec2.describe_route_tables(
+            Filters=filters
+        )
+        return response['RouteTables']
+
+    def get_route_tables_info(self, vpcid):
+        new_route_tables_info = []
+        filters = [
+            {
+                'Name': 'vpc-id',
+                'Values': [
+                    vpcid,
+                ]
+            },
+        ]
+        route_tables_info = self.ec2_route_tables_describe(filters)
+        for route_table_info in route_tables_info:
+            print(route_table_info)
+            ec2_route_table_id = route_table_info['RouteTableId']
+            ec2_route_table_name=None
+            if "Tags" in route_table_info.keys():
+                for tag in route_table_info['Tags']:
+                    if tag['Key'] == 'Name':
+                        ec2_route_table_name = tag['Value']
+            new_route_tables_info.append(
+                {
+                    'RouteTableId':ec2_route_table_id,
+                    'RouteTableName':ec2_route_table_name,
+                }
+            )
+        return new_route_tables_info
 
     def get_peering_connection_info(self):
         pass
@@ -92,22 +122,24 @@ class GetResources(object):
         for vpc_info in vpcs_info:
             ec2_vpc_id = vpc_info['VpcId']
             ec2_vpc_cidr = vpc_info['CidrBlock']
-            ec2_vpc_name = ''
+            ec2_vpc_name = None
             if "Tags" in vpc_info.keys():
                 for tag in vpc_info['Tags']:
                     if tag['Key'] == 'Name':
                         ec2_vpc_name = tag['Value']
             subnets_info = self.get_subnets_info(ec2_vpc_id)
+            route_tables_info = self.get_route_tables_info(ec2_vpc_id)
             total_infos.append(
                 {
                     'VpcId': ec2_vpc_id,
+                    'VpcName': ec2_vpc_name,
                     'CidrBlock': ec2_vpc_cidr,
-                    'Name': ec2_vpc_name,
-                    'subnets': subnets_info,
+                    'Subnets': subnets_info,
+                    'RouteTables': route_tables_info
                 }
             )
-        print(total_infos)
-        # self.write_file(self.file_path,total_infos)
+        # print(total_infos)
+        self.write_file(self.file_path, total_infos)
         # self.s3.meta.client.upload_file(self.file_path, self.s3_bucket, self.s3_file_path)
 
 
